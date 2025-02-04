@@ -7,17 +7,11 @@
 	<body>
 		<div id="root"></div>
 	</body>
+	  <script type="application/javascript" src="https://unpkg.com/react@18.3.0/umd/react.production.min.js"></script>
+  <script type="application/javascript" src="https://unpkg.com/react-dom@18.3.0/umd/react-dom.production.min.js"></script>
 	<script defer>
-		let exports = {};
-		let require = (...x) => (console.log("require", x), exports);
-		let React = exports;
-		let ReactDOM = exports;
-	</script>
-	<script type="module" src="node_modules/react/cjs/react.production.js" defer></script>
-	<script type="module" src="node_modules/scheduler/cjs/scheduler.production.js" defer></script>
-	<script type="module" src="node_modules/react-dom/cjs/react-dom.production.js" defer></script>
-	<script type="module" src="node_modules/react-dom/cjs/react-dom-client.production.js" defer></script>
-	<script type="module" defer>
+const React = this.React;
+const ReactDOM = this.ReactDOM;
 const e = React.createElement;
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
