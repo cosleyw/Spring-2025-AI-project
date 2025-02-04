@@ -1,0 +1,26 @@
+<!Doctype html>
+<html>
+	<head>
+		<title>course scheduler</title>
+		<link rel="icon" href="assets/favicon.svg" sizes="any" type="image/svg+xml"></link>
+	</head>
+	<body>
+		<div id="root"></div>
+	</body>
+	<script defer>
+		let exports = {};
+		let require = (...x) => (console.log("require", x), exports);
+		let React = exports;
+		let ReactDOM = exports;
+	</script>
+	<script type="module" src="node_modules/react/cjs/react.production.js" defer></script>
+	<script type="module" src="node_modules/scheduler/cjs/scheduler.production.js" defer></script>
+	<script type="module" src="node_modules/react-dom/cjs/react-dom.production.js" defer></script>
+	<script type="module" src="node_modules/react-dom/cjs/react-dom-client.production.js" defer></script>
+	<script type="module" defer>
+const e = React.createElement;
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(e('div', null, 'Hello World'));
+	</script>
+</html>
