@@ -1,0 +1,24 @@
+{
+    "courses": [
+        {
+            "name": "Intro to computing",
+            "id": 1
+        },
+        {
+            "name": "Artificial Intelligence",
+            "id": 2
+        },
+        {
+            "name": "Networking",
+            "id": 3
+        },
+        {
+            "name": "Operating Systems",
+            "id": 4
+        },
+        {
+            "name": "Intelligent Systems",
+            "id": 5
+        }
+    ]
+}
