@@ -2,23 +2,59 @@
     "courses": [
         {
             "name": "Intro to computing",
-            "id": 1
+            "id": 1,
+            "credits": 3,
+            "requirements": {},
+            "credits_repeatable_for": 3,
+            "season": "FALL"
         },
         {
             "name": "Artificial Intelligence",
-            "id": 2
+            "id": 2,
+            "credits": 3,
+            "requirements": {
+                "type": "AND",
+                "items": [
+                    {
+                        "type": "PRE",
+                        "value": 1
+                    }, {
+                        "type": "RANK",
+                        "value": "SR"
+                    }
+                ]
+            },
+            "season": "VARIES"
         },
         {
             "name": "Networking",
-            "id": 3
+            "id": 3,
+            "credits": 3,
+            "requirements": {
+                "type": "PRE",
+                "value": 1
+            },
+            "season": "VARIES"
         },
         {
             "name": "Operating Systems",
-            "id": 4
+            "id": 4,
+            "credits": 3,
+            "requirements": {
+                "type": "PRE",
+                "value": 1
+            },
+            "season": "EVEN_SPRING"
         },
         {
             "name": "Intelligent Systems",
-            "id": 5
+            "id": 5,
+            "credits": 3,
+            "requirements": {
+                "type": "CO",
+                "value": 2
+            },
+            "season": "FALL_AND_SPRING"
         }
     ]
 }
