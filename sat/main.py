@@ -100,6 +100,9 @@ class Course(metaclass=IterableCourse):
 
         Course.courses[self._id] = self
 
+    def get_name(self) -> str:
+        return self._name
+
     def get_refs(self) -> list[BoolRef]:
         return self._refs
 
@@ -122,6 +125,16 @@ class Course(metaclass=IterableCourse):
         if not isinstance(formula, BoolRef):
             raise TypeError("Expected id at semester to be a BoolRef")
         return formula
+
+    def apply_cnf(self, solver: Optimize) -> None:
+        self._add_repeatable_requirement(solver)
+
+    def _add_repeatable_requirement(self, solver: Optimize) -> None:
+        if self._credits_repeatable_for is None:
+            # If not stated otherwise, assume course can be taken at most once
+            solver.add(sum(self._refs) <= 1)
+        else:
+            solver.add(sum([self._credits * ref for ref in self._refs]) <= self._credits_repeatable_for)
 
     def __str__(self) -> str:
         return f"{self._id}:{self._name}:{','.join([str(x) for x in self._refs])}"
@@ -149,7 +162,8 @@ class CourseSATSolver:
         self.solver = Optimize()
 
         for course in Course:
-            print(course)
+            print(f"Applying cnf for {course.get_name()}...")
+            course.apply_cnf(self.solver)
 
     def add_degree_reqs(self) -> None:
         self.solver.add(Or(Course.by_id(2).get_refs()))
