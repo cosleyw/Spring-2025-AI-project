@@ -1,9 +1,9 @@
+from enum import StrEnum
 import json
-from os import path
-from typing import Any, Generator, cast, override
+from typing import Any, Generator, TypeVar, override
 
 from typeguard import typechecked
-from z3.z3 import Bool, BoolRef, ModelRef, Not, Optimize, Or, And, sat  # type: ignore[import-untyped]
+from z3.z3 import And, Bool, BoolRef, ModelRef, Not, Optimize, Or, sat
 
 from config import COURSES_FILE_NAME
 
@@ -12,19 +12,39 @@ from config import COURSES_FILE_NAME
 ##########################
 # These will all be taken as input from the user
 semester_count = 2  # Number of semester to calculate for
-min_credit_per_semester = 7  # Minimum credits (inclusive)
+min_credit_per_semester = 6  # Minimum credits (inclusive)
 max_credits_per_semester = 12  # Maximum credits (inclusive)
-# TODO: Implement seasons
-# starts_as_fall = True
-# start_year = 2025
+starts_as_fall = True
+start_year = 2025
 transferred_course_ids: list[str] = ["CS1410", "CS1510"]
 desired_course_ids: list[str] = ["CS2150", "CS4620/5620"]
-# TODO: Implement ranks
-# first_semester_junior: int | None = 1
-# first_semester_senior: int | None = 2
+first_semester_junior: int | None = 1
+first_semester_senior: int | None = 2
+first_semester_graduate: int | None = None
+first_semester_doctoral: int | None = None
 ########################
 ### END CONFIG VARIABLES
 ########################
+
+
+@typechecked
+class Offering(StrEnum):
+    FALL = "FALL"
+    SPRING = "SPRING"
+    FALL_AND_SPRING = "FALL_AND_SPRING"
+    VARIABLE = "VARIABLE"
+    EVEN_FALL = "EVEN_FALL"
+    ODD_FALL = "ODD_FALL"
+    EVEN_SPRING = "EVEN_SPRING"
+    ODD_SPRING = "ODD_SPRING"
+
+
+T = TypeVar("T")
+
+
+@typechecked
+def rotate(lst: list[T], n: int) -> list[T]:
+    return lst[-n:] + lst[:-n]
 
 
 @typechecked
@@ -58,6 +78,45 @@ class RefManager:
         return default_return
 
 
+@typechecked
+class Rank:
+    # first_semester_with_rank of None is intepreted as you never become the rank
+    # first_semester_with_rank of 0 is intepreted as you start with the rank
+    def __init__(self, name: str, first_semester_with_rank: int | None):
+        self._name: str = name
+        self._first_semester_with_rank: int | None = first_semester_with_rank
+        self._refs: list[BoolRef] = []
+        for _ in range(semester_count):
+            self._refs.append(RefManager.allocate(self))
+
+        if (first_semester_with_rank is not None) and (first_semester_with_rank < 1 or first_semester_with_rank > semester_count):
+            raise ValueError(f"Cannot start semester with rank {name} cannot be before first semester or after last semester. Set as None if never reached, and 0 is instantly reached.")
+
+    def at(self, semester: int) -> BoolRef:
+        if semester < 1 or semester > semester_count:
+            raise ValueError(f"Cannot check for rank {self._name} during semester below 1 or above {semester_count}")
+        return self._refs[semester - 1]
+
+    def generate_bootstrap(self) -> list[BoolRef]:
+        requirements: list[BoolRef] = []
+
+        if self._first_semester_with_rank is None:
+            offset = semester_count
+        else:
+            offset = self._first_semester_with_rank - 1
+
+        for rank in self._refs[offset:]:
+            requirements.append(rank)
+        for not_rank in self._refs[:offset]:
+            requirements.append(Not(not_rank))
+
+        return requirements
+
+    @override
+    def __str__(self) -> str:
+        return f"{self._name}:{','.join([str(ref) for ref in self._refs])}"
+
+
 # A metaclass to allow easy iteration over created courses
 # https://stackoverflow.com/questions/32362148/typeerror-type-object-is-not-iterable-iterating-over-object-instances
 # TODO: Technically, this might have a memory leak
@@ -85,7 +144,7 @@ class Course(metaclass=IterableCourse):
         name: str,
         id: Any,
         credits: int,
-        season: Any,  # TODO: Deal with this
+        season: Offering | str,  # TODO: Deal with this
         requirements: Any = {},
         credits_repeatable_for: int | None = None,
     ):
@@ -94,6 +153,7 @@ class Course(metaclass=IterableCourse):
         self._requirements: Any = requirements
         self._credits: int = credits
         self._credits_repeatable_for: int | None = credits_repeatable_for
+        self._season: Offering = Offering(season)
         self._refs: list[BoolRef] = []
         for _ in range(Course.semester_count + 1):  # +1 because allows a slot for transfer credits
             self._refs.append(RefManager.allocate(self))
@@ -127,12 +187,13 @@ class Course(metaclass=IterableCourse):
         if end_semester < start_semester:
             raise ValueError(f"Cannot check for rank {self._name} with end semester before start semester")
 
-        formula = Or(*self._refs[start_semester : end_semester + 1])
+        formula = Or(self._refs[start_semester : end_semester + 1])
         if not isinstance(formula, BoolRef):
             raise TypeError("Expected id at semester to be a BoolRef")
         return formula
 
     def apply_cnf(self, solver: Optimize) -> None:
+        solver.add(self.generate_seasonal_requirements())
         self._add_repeatable_requirement(solver)
 
     def _add_repeatable_requirement(self, solver: Optimize) -> None:
@@ -142,8 +203,44 @@ class Course(metaclass=IterableCourse):
         else:
             solver.add(sum([self._credits * ref for ref in self._refs]) <= self._credits_repeatable_for)
 
+    def generate_seasonal_requirements(self) -> Any:
+        # Format is: ODD FALL, EVEN SPRING, EVEN FALL, ODD SPRING
+        # Then gets rotates if needed
+        offering_list: list[bool]
+
+        match self._season:
+            case Offering.FALL:
+                offering_list = [True, False, True, False]
+            case Offering.ODD_FALL:
+                offering_list = [True, False, False, False]
+            case Offering.EVEN_FALL:
+                offering_list = [False, False, True, False]
+            case Offering.SPRING:
+                offering_list = [False, True, False, True]
+            case Offering.ODD_SPRING:
+                offering_list = [False, False, False, True]
+            case Offering.EVEN_SPRING:
+                offering_list = [False, True, False, False]
+            case Offering.FALL_AND_SPRING | Offering.VARIABLE:
+                offering_list = [True, True, True, True]
+
+        # Going from starting fall to starting spring = 1 rotation
+        # Going from odd starting year to even = 2 rotation
+        if not starts_as_fall:
+            offering_list = rotate(offering_list, 1)
+        if start_year % 2 == 0:  # even starting year
+            offering_list = rotate(offering_list, 2)
+
+        not_offered_seasons: list[BoolRef] = []
+        # Basically, require not taken when not offered
+        for semester in range(1, Course.semester_count + 1):
+            if not offering_list[(semester - 1) % 4]:
+                not_offered_seasons.append(Not(self.at(semester)))
+
+        return And(not_offered_seasons)
+
     def __str__(self) -> str:
-        return f"{self._id}:{self._name}:{','.join([str(x) for x in self._refs])}"
+        return f"{self._id}:{self._name}:{','.join([str(ref) for ref in self._refs])}"
 
 
 @typechecked
@@ -153,12 +250,24 @@ class CourseSATSolver:
         semester_count: int,
         min_credit_per_semester: int,
         max_credits_per_semester: int,
+        starts_as_fall: bool,
+        start_year: int,
+        first_semester_junior: int | None,
+        first_semester_senior: int | None,
+        first_semester_graduate: int | None,
+        first_semester_doctoral: int | None,
         desired_course_ids: list[str],
     ):
         Course.semester_count = semester_count
         self.courses: list[Course] = load_courses(COURSES_FILE_NAME)
         self.min_credits_per_semester: int = min_credit_per_semester
         self.max_credits_per_semester: int = max_credits_per_semester
+        self.starts_as_fall: bool = starts_as_fall
+        self.start_year: int = start_year
+        self.junior: Rank = Rank("junior", first_semester_junior)
+        self.senior: Rank = Rank("senior", first_semester_senior)
+        self.graduate: Rank = Rank("graduate", first_semester_graduate)
+        self.doctoral: Rank = Rank("doctoral", first_semester_doctoral)
         self.desired_course_ids: list[str] = desired_course_ids
         self.plan: list[list[Course]] | None = None
 
@@ -253,9 +362,25 @@ class CourseSATSolver:
             raise ValueError("CourseSATSolver needs to be solver before a plan can be displayed")
 
         for i, semester in enumerate(self.plan):
-            print(f"Semester {i}:")
+            semester_name: str
+            if i == 0:
+                semester_name = "Transferred"
+            else:
+                semester_name = self._get_semester_name(i)
+            print(f"Semester {i}: {semester_name}")
             for course in sorted(semester, key=lambda course: course.get_id()):
                 print(f"\t{course}")
+
+    def _get_semester_name(self, semester: int) -> str:
+        season: str
+        year: int
+        if self.starts_as_fall:
+            season = "Fall" if semester % 2 == 1 else "Spring"
+            year = start_year + (semester // 2)
+        else:
+            season = "Spring" if semester % 2 == 1 else "Fall"
+            year = start_year + ((semester - 1) // 2)
+        return f"{season} {year}"
 
 
 def load_courses(file_name: str) -> list[Course]:
@@ -270,6 +395,12 @@ if __name__ == "__main__":
         semester_count=semester_count,
         min_credit_per_semester=min_credit_per_semester,
         max_credits_per_semester=max_credits_per_semester,
+        first_semester_junior=first_semester_junior,
+        first_semester_senior=first_semester_senior,
+        first_semester_graduate=first_semester_graduate,
+        first_semester_doctoral=first_semester_doctoral,
+        starts_as_fall=starts_as_fall,
+        start_year=start_year,
         desired_course_ids=desired_course_ids,
     )
 
