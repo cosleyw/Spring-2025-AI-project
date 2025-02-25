@@ -50,7 +50,8 @@
       "requirements": {
         "type": "CO",
         "value": "CS1510"
-      }
+      },
+      "credits_repeatable_for": 7
     },
     {
       "name": "Introduction to Computing",

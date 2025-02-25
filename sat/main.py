@@ -100,6 +100,9 @@ class Course(metaclass=IterableCourse):
 
         Course.courses[self._id] = self
 
+    def get_id(self) -> Any:
+        return self._id
+
     def get_name(self) -> str:
         return self._name
 
@@ -165,6 +168,19 @@ class CourseSATSolver:
             print(f"Applying cnf for {course.get_name()}...")
             course.apply_cnf(self.solver)
 
+        self._add_semester_credit_requirements()
+
+    def _add_semester_credit_requirements(self) -> None:
+        for semester in range(1, semester_count + 1):
+            refs: list[BoolRef] = [course.at(semester) for course in Course]
+            weights: list[int] = [course.get_credits() for course in Course]
+
+            # Upper bound
+            self.solver.add(sum([weight * ref for weight, ref in zip(weights, refs)]) <= self.max_credits_per_semester)
+
+            # Lower bound
+            self.solver.add(sum([weight * ref for weight, ref in zip(weights, refs)]) >= self.min_credits_per_semester)
+
     def add_degree_reqs(self) -> None:
         self.solver.add(Or(Course.by_id("CS1800").get_refs()))
         self.solver.add(Or(Course.by_id("CS1520").get_refs()))
@@ -207,7 +223,7 @@ class CourseSATSolver:
 
         for i, semester in enumerate(self.plan):
             print(f"Semester {i}:")
-            for course in semester:
+            for course in sorted(semester, key=lambda course: course.get_id()):
                 print(f"\t{course}")
 
 
