@@ -3,7 +3,7 @@ from os import path
 from typing import Any, Generator, cast, override
 
 from typeguard import typechecked
-from z3.z3 import Bool, BoolRef, ModelRef, Optimize, Or, sat  # type: ignore[import-untyped]
+from z3.z3 import Bool, BoolRef, ModelRef, Not, Optimize, Or, And, sat  # type: ignore[import-untyped]
 
 from config import COURSES_FILE_NAME
 
@@ -12,13 +12,16 @@ from config import COURSES_FILE_NAME
 ##########################
 # These will all be taken as input from the user
 semester_count = 2  # Number of semester to calculate for
-min_credit_per_semester = 3  # Minimum credits (inclusive)
-max_credits_per_semester = 6  # Maximum credits (inclusive)
-starts_as_fall = True
-start_year = 2025
-transferred_course_ids: list[int] = []
-first_semester_junior: int | None = 1
-first_semester_senior: int | None = 2
+min_credit_per_semester = 7  # Minimum credits (inclusive)
+max_credits_per_semester = 12  # Maximum credits (inclusive)
+# TODO: Implement seasons
+# starts_as_fall = True
+# start_year = 2025
+transferred_course_ids: list[str] = ["CS1410", "CS1510"]
+desired_course_ids: list[str] = ["CS2150", "CS4620/5620"]
+# TODO: Implement ranks
+# first_semester_junior: int | None = 1
+# first_semester_senior: int | None = 2
 ########################
 ### END CONFIG VARIABLES
 ########################
@@ -150,11 +153,13 @@ class CourseSATSolver:
         semester_count: int,
         min_credit_per_semester: int,
         max_credits_per_semester: int,
+        desired_course_ids: list[str],
     ):
         Course.semester_count = semester_count
         self.courses: list[Course] = load_courses(COURSES_FILE_NAME)
         self.min_credits_per_semester: int = min_credit_per_semester
         self.max_credits_per_semester: int = max_credits_per_semester
+        self.desired_course_ids: list[str] = desired_course_ids
         self.plan: list[list[Course]] | None = None
 
         for course_id in transferred_course_ids:
@@ -164,11 +169,35 @@ class CourseSATSolver:
     def setup(self) -> None:
         self.solver = Optimize()
 
+        self._generate_bootstrap()
+
         for course in Course:
             print(f"Applying cnf for {course.get_name()}...")
             course.apply_cnf(self.solver)
 
+        self._add_desired_courses()
+
         self._add_semester_credit_requirements()
+
+    def _generate_bootstrap(self) -> None:
+        self._generate_transfer_bootstrap()
+
+    def _generate_transfer_bootstrap(self) -> None:
+        transfer_courses: list[BoolRef] = []
+        for course in Course:
+            if course.get_id() in transferred_course_ids:
+                transfer_courses.append(course.at(0))
+            else:
+                transfer_courses.append(Not(course.at(0)))
+        self.solver.add(And(transfer_courses))
+
+    def _add_desired_courses(self) -> None:
+        desired_courses: list[Course] = [Course.by_id(id) for id in self.desired_course_ids]
+        desired_refs: list[BoolRef] = [course.at(1, semester_count) for course in desired_courses]
+        # NOTE: This *possibly* could be made into a soft constraint if we want
+        # to return good courses even if invalid desire. Probably best to not
+        # return anything if we cannot meet all desires though
+        self.solver.add(And(desired_refs))
 
     def _add_semester_credit_requirements(self) -> None:
         for semester in range(1, semester_count + 1):
@@ -186,12 +215,14 @@ class CourseSATSolver:
         self.solver.add(Or(Course.by_id("CS1520").get_refs()))
         self.solver.add(Or(Course.by_id("CS1410").get_refs()))
 
+    # WARNING: Be careful, somethings this makes things take forever, right now
+    # it seems to be behaving itself though
     def minimize(self) -> None:
         refs = []
         for course in Course.courses.values():
             refs.extend(course.get_refs())
 
-        self.solver.maximize(sum(refs))
+        self.solver.minimize(sum(refs))
 
     def solve(self) -> None:
         self.plan = [[] for _ in range(semester_count + 1)]  # TODO: Fix the semester count here
@@ -236,9 +267,10 @@ def load_courses(file_name: str) -> list[Course]:
 
 if __name__ == "__main__":
     c: CourseSATSolver = CourseSATSolver(
-        semester_count,
-        min_credit_per_semester,
-        max_credits_per_semester,
+        semester_count=semester_count,
+        min_credit_per_semester=min_credit_per_semester,
+        max_credits_per_semester=max_credits_per_semester,
+        desired_course_ids=desired_course_ids,
     )
 
     c.setup()
