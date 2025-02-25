@@ -82,8 +82,8 @@ class Course(metaclass=IterableCourse):
         name: str,
         id: Any,
         credits: int,
-        requirements: Any,
         season: Any,  # TODO: Deal with this
+        requirements: Any = {},
         credits_repeatable_for: int | None = None,
     ):
         self._name: str = name
@@ -166,9 +166,9 @@ class CourseSATSolver:
             course.apply_cnf(self.solver)
 
     def add_degree_reqs(self) -> None:
-        self.solver.add(Or(Course.by_id(2).get_refs()))
-        self.solver.add(Or(Course.by_id(3).get_refs()))
-        self.solver.add(Or(Course.by_id(4).get_refs()))
+        self.solver.add(Or(Course.by_id("CS1800").get_refs()))
+        self.solver.add(Or(Course.by_id("CS1520").get_refs()))
+        self.solver.add(Or(Course.by_id("CS1410").get_refs()))
 
     def minimize(self) -> None:
         refs = []

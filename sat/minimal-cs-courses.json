@@ -1,0 +1,701 @@
+{
+  "courses": [
+    {
+      "name": "Computing Skills and Concepts",
+      "id": "CS1000",
+      "credits": 3,
+      "season": "FALL_AND_SPRING"
+    },
+    {
+      "name": "Modern Tools for Exploring Data",
+      "id": "CS1025",
+      "credits": 3,
+      "season": "FALL_AND_SPRING"
+    },
+    {
+      "name": "Web Development: Client-Side Coding",
+      "id": "CS1100",
+      "credits": 3,
+      "season": "FALL"
+    },
+    {
+      "name": "Media Computation",
+      "id": "CS1120",
+      "credits": 3,
+      "season": "SPRING"
+    },
+    {
+      "name": "Visual BASIC Programming",
+      "id": "CS1130",
+      "credits": 3,
+      "season": "FALL_AND_SPRING"
+    },
+    {
+      "name": "C/C++ Programming",
+      "id": "CS1160",
+      "credits": 3,
+      "season": "FALL"
+    },
+    {
+      "name": "Introductory Programming for Data Science",
+      "id": "CS1170",
+      "credits": 3,
+      "season": "FALL"
+    },
+    {
+      "name": "Computer Organization",
+      "id": "CS1410",
+      "credits": 3,
+      "season": "FALL_AND_SPRING",
+      "requirements": {
+        "type": "CO",
+        "value": "CS1510"
+      }
+    },
+    {
+      "name": "Introduction to Computing",
+      "id": "CS1510",
+      "credits": 4,
+      "season": "FALL_AND_SPRING"
+    },
+    {
+      "name": "Data Structures",
+      "id": "CS1520",
+      "credits": 4,
+      "season": "FALL_AND_SPRING",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1510"
+          },
+          {
+            "type": "CO",
+            "value": "CS1800"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Discrete Structures",
+      "id": "CS1800",
+      "credits": 3,
+      "season": "FALL_AND_SPRING",
+      "requirements": {
+        "type": "OR",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1130"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1160"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1510"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Web Development: Server-side Coding",
+      "id": "CS2100",
+      "credits": 3,
+      "season": "FALL_AND_SPRING",
+      "requirements": {
+        "type": "PRE",
+        "value": "CS1100"
+      }
+    },
+    {
+      "name": "Computing for Data Science",
+      "id": "CS2150",
+      "credits": 3,
+      "season": "SPRING",
+      "requirements": {
+        "type": "PRE",
+        "value": "CS1510"
+      }
+    },
+    {
+      "name": "Computer Architecture and Parallel Programming",
+      "id": "CS2420",
+      "credits": 3,
+      "season": "FALL",
+      "requirements": {
+        "type": "PRE",
+        "value": "CS1410"
+      }
+    },
+    {
+      "name": "Intermediate Computing",
+      "id": "CS2530",
+      "credits": 3,
+      "season": "FALL_AND_SPRING",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1510"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1520"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1800"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Software Engineering",
+      "id": "CS2720",
+      "credits": 3,
+      "season": "SPRING",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1520"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1800"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Topics in Computing",
+      "id": "CS2880",
+      "credits": 3,
+      "season": "VARIABLE"
+    },
+    {
+      "name": "Web Application Development",
+      "id": "CS3110",
+      "credits": 3,
+      "season": "VARIABLE",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1520"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1100"
+          }
+        ]
+      }
+    },
+    {
+      "name": "User Interface Design",
+      "id": "CS3120/5120",
+      "credits": 3,
+      "season": "FALL"
+    },
+    {
+      "name": "Database Systems",
+      "id": "CS3140/5140",
+      "credits": 3,
+      "season": "FALL",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1520"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1800"
+          },
+          {
+            "type": "RANK",
+            "value": "JR"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Information Storage and Retrieval",
+      "id": "CS3150/5150",
+      "credits": 3,
+      "season": "SPRING",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1520"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1800"
+          },
+          {
+            "type": "RANK",
+            "value": "JR"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Cooperative Education",
+      "id": "CS3179",
+      "credits": 1,
+      "season": "FALL_AND_SPRING"
+    },
+    {
+      "name": "Operating Systems",
+      "id": "CS3430/5430",
+      "credits": 3,
+      "season": "SPRING",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1410"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1520"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1800"
+          },
+          {
+            "type": "RANK",
+            "value": "JR"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Networking",
+      "id": "CS3470/5470",
+      "credits": 3,
+      "season": "FALL",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1410"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1520"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1800"
+          },
+          {
+            "type": "RANK",
+            "value": "JR"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Topics in Programming",
+      "id": "CS3510",
+      "credits": 1,
+      "season": "VARIABLE",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1520"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1800"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Design and Analysis of Algorithms",
+      "id": "CS3530",
+      "credits": 3,
+      "season": "FALL",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1520"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1800"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Programming Languages and Paradigms",
+      "id": "CS3540",
+      "credits": 3,
+      "season": "SPRING",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1520"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1800"
+          },
+          {
+            "type": "RANK",
+            "value": "JR"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Artificial Intelligence",
+      "id": "CS3610/5610",
+      "credits": 3,
+      "season": "FALL",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1520"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1800"
+          },
+          {
+            "type": "RANK",
+            "value": "JR"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Computational Biology",
+      "id": "CS3650/5650",
+      "credits": 3,
+      "season": "SPRING",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1520"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1800"
+          },
+          {
+            "type": "RANK",
+            "value": "JR"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Project Management",
+      "id": "CS3730/5730",
+      "credits": 1,
+      "season": "FALL_AND_SPRING",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS2530"
+          },
+          {
+            "type": "RANK",
+            "value": "JR"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Software Verification and Validation",
+      "id": "CS3750/5750",
+      "credits": 3,
+      "season": "SPRING",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1520"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1800"
+          },
+          {
+            "type": "RANK",
+            "value": "JR"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Theory of Computation",
+      "id": "CS3810/5810",
+      "credits": 3,
+      "season": "SPRING",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1800"
+          },
+          {
+            "type": "RANK",
+            "value": "JR"
+          }
+        ]
+      }
+    },
+    {
+      "name": "System Administration",
+      "id": "CS4400/5400",
+      "credits": 3,
+      "season": "SPRING",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS3470/5470"
+          },
+          {
+            "type": "RANK",
+            "value": "JR"
+          }
+        ]
+      }
+    },
+    {
+      "name": "System Security",
+      "id": "CS4410/5410",
+      "credits": 3,
+      "season": "SPRING",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS3470/5470"
+          },
+          {
+            "type": "RANK",
+            "value": "JR"
+          },
+          {
+            "type": "CO",
+            "value": "CS3730/5730"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Applied Systems Forensics",
+      "id": "CS4420",
+      "credits": 3,
+      "season": "FALL",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1410"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1520"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1800"
+          },
+          {
+            "type": "PRE",
+            "value": "CS3430/5430"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Translation of Programming Languages",
+      "id": "CS4550/5550",
+      "credits": 3,
+      "season": "FALL",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS3730/5730"
+          },
+          {
+            "type": "OR",
+            "items": [
+              {
+                "type": "PRE",
+                "value": "CS3530"
+              },
+              {
+                "type": "PRE",
+                "value": "CS3540"
+              },
+              {
+                "type": "PRE",
+                "value": "CS3810/5810"
+              }
+            ]
+          },
+          {
+            "type": "CO",
+            "value": "CS3750/5750"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Intelligent Systems",
+      "id": "CS4620/5620",
+      "credits": 3,
+      "season": "SPRING",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS2530"
+          },
+          {
+            "type": "PRE",
+            "value": "CS3610/5610"
+          },
+          {
+            "type": "RANK",
+            "value": "JR"
+          },
+          {
+            "type": "CO",
+            "value": "CS3730/5730"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Real-Time Embedded Systems",
+      "id": "CS4740/5740",
+      "credits": 3,
+      "season": "FALL",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS2530"
+          },
+          {
+            "type": "PRE",
+            "value": "CS2720"
+          },
+          {
+            "type": "RANK",
+            "value": "JR"
+          },
+          {
+            "type": "CO",
+            "value": "CS3730/5730"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Undergraduate Research in Computer Science",
+      "id": "CS4800",
+      "credits": 1,
+      "season": "FALL_AND_SPRING"
+    },
+    {
+      "name": "Topics in Computer Science",
+      "id": "CS4880/5880",
+      "credits": 3,
+      "season": "VARIABLE",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "PRE",
+            "value": "CS1520"
+          },
+          {
+            "type": "PRE",
+            "value": "CS1800"
+          },
+          {
+            "type": "RANK",
+            "value": "JR"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Database Management Systems",
+      "id": "CS6140",
+      "credits": 3,
+      "season": "VARIABLE"
+    },
+    {
+      "name": "Computer Systems",
+      "id": "CS6400",
+      "credits": 3,
+      "season": "VARIABLE"
+    },
+    {
+      "name": "Algorithms",
+      "id": "CS6500",
+      "credits": 3,
+      "season": "VARIABLE",
+      "requirements": {
+        "type": "PRE",
+        "value": "CS3530"
+      }
+    },
+    {
+      "name": "Theoretical Foundations of Computing",
+      "id": "CS6800",
+      "credits": 3,
+      "season": "VARIABLE",
+      "requirements": {
+        "type": "PRE",
+        "value": "CS3810/5810"
+      }
+    }
+  ]
+}
