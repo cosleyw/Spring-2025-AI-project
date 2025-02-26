@@ -3,7 +3,7 @@ import json
 from typing import Any, Generator, TypeVar, override
 
 from typeguard import typechecked
-from z3.z3 import And, Bool, BoolRef, ModelRef, Not, Optimize, Or, sat
+from z3.z3 import And, Bool, BoolRef, BoolVal, ModelRef, Not, Optimize, Or, sat  # type: ignore[import-untyped]
 
 from config import COURSES_FILE_NAME
 
@@ -11,13 +11,15 @@ from config import COURSES_FILE_NAME
 ### START CONFIG VARIABLES
 ##########################
 # These will all be taken as input from the user
-semester_count = 2  # Number of semester to calculate for
+semester_count = 4  # Number of semester to calculate for
 min_credit_per_semester = 6  # Minimum credits (inclusive)
 max_credits_per_semester = 12  # Maximum credits (inclusive)
 starts_as_fall = True
 start_year = 2025
 transferred_course_ids: list[str] = ["CS1410", "CS1510"]
 desired_course_ids: list[str] = ["CS2150", "CS4620/5620"]
+# NOTE: One-indexed!
+first_semester_sophomore: int | None = 1
 first_semester_junior: int | None = 1
 first_semester_senior: int | None = 2
 first_semester_graduate: int | None = None
@@ -119,7 +121,8 @@ class Rank:
 
 # A metaclass to allow easy iteration over created courses
 # https://stackoverflow.com/questions/32362148/typeerror-type-object-is-not-iterable-iterating-over-object-instances
-# TODO: Technically, this might have a memory leak
+# TODO: Technically, this might have a memory leak and I should learn what this
+# actually is doing
 @typechecked
 class IterableCourse(type):
     def __iter__(cls) -> Generator["Course", Any, None]:
@@ -192,8 +195,9 @@ class Course(metaclass=IterableCourse):
             raise TypeError("Expected id at semester to be a BoolRef")
         return formula
 
-    def apply_cnf(self, solver: Optimize) -> None:
-        solver.add(self.generate_seasonal_requirements())
+    def apply_cnf(self, solver: Optimize, sophomore: Rank, junior: Rank, senior: Rank, graduate: Rank, doctoral: Rank) -> None:
+        solver.add(self._generate_seasonal_requirements())
+        solver.add(self._generate_requisite_cnf(sophomore, junior, senior, graduate, doctoral))
         self._add_repeatable_requirement(solver)
 
     def _add_repeatable_requirement(self, solver: Optimize) -> None:
@@ -203,7 +207,7 @@ class Course(metaclass=IterableCourse):
         else:
             solver.add(sum([self._credits * ref for ref in self._refs]) <= self._credits_repeatable_for)
 
-    def generate_seasonal_requirements(self) -> Any:
+    def _generate_seasonal_requirements(self) -> Any:
         # Format is: ODD FALL, EVEN SPRING, EVEN FALL, ODD SPRING
         # Then gets rotates if needed
         offering_list: list[bool]
@@ -239,6 +243,65 @@ class Course(metaclass=IterableCourse):
 
         return And(not_offered_seasons)
 
+    def _generate_requisite_cnf(self, sophomore: Rank, junior: Rank, senior: Rank, graduate: Rank, doctoral: Rank) -> BoolRef:
+        requirements: list[BoolRef] = []
+        for semester in range(1, Course.semester_count + 1):
+            not_taken: BoolRef = Not(self.at(semester))
+            taken: BoolRef = self.at(semester)
+            new_req: BoolRef | None = self.generate_requisites(self._requirements, semester, sophomore, junior, senior, graduate, doctoral)
+            # Then, it condenses to not take or taken, which is a tautology, so unnecessary
+            if new_req is None:
+                continue
+            requirements.append(Or(not_taken, And(taken, new_req)))
+        return And(requirements)
+
+    def generate_requisites(self, requirements: Any, semester: int, sophomore: Rank, junior: Rank, senior: Rank, graduate: Rank, doctoral: Rank) -> BoolRef | None:
+        if len(requirements) == 0:
+            return
+
+        type = requirements.get("type")
+
+        match type:
+            case "PRE":
+                course: Course = Course.by_id(requirements.get("value"))
+                return course.at(start_semester=0, end_semester=semester - 1)
+            case "CO":
+                course: Course = Course.by_id(requirements.get("value"))
+                return course.at(start_semester=0, end_semester=semester)
+            case "RANK":
+                # All requirements related to being a class rank
+                value = requirements.get("value")
+                if value == "sophomore":
+                    return sophomore.at(semester)
+                elif value == "junior":
+                    return junior.at(semester)
+                elif value == "senior":
+                    return senior.at(semester)
+                elif value == "graduate":
+                    return graduate.at(semester)
+                elif value == "doctoral":
+                    return doctoral.at(semester)
+                else:
+                    raise ValueError(f"Invalid rank {value} detected while parsing requirements")
+            case "NOT":
+                req_to_negate = requirements.get("value")
+                negated_req: Formula = Neg(self.generate_requisites(req_to_negate, semester, sophomore, junior, senior, graduate, doctoral))
+                return negated_req
+            case "MAJOR":
+                raise NotImplementedError("Requirements based on major have not yet been implemented")
+            case "AND":
+                items: list[BoolRef] = []
+                for item in requirements.get("items"):
+                    items.append(self.generate_requisites(item, semester, sophomore, junior, senior, graduate, doctoral))
+                return And(items)
+            case "OR":
+                items: list[BoolRef] = []
+                for item in requirements.get("items"):
+                    items.append(self.generate_requisites(item, semester, sophomore, junior, senior, graduate, doctoral))
+                return Or(items)
+            case _:
+                raise ValueError(f"Cannot parse type '{type}' when parsing requirements")
+
     def __str__(self) -> str:
         return f"{self._id}:{self._name}:{','.join([str(ref) for ref in self._refs])}"
 
@@ -252,6 +315,7 @@ class CourseSATSolver:
         max_credits_per_semester: int,
         starts_as_fall: bool,
         start_year: int,
+        first_semester_sophomore: int | None,
         first_semester_junior: int | None,
         first_semester_senior: int | None,
         first_semester_graduate: int | None,
@@ -264,6 +328,7 @@ class CourseSATSolver:
         self.max_credits_per_semester: int = max_credits_per_semester
         self.starts_as_fall: bool = starts_as_fall
         self.start_year: int = start_year
+        self.sophomore: Rank = Rank("sophomore", first_semester_sophomore)
         self.junior: Rank = Rank("junior", first_semester_junior)
         self.senior: Rank = Rank("senior", first_semester_senior)
         self.graduate: Rank = Rank("graduate", first_semester_graduate)
@@ -282,7 +347,7 @@ class CourseSATSolver:
 
         for course in Course:
             print(f"Applying cnf for {course.get_name()}...")
-            course.apply_cnf(self.solver)
+            course.apply_cnf(self.solver, self.sophomore, self.junior, self.senior, self.graduate, self.doctoral)
 
         self._add_desired_courses()
 
@@ -290,6 +355,7 @@ class CourseSATSolver:
 
     def _generate_bootstrap(self) -> None:
         self._generate_transfer_bootstrap()
+        self._generate_rank_bootstrap()
 
     def _generate_transfer_bootstrap(self) -> None:
         transfer_courses: list[BoolRef] = []
@@ -299,6 +365,12 @@ class CourseSATSolver:
             else:
                 transfer_courses.append(Not(course.at(0)))
         self.solver.add(And(transfer_courses))
+
+    def _generate_rank_bootstrap(self) -> None:
+        rank_bootstrap: list[BoolRef] = []
+        for rank in (self.sophomore, self.junior, self.senior, self.graduate, self.doctoral):
+            rank_bootstrap.extend(rank.generate_bootstrap())
+        self.solver.add(And(rank_bootstrap))
 
     def _add_desired_courses(self) -> None:
         desired_courses: list[Course] = [Course.by_id(id) for id in self.desired_course_ids]
@@ -348,11 +420,13 @@ class CourseSATSolver:
                 if not isinstance(boolRef, BoolRef):
                     raise TypeError(f"Expected model to only consist of BoolRefs, instead got '{funcDeclRef}'")
 
-                course: Course = RefManager.get(boolRef)
-                semester: int = course.get_refs().index(boolRef)
+                reference_result: Any = RefManager.get(boolRef)
+                if isinstance(reference_result, Course):
+                    course: Course = reference_result
+                    semester: int = course.get_refs().index(boolRef)
 
-                if model[boolRef]:
-                    self.plan[semester].append(course)
+                    if model[boolRef]:
+                        self.plan[semester].append(course)
 
         else:
             print("UNSAT")
@@ -395,6 +469,7 @@ if __name__ == "__main__":
         semester_count=semester_count,
         min_credit_per_semester=min_credit_per_semester,
         max_credits_per_semester=max_credits_per_semester,
+        first_semester_sophomore=first_semester_sophomore,
         first_semester_junior=first_semester_junior,
         first_semester_senior=first_semester_senior,
         first_semester_graduate=first_semester_graduate,
