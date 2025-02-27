@@ -261,12 +261,14 @@ class Course(metaclass=IterableCourse):
 
         type = requirements.get("type")
 
+        course: Course
+
         match type:
             case "PRE":
-                course: Course = Course.by_id(requirements.get("value"))
+                course = Course.by_id(requirements.get("value"))
                 return course.at(start_semester=0, end_semester=semester - 1)
             case "CO":
-                course: Course = Course.by_id(requirements.get("value"))
+                course = Course.by_id(requirements.get("value"))
                 return course.at(start_semester=0, end_semester=semester)
             case "RANK":
                 # All requirements related to being a class rank
@@ -285,7 +287,7 @@ class Course(metaclass=IterableCourse):
                     raise ValueError(f"Invalid rank {value} detected while parsing requirements")
             case "NOT":
                 req_to_negate = requirements.get("value")
-                negated_req: Formula = Neg(self.generate_requisites(req_to_negate, semester, sophomore, junior, senior, graduate, doctoral))
+                negated_req: BoolRef = Not(self.generate_requisites(req_to_negate, semester, sophomore, junior, senior, graduate, doctoral))
                 return negated_req
             case "MAJOR":
                 raise NotImplementedError("Requirements based on major have not yet been implemented")
@@ -391,7 +393,7 @@ class CourseSATSolver:
             # Lower bound
             self.solver.add(sum([weight * ref for weight, ref in zip(weights, refs)]) >= self.min_credits_per_semester)
 
-    def add_degree_reqs(self) -> None:
+    def add_fake_degree_reqs(self) -> None:
         self.solver.add(Or(Course.by_id("CS1800").get_refs()))
         self.solver.add(Or(Course.by_id("CS1520").get_refs()))
         self.solver.add(Or(Course.by_id("CS1410").get_refs()))
@@ -480,7 +482,7 @@ if __name__ == "__main__":
     )
 
     c.setup()
-    c.add_degree_reqs()
+    c.add_fake_degree_reqs()
     c.minimize()
     c.solve()
     c.display()
