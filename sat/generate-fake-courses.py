@@ -1,5 +1,6 @@
 from random import randint, choice
 from faker import Faker
+from typing import Any
 import json
 
 fake = Faker()
@@ -20,28 +21,17 @@ seasons = [
 courses = []
 
 
-def randint_but_exclude(lower, upper, exclude):
-    return randint(lower, exclude)
-    # if lower == upper and lower == exclude:
-    #    raise ValueError("Doesn't work like that")
-
-    # while True:
-    #    r = randint(lower, upper)
-    #    if r < exclude:
-    #        return r
-
-
-def generate_requirements(exclude):
+def generate_requirements(limit: int) -> dict[Any, Any]:
     v = randint(0, 100)
     if v < 40:
         return {
             "type": "PRE",
-            "value": randint_but_exclude(1, count, exclude),
+            "value": randint(1, limit),
         }
     elif v < 80:
         return {
             "type": "CO",
-            "value": randint_but_exclude(1, count, exclude),
+            "value": randint(1, limit),
         }
     elif v < 90:
         return {
@@ -53,12 +43,12 @@ def generate_requirements(exclude):
         if x == 1:
             return {
                 "type": "AND",
-                "items": [generate_requirements(exclude) for _ in range(randint(2, 5))],
+                "items": [generate_requirements(limit) for _ in range(randint(2, 5))],
             }
         else:
             return {
                 "type": "OR",
-                "items": [generate_requirements(exclude) for _ in range(randint(2, 5))],
+                "items": [generate_requirements(limit) for _ in range(randint(2, 5))],
             }
 
 
