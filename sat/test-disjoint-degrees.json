@@ -1,0 +1,46 @@
+{
+  "degrees": [
+    {
+      "name": "B.A. Computer Science",
+      "id": "CS:BA",
+      "requirements": {
+        "type": "DISJOINT",
+        "base": {
+          "type": "AND",
+          "items": [
+            {
+              "type": "ATLEASTK",
+              "k": 1,
+              "items": [
+                {
+                  "type": "ATLEASTK",
+                  "k": 2,
+                  "items": [
+                    { "type": "COURSE", "value": "CS3530" },
+                    { "type": "COURSE", "value": "CS3540" }
+                  ]
+                },
+                {
+                  "type": "ATLEASTK",
+                  "k": 2,
+                  "items": [
+                    { "type": "COURSE", "value": "CS3140/5140" },
+                    { "type": "COURSE", "value": "CS3150/5150" }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "additional": {
+          "type": "ATLEASTK",
+          "k": 2,
+          "items": [
+            { "type": "COURSE", "value": "CS3530" },
+            { "type": "COURSE", "value": "CS3140/5140" }
+          ]
+        }
+      }
+    }
+  ]
+}
