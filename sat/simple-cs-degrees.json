@@ -1,0 +1,103 @@
+{
+  "degrees": [
+    {
+      "name": "B.A. Computer Science",
+      "id": "CS:BA",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          { "type": "COURSE", "value": "CS1410" },
+          { "type": "COURSE", "value": "CS1510" },
+          { "type": "COURSE", "value": "CS1520" },
+          { "type": "COURSE", "value": "CS1800" },
+          { "type": "COURSE", "value": "CS2530" },
+          { "type": "COURSE", "value": "CS3730/5730" },
+          {
+            "type": "ATLEASTK",
+            "k": 1,
+            "items": [
+              {
+                "type": "AND",
+                "items": [
+                  {
+                    "type": "ATLEASTK",
+                    "k": 3,
+                    "items": [
+                      { "type": "COURSE", "value": "CS3530" },
+                      { "type": "COURSE", "value": "CS3540" },
+                      { "type": "COURSE", "value": "CS3810/5810" },
+                      { "type": "COURSE", "value": "CS4550/5550" },
+                      { "type": "COURSE", "value": "CS4880/5880" }
+                    ]
+                  },
+                  { "type": "COURSE", "value": "CS4550/5550" }
+                ]
+              },
+              {
+                "type": "AND",
+                "items": [
+                  {
+                    "type": "ATLEASTK",
+                    "k": 3,
+                    "items": [
+                      { "type": "COURSE", "value": "CS3140/5140" },
+                      { "type": "COURSE", "value": "CS3150/5150" },
+                      { "type": "COURSE", "value": "CS3610/5610" },
+                      { "type": "COURSE", "value": "CS3650/5650" },
+                      { "type": "COURSE", "value": "CS4620/5620" },
+                      { "type": "COURSE", "value": "CS4880/5880" }
+                    ]
+                  },
+                  { "type": "COURSE", "value": "CS4620/5620" }
+                ]
+              },
+              {
+                "type": "AND",
+                "items": [
+                  {
+                    "type": "ATLEASTK",
+                    "k": 3,
+                    "items": [
+                      { "type": "COURSE", "value": "CS2720" },
+                      { "type": "COURSE", "value": "CS3120/5120" },
+                      { "type": "COURSE", "value": "CS3750/5750" },
+                      { "type": "COURSE", "value": "CS4740/5740" },
+                      { "type": "COURSE", "value": "CS4880/5880" }
+                    ]
+                  },
+                  { "type": "COURSE", "value": "CS4740/5740" }
+                ]
+              },
+              {
+                "type": "AND",
+                "items": [
+                  {
+                    "type": "ATLEASTK",
+                    "k": 3,
+                    "items": [
+                      { "type": "COURSE", "value": "CS2420" },
+                      { "type": "COURSE", "value": "CS3430/5430" },
+                      { "type": "COURSE", "value": "CS3470/5470" },
+                      { "type": "COURSE", "value": "CS4400/5400" },
+                      { "type": "COURSE", "value": "CS4410/5410" },
+                      { "type": "COURSE", "value": "CS4420" },
+                      { "type": "COURSE", "value": "CS4880/5880" }
+                    ]
+                  },
+                  {
+                    "type": "ATLEASTK",
+                    "k": 1,
+                    "items": [
+                      { "type": "COURSE", "value": "CS4410/5410" },
+                      { "type": "COURSE", "value": "CS4420" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

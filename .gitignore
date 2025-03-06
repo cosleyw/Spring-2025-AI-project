@@ -4,3 +4,9 @@ data/package-lock.json
 data/node_modules
 data/data.json
 data/raw_data.json
+
+.vscode/
+
+# Python specific ignores
+venv/
+__pycache__/
