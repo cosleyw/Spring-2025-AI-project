@@ -19,7 +19,13 @@ max_credits_per_semester = 16  # Maximum credits (inclusive)
 starts_as_fall = True
 start_year = 2025
 transferred_course_ids: list[str] = []  # ["CS1410", "CS1510"]
-desired_course_ids: list[str] = ["CS3430/5430"]
+desired_course_ids: list[tuple[str] | tuple[str, int]] = [
+    ("CS3430/5430", 4),
+    # ("CS1160",),
+]
+undesired_course_ids: list[tuple[str] | tuple[str, int]] = [
+    ("CS4410/5410",),
+]
 desired_degree_ids: list[str] = ["CS:BA"]
 # NOTE: One-indexed!
 first_semester_sophomore: int | None = 1
@@ -385,7 +391,8 @@ class CourseSATSolver:
         first_semester_senior: int | None,
         first_semester_graduate: int | None,
         first_semester_doctoral: int | None,
-        desired_course_ids: list[str],
+        desired_course_ids: list[tuple[str] | tuple[str, int]],
+        undesired_course_ids: list[tuple[str] | tuple[str, int]],
         desired_degree_ids: list[str],
     ):
         Course.semester_count = semester_count
@@ -400,7 +407,8 @@ class CourseSATSolver:
         self.senior: Rank = Rank("senior", first_semester_senior)
         self.graduate: Rank = Rank("graduate", first_semester_graduate)
         self.doctoral: Rank = Rank("doctoral", first_semester_doctoral)
-        self.desired_course_ids: list[str] = desired_course_ids
+        self.desired_course_ids: list[tuple[str] | tuple[str, int]] = desired_course_ids
+        self.undesired_course_ids: list[tuple[str] | tuple[str, int]] = undesired_course_ids
         self.desired_degree_ids: list[str] = desired_degree_ids
         self.plan: list[list[Course]] | None = None
 
@@ -427,6 +435,7 @@ class CourseSATSolver:
             course.apply_cnf(self.solver, self.sophomore, self.junior, self.senior, self.graduate, self.doctoral)
 
         self._add_desired_courses()
+        self._add_undesired_courses()
 
         self._add_semester_credit_requirements()
 
@@ -450,12 +459,37 @@ class CourseSATSolver:
         self.solver.add(And(rank_bootstrap))
 
     def _add_desired_courses(self) -> None:
-        desired_courses: list[Course] = [Course.by_id(id) for id in self.desired_course_ids]
-        desired_refs: list[BoolRef] = [course.at(1, semester_count) for course in desired_courses]
+        desired_refs = []
+        for pair in self.desired_course_ids:
+            id: str = pair[0]
+            course = Course.by_id(id)
+            count: int | None = pair[1] if len(pair) > 1 else None
+            if count is None:
+                desired_refs.append(course.at(1, semester_count))
+            else:
+                desired_refs.append(course.at(count, count))
+
         # NOTE: This *possibly* could be made into a soft constraint if we want
         # to return good courses even if invalid desire. Probably best to not
         # return anything if we cannot meet all desires though
         self.solver.add(And(desired_refs))
+
+    # TODO: Make this work
+    def _add_undesired_courses(self) -> None:
+        undesired_refs = []
+        for pair in self.undesired_course_ids:
+            id: str = pair[0]
+            course = Course.by_id(id)
+            count: int | None = pair[1] if len(pair) > 1 else None
+            if count is None:
+                undesired_refs.append(And([Not(course.at(i, i)) for i in range(1, semester_count + 1)]))
+            else:
+                undesired_refs.append(Not(course.at(count, count)))
+
+        # NOTE: This *possibly* could be made into a soft constraint if we want
+        # to return good courses even if invalid desire. Probably best to not
+        # return anything if we cannot meet all desires though
+        self.solver.add(And(undesired_refs))
 
     def _add_semester_credit_requirements(self) -> None:
         for semester in range(1, semester_count + 1):
@@ -571,6 +605,7 @@ if __name__ == "__main__":
         starts_as_fall=starts_as_fall,
         start_year=start_year,
         desired_course_ids=desired_course_ids,
+        undesired_course_ids=undesired_course_ids,
         desired_degree_ids=desired_degree_ids,
     )
 

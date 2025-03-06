@@ -147,6 +147,31 @@ class And(DegreeRequirement):
 
 
 @typechecked
+class Or(DegreeRequirement):
+    def __init__(self, items: list[DegreeRequirement]):
+        super().__init__()
+        self._items: list[DegreeRequirement] = items
+
+    @override
+    def get_courses(self) -> list[Any]:
+        courses = []
+        for item in self._items:
+            courses.extend(item.get_courses())
+        return courses
+
+    @override
+    def get_nodes(self) -> list["DegreeRequirement"]:
+        nodes: list["DegreeRequirement"] = [self]
+        for item in self._items:
+            nodes.extend(item.get_nodes())
+        return nodes
+
+    @override
+    def eval(self, exclusions: list[Any] = [], id_counts: dict[UUID, int] = {}) -> z3.BoolRef:
+        return z3.Or([item.eval(exclusions, id_counts) for item in self._items])
+
+
+@typechecked
 class ReqCourse(DegreeRequirement):
     def __init__(self, course):
         super().__init__()
@@ -221,10 +246,10 @@ class DegreeRequirementManager:
                 return ReqCourse(course.by_id(requirements.get("value")))
             # case "RANK":
             #     return ReqRank(kwargs["junior"])
-            # case "OR":  # TODO: Or is actually ann ATLEASTK with K=1, implement it as such
-            #    items = requirements.get("items")
-            #    parsed_items = [self._parse_recursive(req) for req in items]
-            #    return Or(parsed_items)
+            case "OR":  # TODO: Or is actually ann ATLEASTK with K=1, implement it as such
+                items = requirements.get("items")
+                parsed_items = [recurse(req) for req in items]
+                return Or(parsed_items)
             # case "ATLEASTK_CREDITS":
             #    k = requirements.get("k")
             #    courses = [self._parse_recursive(req) for req in requirements.get("items")]
