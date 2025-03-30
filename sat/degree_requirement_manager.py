@@ -29,57 +29,6 @@ class DegreeRequirement:
 
 
 @typechecked
-class Disjoint(DegreeRequirement):
-    def __init__(self, base: DegreeRequirement, additional: DegreeRequirement):
-        super().__init__()
-        self._base = base
-        self._additional = additional
-
-    @override
-    def eval(self, exclusions: list[Any] = [], id_counts: dict[UUID, int] = {}) -> z3.BoolRef:
-        exclusions = self._additional.get_courses()
-
-        nodes: list[DegreeRequirement] = self.get_nodes()
-        atleastk_nodes: list[AtLeastK] = []
-        for node in nodes:
-            if isinstance(node, AtLeastK):
-                atleastk_nodes.append(node)
-
-        def eval_helper(nodes: list[AtLeastK], id_counts: dict[UUID, int]) -> z3.BoolRef:
-            if len(nodes) == 0:
-                return z3.And(self._base.eval(exclusions, id_counts))
-
-            active_node: AtLeastK = nodes[0]
-
-            options = []
-
-            for i in range(active_node.get_k() + 1):  # 0 -> k inclusive
-                print(f"Recursive {i}...")
-                options.append(
-                    eval_helper(
-                        nodes[1:],
-                        {
-                            active_node.get_id(): i,
-                            **id_counts,
-                        },
-                    )
-                )
-
-            return z3.Or(options)
-
-        # TODO: This is not type safe
-        return eval_helper(atleastk_nodes, {})
-
-    @override
-    def get_courses(self) -> list[Any]:
-        return [*self._base.get_courses(), *self._additional.get_courses()]
-
-    @override
-    def get_nodes(self) -> list["DegreeRequirement"]:
-        return [self, *self._base.get_nodes(), *self._additional.get_nodes()]
-
-
-@typechecked
 class AtLeastK(DegreeRequirement):
     def __init__(self, k: int, items: list[DegreeRequirement]):
         super().__init__()
@@ -187,9 +136,10 @@ class ReqCourse(DegreeRequirement):
 
     @override
     def eval(self, exclusions: list[Any] = [], id_counts: dict[UUID, int] = {}) -> z3.BoolRef:
-        if self._course in exclusions:
-            return z3.BoolVal(False)
-        return self._course.at()
+        return self._course.add_as_degree_req()
+        # if self._course in exclusions:
+        #    return z3.BoolVal(False)
+        # return self._course.at()
 
 
 # TODO: Implement degree requirements
@@ -258,12 +208,6 @@ class DegreeRequirementManager:
                 k = requirements.get("k")
                 items = [recurse(req) for req in requirements.get("items")]
                 return AtLeastK(k, items)
-            case "DISJOINT":
-                base = requirements.get("base")
-                base = recurse(base)
-                additional = requirements.get("additional")
-                additional = recurse(additional)
-                return Disjoint(base, additional)
             # case "ATMOSTK_COURSES":
             #    k = requirements.get("k")
             #    courses = [self._parse_recursive(req) for req in requirements.get("items")]

@@ -3,7 +3,8 @@ import json
 from typing import Any, Generator, TypeVar, override
 
 from typeguard import typechecked
-from z3.z3 import And, Bool, BoolRef, BoolVal, ModelRef, Not, Optimize, Or, sat  # type: ignore[import-untyped]
+from z3 import Implies
+from z3.z3 import And, Bool, BoolRef, ModelRef, Not, Optimize, Or, sat  # type: ignore[import-untyped]
 
 from config import COURSES_FILE_NAME, DEGREES_FILE_NAME
 
@@ -20,17 +21,17 @@ starts_as_fall = True
 start_year = 2025
 transferred_course_ids: list[str] = []  # ["CS1410", "CS1510"]
 desired_course_ids: list[tuple[str] | tuple[str, int]] = [
-    ("CS3430/5430", 4),
+    # ("CS3430/5430", 4),
     # ("CS1160",),
 ]
 undesired_course_ids: list[tuple[str] | tuple[str, int]] = [
-    ("CS4410/5410",),
+    # ("CS4410/5410",),
 ]
 desired_degree_ids: list[str] = ["CS:BA"]
 # NOTE: One-indexed!
 first_semester_sophomore: int | None = 1
 first_semester_junior: int | None = 1
-first_semester_senior: int | None = 2
+first_semester_senior: int | None = 1
 first_semester_graduate: int | None = None
 first_semester_doctoral: int | None = None
 ########################
@@ -222,6 +223,7 @@ class Course(metaclass=IterableCourse):
         self._credits_repeatable_for: int | None = credits_repeatable_for
         self._season: Offering = Offering(season)
         self._refs: list[BoolRef] = []
+        self._taken_for_credits: list[BoolRef] = []
         for _ in range(Course.semester_count + 1):  # +1 because allows a slot for transfer credits
             self._refs.append(RefManager.allocate(self))
 
@@ -241,6 +243,24 @@ class Course(metaclass=IterableCourse):
 
     def get_credits(self) -> int:
         return self._credits
+
+    # TODO: Make sure this is right
+    def add_as_degree_req(self) -> BoolRef:
+        ref = RefManager.allocate(None)
+        self._taken_for_credits.append(ref)
+        return ref
+
+    def generate_taken_requirement_cnf(self) -> BoolRef:
+        requirements: list[BoolRef] = []
+
+        # If taken for credit, it has to be taken!
+        for taken_for_credit in self._taken_for_credits:
+            requirements.append(Implies(taken_for_credit, Or(self.at())))
+
+        # Cannot take for credit multiple places
+        requirements.append(sum(self._taken_for_credits) <= 1)
+
+        return And(requirements)
 
     def at(self, start_semester: int | None = None, end_semester: int | None = None) -> BoolRef:
         # TODO: This way of doing things is not very clear
@@ -376,6 +396,11 @@ class Course(metaclass=IterableCourse):
     def __str__(self) -> str:
         return f"{self._id}:{self._name}:{','.join([str(ref) for ref in self._refs])}"
 
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, Course):
+            return self.get_id() == other.get_id()
+        return self.get_id() == other
+
 
 @typechecked
 class CourseSATSolver:
@@ -394,10 +419,12 @@ class CourseSATSolver:
         desired_course_ids: list[tuple[str] | tuple[str, int]],
         undesired_course_ids: list[tuple[str] | tuple[str, int]],
         desired_degree_ids: list[str],
+        courses_file_name: str = COURSES_FILE_NAME,
+        degrees_file_name: str = DEGREES_FILE_NAME,
     ):
         Course.semester_count = semester_count
-        self.courses: list[Course] = load_courses(COURSES_FILE_NAME)
-        self.degrees: list[Degree] = load_degrees(DEGREES_FILE_NAME)
+        self.courses: list[Course] = load_courses(courses_file_name)
+        self.degrees: list[Degree] = load_degrees(degrees_file_name)
         self.min_credits_per_semester: int = min_credit_per_semester
         self.max_credits_per_semester: int = max_credits_per_semester
         self.starts_as_fall: bool = starts_as_fall
@@ -411,6 +438,7 @@ class CourseSATSolver:
         self.undesired_course_ids: list[tuple[str] | tuple[str, int]] = undesired_course_ids
         self.desired_degree_ids: list[str] = desired_degree_ids
         self.plan: list[list[Course]] | None = None
+        self.possible_plans: list[list[list[Course]]] = []
 
         for degree in self.degrees:
             degree.setup(
@@ -508,6 +536,9 @@ class CourseSATSolver:
         for degree_id in self.desired_degree_ids:
             self.solver.add(Degree.by_id(degree_id).generate_cnf())
 
+        for course in self.courses:
+            self.solver.add(course.generate_taken_requirement_cnf())
+
     # WARNING: Be careful, somethings this makes things take forever, right now
     # it seems to be behaving itself though
     def minimize(self) -> None:
@@ -521,7 +552,8 @@ class CourseSATSolver:
     # and setting each variable to false then seeing if you are still sat.
     # Somehow  you have to make sure it doesn't just as a ton of other classes
     # though... not sure how to do that part
-    def solve(self) -> None:
+    def solve(self) -> bool:
+        negation_of_current_solution = []
         self.plan = [[] for _ in range(semester_count + 1)]  # TODO: Fix the semester count here
 
         for k, v in RefManager.store.items():
@@ -538,28 +570,39 @@ class CourseSATSolver:
 
                 reference_result: Any = RefManager.get(boolRef)
                 if isinstance(reference_result, Course):
+                    print(f"{boolRef} != {model[boolRef]}")
+                    negation_of_current_solution.append(boolRef != model[boolRef])
                     course: Course = reference_result
                     semester: int = course.get_refs().index(boolRef)
 
                     if model[boolRef]:
                         self.plan[semester].append(course)
 
+            self.possible_plans.append(self.plan)
+            self.solver.add(Or(negation_of_current_solution))
+            return True
+
         else:
             print("UNSAT")
+            return False
 
     def display(self) -> None:
         if self.plan is None:
             raise ValueError("CourseSATSolver needs to be solver before a plan can be displayed")
+        if len(self.possible_plans) == 0:
+            raise ValueError("CourseSATSolver needs at least 1 valid solution before a plan can be displayed")
 
-        for i, semester in enumerate(self.plan):
-            semester_name: str
-            if i == 0:
-                semester_name = "Transferred"
-            else:
-                semester_name = self._get_semester_name(i)
-            print(f"Semester {i}: {semester_name}")
-            for course in sorted(semester, key=lambda course: course.get_id()):
-                print(f"\t{course}")
+        for plan_id, plan in enumerate(self.possible_plans):
+            print(f"\nPlan {plan_id + 1}:")
+            for i, semester in enumerate(plan):
+                semester_name: str
+                if i == 0:
+                    semester_name = "Transferred"
+                else:
+                    semester_name = self._get_semester_name(i)
+                print(f"Semester {i}: {semester_name}")
+                for course in sorted(semester, key=lambda course: course.get_id()):
+                    print(f"\t{course}")
 
     def _get_semester_name(self, semester: int) -> str:
         season: str
@@ -612,5 +655,21 @@ if __name__ == "__main__":
     c.setup()
     c.add_degree_reqs()
     c.minimize()
+
     c.solve()
     c.display()
+
+    # while c.solve():
+    #    pass
+
+    # plan_ids = []
+    # for plan in c.possible_plans:
+    #    semester_ids = []
+    #    for semester in plan:
+    #        courses = [c.get_id() for c in semester]
+    #        semester_ids.append(courses)
+    #    plan_ids.append(semester_ids)
+    # print(plan_ids)
+    #
+    # print(c.possible_plans)
+    # c.display()
