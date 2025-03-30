@@ -1,0 +1,22 @@
+{
+  "courses": [
+    {
+      "name": "Computing Skills and Concepts",
+      "id": "CS1000",
+      "credits": 3,
+      "season": "FALL_AND_SPRING"
+    },
+    {
+      "name": "Visual BASIC Programming",
+      "id": "CS1130",
+      "credits": 3,
+      "season": "FALL_AND_SPRING"
+    },
+    {
+      "name": "Introduction to Computing",
+      "id": "CS1510",
+      "credits": 4,
+      "season": "FALL_AND_SPRING"
+    }
+  ]
+}

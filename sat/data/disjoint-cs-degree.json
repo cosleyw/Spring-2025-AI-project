@@ -1,0 +1,27 @@
+{
+  "degrees": [
+    {
+      "name": "B.A. Computer Science",
+      "id": "CS:BA",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          {
+            "type": "OR",
+            "items": [
+              { "type": "COURSE", "value": "CS1000" },
+              { "type": "COURSE", "value": "CS1130" }
+            ]
+          },
+          {
+            "type": "OR",
+            "items": [
+              { "type": "COURSE", "value": "CS1130" },
+              { "type": "COURSE", "value": "CS1510" }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
