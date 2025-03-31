@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, Query
 from models import ScheduleConfiguration
 
-from main import CourseSATSolver
+from main import Course, CourseSATSolver, Degree
 
 app = FastAPI(
     title="Schedule Generator API",
@@ -21,6 +21,9 @@ def parseCourseIds(desired_course_ids: str) -> list[str]:
 
 @app.post("/schedules/generate")
 async def generate_schedule(configuration: Annotated[ScheduleConfiguration, Query()]):
+    Course.courses = {}
+    Degree.degrees = {}
+
     c: CourseSATSolver = CourseSATSolver(
         semester_count=configuration.semester_count,
         min_credit_per_semester=configuration.min_credit_per_semester,
@@ -43,26 +46,7 @@ async def generate_schedule(configuration: Annotated[ScheduleConfiguration, Quer
     c.solve()
     c.display()
     print(configuration)
-    return {"status": "working..."}
-
-
-# semester_count = 4  # Number of semester to calculate for
-# min_credit_per_semester = 3  # Minimum credits (inclusive)
-# max_credits_per_semester = 16  # Maximum credits (inclusive)
-# starts_as_fall = True
-# start_year = 2025
-# transferred_course_ids: list[str] = []  # ["CS1410", "CS1510"]
-# desired_course_ids: list[tuple[str] | tuple[str, int]] = [
-#     ("CS3430/5430", 4),
-#     # ("CS1160",),
-# ]
-# undesired_course_ids: list[tuple[str] | tuple[str, int]] = [
-#     ("CS4410/5410",),
-# ]
-# desired_degree_ids: list[str] = ["CS:BA"]
-# # NOTE: One-indexed!
-# first_semester_sophomore: int | None = 1
-# first_semester_junior: int | None = 1
-# first_semester_senior: int | None = 2
-# first_semester_graduate: int | None = None
-# first_semester_doctoral: int | None = None
+    return {
+        "status": "success",
+        "schedule": c.get_plan_with_ids(),
+    }

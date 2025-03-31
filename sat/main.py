@@ -223,7 +223,7 @@ class Course(metaclass=IterableCourse):
         self._credits_repeatable_for: int | None = credits_repeatable_for
         self._season: Offering = Offering(season)
         self._refs: list[BoolRef] = []
-        self._taken_for_credits: list[BoolRef] = []
+        self._taken_for_specific_rg: list[BoolRef] = []
         for _ in range(Course.semester_count + 1):  # +1 because allows a slot for transfer credits
             self._refs.append(RefManager.allocate(self))
 
@@ -247,18 +247,18 @@ class Course(metaclass=IterableCourse):
     # TODO: Make sure this is right
     def add_as_degree_req(self) -> BoolRef:
         ref = RefManager.allocate(None)
-        self._taken_for_credits.append(ref)
+        self._taken_for_specific_rg.append(ref)
         return ref
 
     def generate_taken_requirement_cnf(self) -> BoolRef:
         requirements: list[BoolRef] = []
 
         # If taken for credit, it has to be taken!
-        for taken_for_credit in self._taken_for_credits:
-            requirements.append(Implies(taken_for_credit, Or(self.at())))
+        for taken_for_specific_rg in self._taken_for_specific_rg:
+            requirements.append(Implies(taken_for_specific_rg, Or(self.at())))
 
         # Cannot take for credit multiple places
-        requirements.append(sum(self._taken_for_credits) <= 1)
+        requirements.append(sum(self._taken_for_specific_rg) <= 1)
 
         return And(requirements)
 
@@ -585,6 +585,22 @@ class CourseSATSolver:
         else:
             print("UNSAT")
             return False
+
+    def get_plans_with_ids(self) -> list[list[Any]]:
+        plans = []
+        for plan in self.possible_plans:
+            plans.append(self.get_plan_with_ids(plan))
+        return plans
+
+    def get_plan_with_ids(self, plan: list[list[Course]] | None = None) -> list[Any]:
+        plan = plan or self.plan
+        if plan is None:
+            raise Exception("Cannot get plan ids for an empty plan")
+        plan = []
+        for semester in self.plan:
+            courses = [course.get_id() for course in semester]
+            plan.append(courses)
+        return plan
 
     def display(self) -> None:
         if self.plan is None:
