@@ -19,7 +19,7 @@ def parseCourseIds(desired_course_ids: str) -> list[str]:
     return desired_course_ids.split(",")
 
 
-@app.post("/schedules/generate")
+@app.get("/schedules/generate")
 async def generate_schedule(configuration: Annotated[ScheduleConfiguration, Query()]):
     Course.courses = {}
     Degree.degrees = {}
