@@ -1,8 +1,12 @@
 from typing import Annotated
 from fastapi import Depends, FastAPI, Query
 from models import ScheduleConfiguration
+from config import COURSES_FILE_NAME, DEGREES_FILE_NAME
+import math
+import json
 
-from main import Course, CourseSATSolver, Degree
+
+from main import Course, CourseSATSolver, Degree, Offering
 
 app = FastAPI(
     title="Schedule Generator API",
@@ -19,8 +23,84 @@ def parseCourseIds(desired_course_ids: str) -> list[str]:
     return desired_course_ids.split(",")
 
 
+def load_courses():
+    with open(COURSES_FILE_NAME, "r") as file:
+        return json.load(file)["courses"]
+
+
+def filter_credit_range(courses, min, max):
+    if min is None:
+        min = -math.inf
+    if max is None:
+        max = math.inf
+    for course in courses:
+        print(min, course["credits"], max)
+        print(type(min), type(course["credits"]), type(max))
+        print(min <= course["credits"] <= max)
+    return list(filter(lambda course: min <= course["credits"] <= max, courses))
+
+
+def filter_name_or_id(objects, query):
+    if query is None:
+        return objects
+    query = query.lower()
+    return list(filter(lambda object: query in object["name"].lower() or query in object["id"].lower(), objects))
+
+
+def filter_season(courses, season: Offering | None):
+    if season is None:
+        return courses
+    return list(filter(lambda course: course["season"] == season, courses))
+
+
+def load_degrees():
+    with open(DEGREES_FILE_NAME, "r") as file:
+        return json.load(file)["degrees"]
+
+
+@app.get("/courses", summary="Search for courses")
+async def get_courses(
+    query: str | None = None,
+    min: int | None = None,
+    max: int | None = None,
+    season: Offering | None = None,
+):
+    courses = load_courses()
+    courses = filter_name_or_id(courses, query)
+    courses = filter_credit_range(courses, min, max)
+    courses = filter_season(courses, season)
+    return {"status": "success", "courses": courses}
+
+
+@app.get("/courses/{id}", summary="Get a specific course by its id")
+async def get_courses(id):
+    courses = load_courses()
+    for course in courses:
+        if course["id"] == id:
+            return {"status": "success", "course": course}
+    return {"status": "failure", "message": "Was unable to find a course with the specified id"}
+
+
+@app.get("/degrees", summary="Search for degrees")
+async def get_degrees(
+    query: str | None = None,
+):
+    degrees = load_degrees()
+    degrees = filter_name_or_id(degrees, query)
+    return {"status": "success", "degrees": degrees}
+
+
+@app.get("/degrees/{id}", summary="Get a specific degree by its id")
+async def get_degrees(id):
+    degrees = load_degrees()
+    for degree in degrees:
+        if degree["id"] == id:
+            return {"status": "success", "degree": degree}
+    return {"status": "failure", "message": "Was unable to find a degree with the specified id"}
+
+
 @app.get("/schedules/generate")
-async def generate_schedule(configuration: Annotated[ScheduleConfiguration, Query()]):
+def generate_schedule(configuration: Annotated[ScheduleConfiguration, Query()]):
     Course.courses = {}
     Degree.degrees = {}
 
