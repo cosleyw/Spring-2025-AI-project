@@ -147,10 +147,12 @@ class ReqCourse(DegreeRequirement):
 class DegreeRequirementManager:
     def __init__(
         self,
+        course_manager,
         requirements: dict[Any, Any],
     ):
         self._raw_requirements = requirements
         self._requirements: DegreeRequirement
+        self._course_manager = course_manager
 
     def setup(
         self,
@@ -159,8 +161,6 @@ class DegreeRequirementManager:
         sophomore,
         junior,
         senior,
-        graduate,
-        doctoral,
     ) -> None:
         self._requirements = self._parse_recursive(
             self._raw_requirements,
@@ -170,8 +170,6 @@ class DegreeRequirementManager:
                 "sophomore": sophomore,
                 "junior": junior,
                 "senior": senior,
-                "graduate": graduate,
-                "doctoral": doctoral,
             },
         )
 
@@ -193,7 +191,7 @@ class DegreeRequirementManager:
                 parsed_items = [recurse(req) for req in items]
                 return And(parsed_items)
             case "COURSE":
-                return ReqCourse(course.by_id(requirements.get("value")))
+                return ReqCourse(self._course_manager.by_id(requirements.get("value")))
             # case "RANK":
             #     return ReqRank(kwargs["junior"])
             case "OR":  # TODO: Or is actually ann ATLEASTK with K=1, implement it as such

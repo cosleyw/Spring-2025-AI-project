@@ -6,7 +6,7 @@ import math
 import json
 
 
-from main import Course, CourseSATSolver, Degree, Offering
+from main import CourseSATSolver, Offering
 
 app = FastAPI(
     title="Schedule Generator API",
@@ -103,9 +103,6 @@ async def get_degrees(id):
 
 @app.get("/schedules/generate", summary="Generate a user schedule", tags=["schedules"])
 def generate_schedule(configuration: Annotated[ScheduleConfiguration, Query()]):
-    Course.courses = {}
-    Degree.degrees = {}
-
     c: CourseSATSolver = CourseSATSolver(
         semester_count=configuration.semester_count,
         min_credit_per_semester=configuration.min_credit_per_semester,
@@ -113,10 +110,9 @@ def generate_schedule(configuration: Annotated[ScheduleConfiguration, Query()]):
         first_semester_sophomore=configuration.first_semester_sophomore,
         first_semester_junior=configuration.first_semester_junior,
         first_semester_senior=configuration.first_semester_senior,
-        first_semester_graduate=configuration.first_semester_graduate,
-        first_semester_doctoral=configuration.first_semester_doctoral,
         starts_as_fall=configuration.starts_as_fall,
         start_year=configuration.start_year,
+        transferred_course_ids=configuration.transferred_course_ids,
         desired_course_ids=configuration.desired_course_ids,
         undesired_course_ids=configuration.undesired_course_ids,
         desired_degree_ids=configuration.desired_degree_ids,

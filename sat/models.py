@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, computed_field
 
 
-def parseCourseIds(course_ids_str: str | None) -> list[tuple[str] | tuple[str, int]]:
+def parse_course_ids(course_ids_str: str | None) -> list[tuple[str] | tuple[str, int]]:
     if course_ids_str is None:
         return []
 
@@ -21,7 +21,14 @@ def parseCourseIds(course_ids_str: str | None) -> list[tuple[str] | tuple[str, i
     return course_tuple_list
 
 
-def parseDegreeIds(degree_id_str: str) -> list[str]:
+def parse_transferred_course_ids(coures_ids_str: str | None) -> list[str]:
+    if coures_ids_str is None:
+        return []
+
+    return coures_ids_str.split(",")
+
+
+def parse_degree_ids(degree_id_str: str) -> list[str]:
     return degree_id_str.split(",")
 
 
@@ -50,28 +57,23 @@ class ScheduleConfiguration(BaseModel):
         description="A (one indexed) number representing the first semester when a senior or empty is never reaching that rank. Must be less than or equal to number of semesters.",
         ge=1,
     )
-    first_semester_graduate: int | None = Field(
-        None,
-        description="A (one indexed) number representing the first semester when a graduate or empty is never reaching that rank. Must be less than or equal to number of semesters.",
-        ge=1,
-    )
-    first_semester_doctoral: int | None = Field(
-        None,
-        description="A (one indexed) number representing the first semester when a doctoral or empty is never reaching that rank. Must be less than or equal to number of semesters.",
-        ge=1,
-    )
 
     @computed_field
     @property
     def desired_course_ids(self) -> list[tuple[str] | tuple[str, int]]:
-        return parseCourseIds(self.desired_course_ids_str)
+        return parse_course_ids(self.desired_course_ids_str)
 
     @computed_field
     @property
     def undesired_course_ids(self) -> list[tuple[str] | tuple[str, int]]:
-        return parseCourseIds(self.undesired_course_ids_str)
+        return parse_course_ids(self.undesired_course_ids_str)
 
     @computed_field
     @property
     def desired_degree_ids(self) -> list[str]:
-        return parseDegreeIds(self.desired_degree_ids_str)
+        return parse_degree_ids(self.desired_degree_ids_str)
+
+    @computed_field
+    @property
+    def transferred_course_ids(self) -> list[str]:
+        return parse_transferred_course_ids(self.transferred_course_ids_str)
