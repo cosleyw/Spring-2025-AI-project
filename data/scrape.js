@@ -47,7 +47,7 @@ let scrape_course = (el) => {
 
 	let [_1, course, name, _2, hours] = title.textContent
 		.trim()
-		.match(/(.+)\.([^—]*)(—(.+)\.|\.)/)
+		.match(/([^.]+)\.([^—]*)(—(.+)\.|\.)/)
 
 	course = course.trim();
 	name = name.trim();
@@ -72,9 +72,10 @@ let scrape_department = (dom, meta) => {
 	let dept_page = dom.getElementById("textcontainer");
 
 	if(course_inv){
-		let courses = [...[...course_inv.children]
-			.find(v => v.classList.contains("courses"))
-			.children].filter(v => v.classList.contains("courseblock"))
+		let courses = [...course_inv.children]
+			.filter(v => v.classList.contains("courses"))
+			.map(v => [...v.children]).flat()
+			.filter(v => v.classList.contains("courseblock"))
 			.map(scrape_course);
 		dept.courses = courses;
 	}
@@ -112,14 +113,74 @@ let scrape_department = (dom, meta) => {
 	return dept;
 };
 
+
+let hash = a => a.toLowerCase().match(/[a-z0-9]/g).join("");
+let req_repl = Object.fromEntries(Object.entries(JSON.parse(read_file("req_repl.json"))).map(([k, v])=> [hash(k), v]));
+
+let structure_course = (course) => {
+	let semester = course.desc.at(-1).match(/\(([^()]*)\)$/)?.[1];
+	let desc = course.desc.join(" ");
+
+	let prereq = desc.match(/Prerequisite\(s\):([^:]*)\./)?.[1] ?? "";
+	let coreq = desc.match(/Corequisite\(s\):([^.:]*)\./)?.[1] ?? "";
+	let preorco = desc.match(/Prerequisite\(s\) or corequisite\(s\):([^.:]*)\./)?.[1] ?? "";
+
+	let fmt = (str) => {
+		let reqs = str
+			.split(";")
+			.map(v => v.trim())
+			.filter(v => v);
+
+		let repl = reqs.filter(v => req_repl[hash(v)] != null).map(v => req_repl[hash(v)]);
+		let keep = reqs.filter(v => req_repl[hash(v)] == null);
+
+		//console.log("reqs", reqs, "maps to", reqs.map(v => req_repl[hash(v)]));
+
+
+		return [keep, ...repl].flat();
+	};
+
+	prereq = fmt(prereq);
+	coreq = fmt(coreq);
+	preorco = fmt(preorco);
+
+	return {...course, desc, prereq, coreq, preorco, semester};
+}
+
+let structure_programs = (prog) => {
+	let reqs = prog.reqs.map(v => v[0]);
+
+	return prog;
+}
+
+let structure_data = (dept) => {
+	let {programs, courses} = dept;
+
+	if(courses){
+		courses = courses.map(structure_course);
+	}
+
+	if(programs){
+		programs = programs.map(structure_programs);
+	}
+
+	return {programs, courses};
+};
+
 (async () => {
 	if(!list_files("./").includes("raw_data.json")){
 		await scrape_index();
 	}
 
-	let raw_data = JSON.parse(read_file("raw_data.json"));
+	if(!list_files("./").includes("data.json")){
+		let raw_data = JSON.parse(read_file("raw_data.json"));
 
-	let dept_data = raw_data.pages.map((v, i) => scrape_department(new jsdom.JSDOM(v).window.document, raw_data.index[i]));
+		let dept_data = raw_data.pages.map((v, i) => scrape_department(new jsdom.JSDOM(v).window.document, raw_data.index[i]));
 
-	write_file("data.json", JSON.stringify(dept_data));
+		write_file("data.json", JSON.stringify(dept_data));
+	}
+
+	let data = JSON.parse(read_file("data.json"));
+	
+	write_file("structured_data.json", JSON.stringify(data.map(structure_data)));
 })();
