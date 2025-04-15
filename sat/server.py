@@ -13,7 +13,9 @@ app = FastAPI(
     description="This is a basic API for generaing course schedules.",
     version="0.0.1",
     openapi_tags=[
-        # {"name": "items", "description": "Operations with items."},
+        {"name": "courses", "description": "Operations with courses."},
+        {"name": "degrees", "description": "Operations with degrees."},
+        {"name": "schedules", "description": "Operations with schedules."},
     ],
 )
 
@@ -58,7 +60,7 @@ def load_degrees():
         return json.load(file)["degrees"]
 
 
-@app.get("/courses", summary="Search for courses")
+@app.get("/courses", summary="Search for courses", tags=["courses"])
 async def get_courses(
     query: str | None = None,
     min: int | None = None,
@@ -72,7 +74,7 @@ async def get_courses(
     return {"status": "success", "courses": courses}
 
 
-@app.get("/courses/{id}", summary="Get a specific course by its id")
+@app.get("/courses/{id}", summary="Get a specific course by its id", tags=["courses"])
 async def get_courses(id):
     courses = load_courses()
     for course in courses:
@@ -81,7 +83,7 @@ async def get_courses(id):
     return {"status": "failure", "message": "Was unable to find a course with the specified id"}
 
 
-@app.get("/degrees", summary="Search for degrees")
+@app.get("/degrees", summary="Search for degrees", tags=["degrees"])
 async def get_degrees(
     query: str | None = None,
 ):
@@ -90,7 +92,7 @@ async def get_degrees(
     return {"status": "success", "degrees": degrees}
 
 
-@app.get("/degrees/{id}", summary="Get a specific degree by its id")
+@app.get("/degrees/{id}", summary="Get a specific degree by its id", tags=["degrees"])
 async def get_degrees(id):
     degrees = load_degrees()
     for degree in degrees:
@@ -99,7 +101,7 @@ async def get_degrees(id):
     return {"status": "failure", "message": "Was unable to find a degree with the specified id"}
 
 
-@app.get("/schedules/generate")
+@app.get("/schedules/generate", summary="Generate a user schedule", tags=["schedules"])
 def generate_schedule(configuration: Annotated[ScheduleConfiguration, Query()]):
     Course.courses = {}
     Degree.degrees = {}
