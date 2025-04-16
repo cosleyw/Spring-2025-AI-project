@@ -1,0 +1,566 @@
+{
+  "courses": [
+    {
+      "name": "Grimes, Johnson and Gibson",
+      "id": 1,
+      "credits": 2,
+      "season": "SPRING"
+    },
+    {
+      "name": "Brown-Lindsey",
+      "id": 2,
+      "credits": 4,
+      "season": "ODD_SPRING",
+      "requirements": { "type": "CO", "value": 2 }
+    },
+    {
+      "name": "Blanchard-Conner",
+      "id": 3,
+      "credits": 5,
+      "season": "ODD_FALL",
+      "requirements": { "type": "CO", "value": 1 }
+    },
+    {
+      "name": "Price, Dawson and Sanchez",
+      "id": 4,
+      "credits": 4,
+      "season": "EVEN_SPRING"
+    },
+    {
+      "name": "Paul Inc",
+      "id": 5,
+      "credits": 5,
+      "season": "SPRING",
+      "requirements": { "type": "PRE", "value": 2 }
+    },
+    {
+      "name": "Mccann-Paul",
+      "id": 6,
+      "credits": 4,
+      "season": "ODD_FALL",
+      "requirements": { "type": "CO", "value": 6 }
+    },
+    {
+      "name": "Mills, Holland and Castaneda",
+      "id": 7,
+      "credits": 3,
+      "season": "EVEN_FALL"
+    },
+    {
+      "name": "Sanchez, Wilson and Petty",
+      "id": 8,
+      "credits": 2,
+      "season": "FALL_AND_SPRING",
+      "requirements": { "type": "PRE", "value": 4 }
+    },
+    {
+      "name": "Sanchez, Brooks and Johnson",
+      "id": 9,
+      "credits": 4,
+      "season": "ODD_FALL"
+    },
+    { "name": "Collins-Gray", "id": 10, "credits": 2, "season": "EVEN_FALL" },
+    {
+      "name": "Clay, Johns and Anderson",
+      "id": 11,
+      "credits": 2,
+      "season": "ODD_FALL"
+    },
+    {
+      "name": "Leonard-Smith",
+      "id": 12,
+      "credits": 4,
+      "season": "EVEN_FALL",
+      "requirements": { "type": "CO", "value": 8 }
+    },
+    {
+      "name": "Mccullough, White and Johnson",
+      "id": 13,
+      "credits": 3,
+      "season": "ODD_FALL",
+      "requirements": { "type": "CO", "value": 8 }
+    },
+    {
+      "name": "Carr, Cannon and Baker",
+      "id": 14,
+      "credits": 3,
+      "season": "VARIES",
+      "requirements": { "type": "PRE", "value": 5 }
+    },
+    {
+      "name": "Hoover and Sons",
+      "id": 15,
+      "credits": 4,
+      "season": "EVEN_FALL",
+      "requirements": {
+        "type": "OR",
+        "items": [
+          { "type": "CO", "value": 10 },
+          { "type": "CO", "value": 7 },
+          { "type": "PRE", "value": 2 }
+        ]
+      }
+    },
+    {
+      "name": "Ramos-Soto",
+      "id": 16,
+      "credits": 3,
+      "season": "SPRING",
+      "requirements": { "type": "CO", "value": 7 }
+    },
+    {
+      "name": "Kelley, Wells and Santana",
+      "id": 17,
+      "credits": 2,
+      "season": "EVEN_SPRING",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          { "type": "CO", "value": 1 },
+          { "type": "PRE", "value": 1 },
+          { "type": "CO", "value": 2 },
+          { "type": "PRE", "value": 4 }
+        ]
+      }
+    },
+    {
+      "name": "Steele, Davidson and Williams",
+      "id": 18,
+      "credits": 2,
+      "season": "VARIES",
+      "requirements": { "type": "PRE", "value": 16 }
+    },
+    {
+      "name": "Miller, Day and Carroll",
+      "id": 19,
+      "credits": 4,
+      "season": "FALL_AND_SPRING"
+    },
+    { "name": "Rivera LLC", "id": 20, "credits": 3, "season": "ODD_SPRING" },
+    { "name": "Good-Fry", "id": 21, "credits": 3, "season": "VARIES" },
+    {
+      "name": "Mcdonald, Steele and Simmons",
+      "id": 22,
+      "credits": 3,
+      "season": "ODD_SPRING",
+      "requirements": { "type": "CO", "value": 20 }
+    },
+    {
+      "name": "Williams PLC",
+      "id": 23,
+      "credits": 4,
+      "season": "ODD_SPRING",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          { "type": "CO", "value": 15 },
+          { "type": "PRE", "value": 5 }
+        ]
+      }
+    },
+    {
+      "name": "Torres, Garcia and Drake",
+      "id": 24,
+      "credits": 5,
+      "season": "ODD_FALL"
+    },
+    {
+      "name": "Chavez Inc",
+      "id": 25,
+      "credits": 5,
+      "season": "SPRING",
+      "requirements": { "type": "RANK", "value": "SR" }
+    },
+    {
+      "name": "Thomas, Montgomery and King",
+      "id": 26,
+      "credits": 5,
+      "season": "EVEN_FALL",
+      "requirements": { "type": "CO", "value": 10 }
+    },
+    {
+      "name": "Smith Group",
+      "id": 27,
+      "credits": 2,
+      "season": "FALL_AND_SPRING"
+    },
+    {
+      "name": "Jones, Harris and Ellis",
+      "id": 28,
+      "credits": 3,
+      "season": "EVEN_FALL"
+    },
+    {
+      "name": "Reynolds-Jacobs",
+      "id": 29,
+      "credits": 3,
+      "season": "EVEN_FALL",
+      "requirements": { "type": "CO", "value": 14 }
+    },
+    {
+      "name": "Owens, Vasquez and Schneider",
+      "id": 30,
+      "credits": 4,
+      "season": "VARIES",
+      "requirements": { "type": "PRE", "value": 21 }
+    },
+    {
+      "name": "Bell, Taylor and Hunt",
+      "id": 31,
+      "credits": 4,
+      "season": "FALL"
+    },
+    {
+      "name": "Kelly Inc",
+      "id": 32,
+      "credits": 2,
+      "season": "FALL",
+      "requirements": { "type": "PRE", "value": 15 }
+    },
+    {
+      "name": "Riley-Patel",
+      "id": 33,
+      "credits": 3,
+      "season": "SPRING",
+      "requirements": { "type": "CO", "value": 26 }
+    },
+    {
+      "name": "Castaneda, Singh and Blanchard",
+      "id": 34,
+      "credits": 4,
+      "season": "FALL_AND_SPRING",
+      "requirements": { "type": "CO", "value": 8 }
+    },
+    { "name": "Spence Ltd", "id": 35, "credits": 3, "season": "SPRING" },
+    { "name": "Bryant-Jones", "id": 36, "credits": 4, "season": "VARIES" },
+    {
+      "name": "Walker, Johnson and Morgan",
+      "id": 37,
+      "credits": 2,
+      "season": "EVEN_SPRING",
+      "requirements": {
+        "type": "OR",
+        "items": [
+          { "type": "CO", "value": 25 },
+          { "type": "CO", "value": 23 },
+          { "type": "CO", "value": 18 }
+        ]
+      }
+    },
+    {
+      "name": "Sandoval, Werner and White",
+      "id": 38,
+      "credits": 3,
+      "season": "VARIES"
+    },
+    {
+      "name": "Alvarez-Wall",
+      "id": 39,
+      "credits": 5,
+      "season": "VARIES",
+      "requirements": { "type": "PRE", "value": 37 }
+    },
+    {
+      "name": "Taylor, Wright and Thompson",
+      "id": 40,
+      "credits": 3,
+      "season": "SPRING",
+      "requirements": { "type": "CO", "value": 28 }
+    },
+    { "name": "Green-Skinner", "id": 41, "credits": 4, "season": "VARIES" },
+    { "name": "Williams and Sons", "id": 42, "credits": 2, "season": "VARIES" },
+    { "name": "Gallegos-Scott", "id": 43, "credits": 2, "season": "VARIES" },
+    { "name": "King-Parker", "id": 44, "credits": 2, "season": "ODD_SPRING" },
+    {
+      "name": "Fernandez and Sons",
+      "id": 45,
+      "credits": 2,
+      "season": "VARIES",
+      "requirements": { "type": "CO", "value": 31 }
+    },
+    {
+      "name": "Carter, Walker and Ramirez",
+      "id": 46,
+      "credits": 3,
+      "season": "ODD_FALL"
+    },
+    {
+      "name": "Rodriguez-Young",
+      "id": 47,
+      "credits": 5,
+      "season": "FALL",
+      "requirements": {
+        "type": "AND",
+        "items": [
+          { "type": "CO", "value": 43 },
+          { "type": "PRE", "value": 14 }
+        ]
+      }
+    },
+    {
+      "name": "Sullivan LLC",
+      "id": 48,
+      "credits": 4,
+      "season": "SPRING",
+      "requirements": { "type": "CO", "value": 32 }
+    },
+    {
+      "name": "Smith, Middleton and Mccarty",
+      "id": 49,
+      "credits": 4,
+      "season": "SPRING",
+      "requirements": {
+        "type": "OR",
+        "items": [
+          { "type": "RANK", "value": "JR" },
+          { "type": "CO", "value": 28 }
+        ]
+      }
+    },
+    {
+      "name": "Brown, Hudson and Perez",
+      "id": 50,
+      "credits": 3,
+      "season": "SPRING"
+    },
+    {
+      "name": "Wright-Wilson",
+      "id": 51,
+      "credits": 3,
+      "season": "FALL_AND_SPRING",
+      "requirements": { "type": "RANK", "value": "JR" }
+    },
+    {
+      "name": "Moore, Swanson and Smith",
+      "id": 52,
+      "credits": 2,
+      "season": "EVEN_FALL",
+      "requirements": { "type": "PRE", "value": 43 }
+    },
+    {
+      "name": "Brown, Moore and Snyder",
+      "id": 53,
+      "credits": 2,
+      "season": "FALL_AND_SPRING",
+      "requirements": {
+        "type": "OR",
+        "items": [
+          { "type": "PRE", "value": 38 },
+          { "type": "CO", "value": 38 }
+        ]
+      }
+    },
+    {
+      "name": "Barr, Austin and Mcdowell",
+      "id": 54,
+      "credits": 2,
+      "season": "EVEN_SPRING",
+      "requirements": { "type": "CO", "value": 2 }
+    },
+    {
+      "name": "Cox, Harris and Good",
+      "id": 55,
+      "credits": 2,
+      "season": "ODD_SPRING",
+      "requirements": { "type": "PRE", "value": 8 }
+    },
+    {
+      "name": "Schaefer-Ortega",
+      "id": 56,
+      "credits": 3,
+      "season": "ODD_SPRING"
+    },
+    {
+      "name": "Sanders-Johnson",
+      "id": 57,
+      "credits": 2,
+      "season": "ODD_SPRING"
+    },
+    {
+      "name": "Leonard and Sons",
+      "id": 58,
+      "credits": 3,
+      "season": "VARIES",
+      "requirements": { "type": "CO", "value": 12 }
+    },
+    {
+      "name": "Cunningham LLC",
+      "id": 59,
+      "credits": 3,
+      "season": "VARIES",
+      "requirements": { "type": "CO", "value": 43 }
+    },
+    { "name": "Hendricks-Long", "id": 60, "credits": 5, "season": "SPRING" },
+    { "name": "Brown-Gardner", "id": 61, "credits": 4, "season": "VARIES" },
+    {
+      "name": "Leonard, Collins and Ali",
+      "id": 62,
+      "credits": 4,
+      "season": "ODD_FALL",
+      "requirements": { "type": "PRE", "value": 45 }
+    },
+    { "name": "Henson Group", "id": 63, "credits": 4, "season": "VARIES" },
+    {
+      "name": "Graham Group",
+      "id": 64,
+      "credits": 2,
+      "season": "EVEN_SPRING",
+      "requirements": { "type": "PRE", "value": 44 }
+    },
+    {
+      "name": "Taylor, Mclean and Garcia",
+      "id": 65,
+      "credits": 5,
+      "season": "FALL_AND_SPRING"
+    },
+    {
+      "name": "Chavez LLC",
+      "id": 66,
+      "credits": 2,
+      "season": "FALL_AND_SPRING"
+    },
+    { "name": "Mendez-Davis", "id": 67, "credits": 5, "season": "FALL" },
+    { "name": "Cuevas Inc", "id": 68, "credits": 4, "season": "EVEN_FALL" },
+    {
+      "name": "Herman Inc",
+      "id": 69,
+      "credits": 4,
+      "season": "FALL",
+      "requirements": { "type": "PRE", "value": 15 }
+    },
+    {
+      "name": "Hawkins-Barr",
+      "id": 70,
+      "credits": 3,
+      "season": "ODD_SPRING",
+      "requirements": { "type": "CO", "value": 66 }
+    },
+    {
+      "name": "Harris, Edwards and Burton",
+      "id": 71,
+      "credits": 2,
+      "season": "EVEN_FALL",
+      "requirements": { "type": "PRE", "value": 14 }
+    },
+    {
+      "name": "Porter, Castro and Payne",
+      "id": 72,
+      "credits": 4,
+      "season": "ODD_FALL",
+      "requirements": { "type": "CO", "value": 18 }
+    },
+    {
+      "name": "Macias, Meyers and Bird",
+      "id": 73,
+      "credits": 4,
+      "season": "ODD_FALL",
+      "requirements": { "type": "PRE", "value": 46 }
+    },
+    { "name": "Castillo Ltd", "id": 74, "credits": 4, "season": "ODD_SPRING" },
+    {
+      "name": "Glover-Turner",
+      "id": 75,
+      "credits": 4,
+      "season": "FALL_AND_SPRING"
+    },
+    {
+      "name": "Carter, Duran and Middleton",
+      "id": 76,
+      "credits": 4,
+      "season": "ODD_FALL"
+    },
+    { "name": "Hammond-Schmidt", "id": 77, "credits": 3, "season": "FALL" },
+    { "name": "Griffith Inc", "id": 78, "credits": 4, "season": "VARIES" },
+    { "name": "Smith-Orr", "id": 79, "credits": 4, "season": "EVEN_SPRING" },
+    { "name": "Ferguson Ltd", "id": 80, "credits": 2, "season": "FALL" },
+    {
+      "name": "Miller, Phillips and Ferguson",
+      "id": 81,
+      "credits": 3,
+      "season": "VARIES"
+    },
+    {
+      "name": "Gross, Watson and Miller",
+      "id": 82,
+      "credits": 3,
+      "season": "FALL_AND_SPRING"
+    },
+    {
+      "name": "Taylor-Cruz",
+      "id": 83,
+      "credits": 4,
+      "season": "EVEN_SPRING",
+      "requirements": { "type": "CO", "value": 29 }
+    },
+    { "name": "Schmidt-Brennan", "id": 84, "credits": 3, "season": "ODD_FALL" },
+    { "name": "Turner Inc", "id": 85, "credits": 3, "season": "SPRING" },
+    { "name": "Owens-Martinez", "id": 86, "credits": 3, "season": "ODD_FALL" },
+    { "name": "Hall-Stafford", "id": 87, "credits": 5, "season": "SPRING" },
+    {
+      "name": "Stephens-Thomas",
+      "id": 88,
+      "credits": 2,
+      "season": "ODD_FALL",
+      "requirements": { "type": "PRE", "value": 60 }
+    },
+    { "name": "Brown Group", "id": 89, "credits": 4, "season": "FALL" },
+    {
+      "name": "Hernandez-Ruiz",
+      "id": 90,
+      "credits": 2,
+      "season": "EVEN_FALL",
+      "requirements": { "type": "RANK", "value": "SR" }
+    },
+    { "name": "Ellis-Decker", "id": 91, "credits": 4, "season": "VARIES" },
+    {
+      "name": "Burke-Shelton",
+      "id": 92,
+      "credits": 5,
+      "season": "EVEN_SPRING"
+    },
+    {
+      "name": "Miller-Gill",
+      "id": 93,
+      "credits": 2,
+      "season": "ODD_SPRING",
+      "requirements": { "type": "PRE", "value": 7 }
+    },
+    {
+      "name": "Morales PLC",
+      "id": 94,
+      "credits": 3,
+      "season": "EVEN_FALL",
+      "requirements": { "type": "PRE", "value": 85 }
+    },
+    {
+      "name": "Dunn LLC",
+      "id": 95,
+      "credits": 5,
+      "season": "EVEN_FALL",
+      "requirements": { "type": "PRE", "value": 24 }
+    },
+    {
+      "name": "Mullen Group",
+      "id": 96,
+      "credits": 5,
+      "season": "ODD_FALL",
+      "requirements": { "type": "PRE", "value": 65 }
+    },
+    {
+      "name": "Lawrence Inc",
+      "id": 97,
+      "credits": 4,
+      "season": "EVEN_FALL",
+      "requirements": { "type": "CO", "value": 13 }
+    },
+    {
+      "name": "Miller PLC",
+      "id": 98,
+      "credits": 5,
+      "season": "SPRING",
+      "requirements": { "type": "CO", "value": 65 }
+    },
+    { "name": "Perkins LLC", "id": 99, "credits": 2, "season": "VARIES" },
+    { "name": "Perez LLC", "id": 100, "credits": 3, "season": "VARIES" }
+  ]
+}

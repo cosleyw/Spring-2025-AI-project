@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import Depends, FastAPI, Query
+from fastapi import FastAPI, Query
 from models import ScheduleConfiguration
 from config import COURSES_FILE_NAME, DEGREES_FILE_NAME
 import math
@@ -75,7 +75,7 @@ async def get_courses(
 
 
 @app.get("/courses/{id}", summary="Get a specific course by its id", tags=["courses"])
-async def get_courses(id):
+async def get_course_by_id(id):
     courses = load_courses()
     for course in courses:
         if course["id"] == id:
@@ -93,7 +93,7 @@ async def get_degrees(
 
 
 @app.get("/degrees/{id}", summary="Get a specific degree by its id", tags=["degrees"])
-async def get_degrees(id):
+async def get_degree_by_id(id):
     degrees = load_degrees()
     for degree in degrees:
         if degree["id"] == id:
