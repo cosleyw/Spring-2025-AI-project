@@ -6,7 +6,12 @@ let write_file = (path, str) => fs.writeFileSync(path, str);
 
 let st_data = JSON.parse(read_file("./structured_data.json"));
 
-let des_course = (name) => [name.match(/[a-zA-Z]+/)[0], name.match(/[0-9]+/g)];
+let des_course = (name) => [
+	name.match(/^[^0-9]+/)[0].trim()
+		.replaceAll(/[^a-zA-Z]+/g, " ")
+		.toLowerCase(), 
+	name.match(/[0-9]+/g)
+];
 
 
 
@@ -77,8 +82,7 @@ let fix_req = (req) => {
 
 
 let courses = Object.entries(st_data).map(v => v[1]?.courses).filter(v => v).flat().map(v => [
-	v.course.match(/[a-zA-Z]+/)[0], 
-	v.course.match(/[0-9]+/g),
+	...des_course(v.course),
 	v
 ]).map(([dept, nums, full]) => 
 	nums.map(v => ({dept, number: v, name: full.name, hours: full.hours, semester: full.semester, 

@@ -11,18 +11,27 @@ let list_files = path => fs.readdirSync(path);
 let read_file = path => fs.readFileSync(path);
 let write_file = (path, str) => fs.writeFileSync(path, str);
 
-let st_data = JSON.parse(read_file("./structured_data.json"));
-let courses = Object.entries(st_data).map(v => v[1]?.courses).filter(v => v).flat().map(v => [
-	v.course.match(/[a-zA-Z]+/)[0], 
-	v.course.match(/[0-9]+/g)
-]);
+let courses = JSON.parse(read_file("./course_data.json"));
+
+let des_course = (name) => [
+	name.match(/^[^0-9]+/)[0].trim()
+		.replaceAll(/[^a-zA-Z]+/g, " ")
+		.toLowerCase(), 
+	name.match(/[0-9]+/g)
+];
+
 
 
 let course_wildcard = (dept, wc) => {
-	let set = courses.filter(v => v[0] == dept).map(v => v[1]).flat().filter(v => v.length == wc.length);
+	let set = courses.filter(v => v.dept == dept).map(v => v.number).flat().filter(v => v.length == wc.length);
 
 	for(let i = 0; i < wc.length; i++)
-		set = set.filter(v => v == wc[i] || wc[i] == "#");
+		set = set.filter(v => v[i] == wc[i] || wc[i] == "#");
+
+	if(set.length == 0){
+		console.error(dept, wc);
+		console.error(set);
+	}
 
 	return AtleastNCourses(1,1)(...set.map(v => Course(dept + " " + v)));
 }
@@ -315,14 +324,19 @@ let assert = (b, descr) => {
 let fix_tree = (tr) => {
 	let get_type = (type) => type_map[get_line_type(type)];
 	let fix_course = ([id, dept, number]) => {
-		if(/#/.test(number))
-			return course_wildcard(dept, number);
-		return Course(dept + " " + number);
+		try{
+			let course_name = des_course(dept + " " + 1000);
+			if(/#/.test(number))
+				return course_wildcard(course_name[0], number.trim());
+			return Course(course_name[0] + " " + number.tirm());
+		}catch{
+			return null;
+		}
 	}
 
 	let fix_line = (tr) => {
 		let keys = Object.keys(tr);
-		return keys.map(v => get_type(v)(...tr[v].nodes.map(fix_course)));
+		return keys.map(v => get_type(v)(...tr[v].nodes.map(fix_course).filter(v => v)));
 	}
 
 	let fix_req = (tr) => {
