@@ -607,7 +607,7 @@ class CourseSATSolver:
                 refs[i].append(ref)
 
         c = 0
-        for sem in refs:
+        for sem in reversed(refs):
             self.solver.minimize(sum(sem))
             print(c, sem)
             c += 1
