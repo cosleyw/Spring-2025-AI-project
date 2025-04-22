@@ -14,9 +14,7 @@ class DegreeRequirement:
         return self._id
 
     @abstractmethod
-    def eval(self, exclusions: list[Any] = [], id_counts: dict[UUID, int] = {}) -> z3.BoolRef:
-        # TODO: Do the math based on additional and some recursive function to make
-        # this whole thing actually evaluated correctly.
+    def eval(self) -> z3.BoolRef:
         pass
 
     @abstractmethod
@@ -29,17 +27,19 @@ class DegreeRequirement:
 
 
 @typechecked
-class AtLeastK(DegreeRequirement):
-    def __init__(self, k: int, items: list[DegreeRequirement]):
+class CreditRange(DegreeRequirement):
+    def __init__(self, n: int, m: int, items: list[DegreeRequirement], required: bool = False):
         super().__init__()
-        self._k = k
-        self._items = items
+        self._min: int = n
+        self._max: int = m
+        self._items: list[DegreeRequirement] = items
+        self._required = required
 
-        if len(self._items) < self._k:
-            raise ValueError(f"Cannot require {self._k} be taken from (len={len(self._items)}) items '{self._items}'")
+        if self._min > self._max:
+            raise ValueError(f"Minimum credits required ({self._min}) cannot exceeed maximum credits required ({self._max}) for a degree")
 
-        if self._k <= 0:
-            raise ValueError("Cannot use AtLeastK with k <= 0; receieved k='{self._k}'")
+        if self._max <= 0:
+            raise ValueError("Cannot use CreditRange with max <= 0; receieved max='{self._max}'")
 
     @override
     def get_courses(self) -> list[Any]:
@@ -56,25 +56,53 @@ class AtLeastK(DegreeRequirement):
         return nodes
 
     @override
-    def eval(self, exclusions: list[Any] = [], id_counts: dict[UUID, int] = {}) -> z3.BoolRef:
-        # TODO: Implement the evaluation model or none of this works
-        values = [item.eval(exclusions, id_counts) for item in self._items]
-        k: int
-        if self._id in id_counts:
-            k = id_counts[self._id]
+    def eval(self) -> z3.BoolRef:
+        # We require that the sum of all courses matches our range
+        all_courses = [course.get_credits() * course.eval() for course in self.get_nodes() if isinstance(course, ReqCourse)]
+        # and we meet all other requirements
+        recursive_requirements = [item.eval() for item in self._items if not isinstance(item, ReqCourse)]
+
+        if not self._required:
+            return z3.Or(
+                [
+                    z3.And(
+                        [
+                            sum(all_courses) >= self._min,
+                            sum(all_courses) <= self._max,
+                            *recursive_requirements,
+                        ]
+                    ),
+                    sum(all_courses) == 0,
+                ],
+            )
         else:
-            k = self._k
-        return sum(values) >= k
-
-    def get_k(self) -> int:
-        return self._k
+            return z3.And(
+                [
+                    sum(all_courses) >= self._min,
+                    sum(all_courses) <= self._max,
+                    *recursive_requirements,
+                ]
+            )
 
 
 @typechecked
-class And(DegreeRequirement):
-    def __init__(self, items: list[DegreeRequirement]):
+class CourseRange(DegreeRequirement):
+    def __init__(self, n: int, m: int, items: list[DegreeRequirement], required: bool = False):
         super().__init__()
+        self._min: int = n
+        self._max: int = m
         self._items: list[DegreeRequirement] = items
+        self._required = required
+
+        if self._min > self._max:
+            raise ValueError(f"Minimum courses required ({self._min}) cannot exceeed maximum courses required ({self._max}) for a degree")
+
+        # Can no longer make this assertion since counts are determined recursively
+        # if len(self._items) < self._min:
+        #    raise ValueError(f"Cannot require {self._min} be taken from (len={len(self._items)}) items '{self._items}'")
+
+        if self._max <= 0:
+            raise ValueError("Cannot use CourseRange with max <= 0; receieved max='{self._max}'")
 
     @override
     def get_courses(self) -> list[Any]:
@@ -91,33 +119,33 @@ class And(DegreeRequirement):
         return nodes
 
     @override
-    def eval(self, exclusions: list[Any] = [], id_counts: dict[UUID, int] = {}) -> z3.BoolRef:
-        return z3.And([item.eval(exclusions, id_counts) for item in self._items])
+    def eval(self) -> z3.BoolRef:
+        # We require that the sum of all courses matches our range
+        all_courses = [course.eval() for course in self.get_nodes() if isinstance(course, ReqCourse)]
+        # and we meet all other requirements
+        recursive_requirements = [item.eval() for item in self._items if not isinstance(item, ReqCourse)]
 
-
-@typechecked
-class Or(DegreeRequirement):
-    def __init__(self, items: list[DegreeRequirement]):
-        super().__init__()
-        self._items: list[DegreeRequirement] = items
-
-    @override
-    def get_courses(self) -> list[Any]:
-        courses = []
-        for item in self._items:
-            courses.extend(item.get_courses())
-        return courses
-
-    @override
-    def get_nodes(self) -> list["DegreeRequirement"]:
-        nodes: list["DegreeRequirement"] = [self]
-        for item in self._items:
-            nodes.extend(item.get_nodes())
-        return nodes
-
-    @override
-    def eval(self, exclusions: list[Any] = [], id_counts: dict[UUID, int] = {}) -> z3.BoolRef:
-        return z3.Or([item.eval(exclusions, id_counts) for item in self._items])
+        if not self._required:
+            return z3.Or(
+                [
+                    z3.And(
+                        [
+                            sum(all_courses) >= self._min,
+                            sum(all_courses) <= self._max,
+                            *recursive_requirements,
+                        ],
+                    ),
+                    sum(all_courses) == 0,
+                ]
+            )
+        else:
+            return z3.And(
+                [
+                    sum(all_courses) >= self._min,
+                    sum(all_courses) <= self._max,
+                    *recursive_requirements,
+                ]
+            )
 
 
 @typechecked
@@ -125,6 +153,7 @@ class ReqCourse(DegreeRequirement):
     def __init__(self, course):
         super().__init__()
         self._course = course
+        self._ref = course.add_as_degree_req()
 
     @override
     def get_courses(self) -> list[Any]:
@@ -135,11 +164,11 @@ class ReqCourse(DegreeRequirement):
         return [self]
 
     @override
-    def eval(self, exclusions: list[Any] = [], id_counts: dict[UUID, int] = {}) -> z3.BoolRef:
-        return self._course.add_as_degree_req()
-        # if self._course in exclusions:
-        #    return z3.BoolVal(False)
-        # return self._course.at()
+    def eval(self) -> z3.BoolRef:
+        return self._ref
+
+    def get_credits(self) -> int:
+        return self._course.get_credits()
 
 
 # TODO: Implement degree requirements
@@ -166,56 +195,44 @@ class DegreeRequirementManager:
             self._raw_requirements,
             course,
             degree,
-            **{
-                "sophomore": sophomore,
-                "junior": junior,
-                "senior": senior,
-            },
+            sophomore,
+            junior,
+            senior,
         )
 
     # TODO: Delete this method, it was only here for testing
     def get_courses(self):
         return self._requirements.get_courses()
 
-    def _parse_recursive(self, requirements: Any, course, degree, **kwargs) -> DegreeRequirement:
+    def _parse_recursive(self, requirements: Any, course, degree, sophomore, junior, senior) -> DegreeRequirement:
+        def parse_recursive_helper(requirements: Any, required=False):
+            type = requirements.get("type")
+            # TODO: Can change this back to recrusive call with req.get(node) as requirements
+            while type == "tag":
+                requirements = requirements.get("node")
+                type = requirements.get("type")
+
+            if type == "course":
+                course_id = requirements.get("course")
+                course = self._course_manager.by_id(course_id)
+                return ReqCourse(course)
+                raise NotImplementedError("Degrees requireing courses is not in yet")
+            elif type.endswith("-range"):
+                minimum = requirements.get("n")
+                maximum = requirements.get("m")
+                options = requirements.get("options")
+                options = [parse_recursive_helper(option) for option in options]
+                if type == "credit-range":
+                    return CreditRange(minimum, maximum, options, required)
+                elif type == "course-range":
+                    return CourseRange(minimum, maximum, options, required)
+                else:
+                    raise ValueError(f"Found invalid degree requirement type {type}.")
+
         if len(requirements) == 0:
             raise ValueError("Trying to parse non-existant requirements")
 
-        recurse = lambda req: self._parse_recursive(req, course, degree, **kwargs)
-
-        type = requirements.get("type")
-
-        match type:
-            case "AND":
-                items = requirements.get("items")
-                parsed_items = [recurse(req) for req in items]
-                return And(parsed_items)
-            case "COURSE":
-                return ReqCourse(self._course_manager.by_id(requirements.get("value")))
-            # case "RANK":
-            #     return ReqRank(kwargs["junior"])
-            case "OR":  # TODO: Or is actually ann ATLEASTK with K=1, implement it as such
-                items = requirements.get("items")
-                parsed_items = [recurse(req) for req in items]
-                return Or(parsed_items)
-            # case "ATLEASTK_CREDITS":
-            #    k = requirements.get("k")
-            #    courses = [self._parse_recursive(req) for req in requirements.get("items")]
-            #    return sum(courses) >= k
-            case "ATLEASTK":
-                k = requirements.get("k")
-                items = [recurse(req) for req in requirements.get("items")]
-                return AtLeastK(k, items)
-            # case "ATMOSTK_COURSES":
-            #    k = requirements.get("k")
-            #    courses = [self._parse_recursive(req) for req in requirements.get("items")]
-            #    return sum(courses) <= k
-            # case "EXACTLYK_COURSES":
-            #    k = requirements.get("k")
-            #    courses = [self._parse_recursive(req) for req in requirements.get("items")]
-            #    return sum(courses) == k
-            case _:
-                raise ValueError("Found invalid degree requirement")
+        return parse_recursive_helper(requirements, True)
 
     def generate(self) -> z3.BoolRef:
         return self._requirements.eval()

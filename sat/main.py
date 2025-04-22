@@ -183,7 +183,7 @@ class CourseManager:
 
     def by_id(self, id: Any) -> "Course":
         if id not in self._courses:
-            raise IndexError(f"Unable to find id '{id} in courses")
+            raise IndexError(f"Unable to find id '{id}' in courses")
         return self._courses[id]
 
     def get_semester_count(self) -> int:
@@ -212,13 +212,13 @@ class Course:
         desc: str | None = None,
     ):
         self._name: str = name
-        self._id: Any = id.upper()  # TODO: Ideally get rid of this
+        self._id: Any = id
         self._requirements: Any = {
             "prereq": prereq,
             "coreq": coreq,
             "preorco": preorco,
         }
-        self._dept: str = dept.upper()  # TODO: Ideally get rid of this
+        self._dept: str = dept
         self._number: str = number
         # TODO: This is not the best solution, but works for now
         self._credits: int = hours[0]
@@ -249,6 +249,9 @@ class Course:
         ref = RefManager.allocate(None)
         self._taken_for_specific_rg.append(ref)
         return ref
+
+    def get_taken_as_degree_req(self) -> list[BoolRef]:
+        return self._taken_for_specific_rg
 
     def generate_taken_requirement_cnf(self) -> BoolRef:
         requirements: list[BoolRef] = []
@@ -319,6 +322,8 @@ class Course:
                 offering_list = [False, True, False, False]
             case Offering.FALL_AND_SPRING | Offering.VARIABLE:
                 offering_list = [True, True, True, True]
+            case _:
+                raise NotImplementedError(f"Not yet implemented offering for {self._season}...")
 
         # Going from starting fall to starting spring = 1 rotation
         # Going from odd starting year to even = 2 rotation
@@ -359,7 +364,7 @@ class Course:
 
             match type:
                 case "course":
-                    course_id = requirements.get("dept").upper() + " " + requirements.get("number")
+                    course_id = requirements.get("dept") + " " + requirements.get("number")
                     try:
                         course = self._course_manager.by_id(course_id)
                     except Exception as e:
@@ -491,10 +496,17 @@ class CourseSATSolver:
 
     def _load_degrees(self, file_name: str) -> None:
         with open(file_name, "r") as file:
-            raw_degrees = json.load(file)["degrees"]
+            raw_degrees = json.load(file)
 
-        for raw_degree in raw_degrees:
-            self.degree_manager.add_degree(Degree(**raw_degree, course_manager=self.course_manager))
+        for name, requirements in raw_degrees.items():
+            self.degree_manager.add_degree(
+                Degree(
+                    name=name,
+                    id=name,
+                    requirements=requirements,
+                    course_manager=self.course_manager,
+                )
+            )
 
         # for degree in self.degree_manager:
         #    print(degree)
@@ -593,6 +605,10 @@ class CourseSATSolver:
 
         self.solver.minimize(sum(refs))
 
+    def solve_all(self) -> None:
+        while self.solve():
+            self.display()
+
     # TODO: Could implement a pseudo-minimization by after we solve it, going through
     # and setting each variable to false then seeing if you are still sat.
     # Somehow  you have to make sure it doesn't just as a ton of other classes
@@ -641,11 +657,11 @@ class CourseSATSolver:
         plan = plan or self.plan
         if plan is None:
             raise Exception("Cannot get plan ids for an empty plan")
-        plan = []
-        for semester in self.plan:
+        possible_plans = []
+        for semester in plan:
             courses = [course.get_id() for course in semester]
-            plan.append(courses)
-        return plan
+            possible_plans.append(courses)
+        return possible_plans
 
     def display(self) -> None:
         if self.plan is None:
@@ -684,17 +700,20 @@ if __name__ == "__main__":
     # These will all be taken as input from the user
     c: CourseSATSolver = CourseSATSolver(
         semester_count=4,  # Number of semester to calculate for
-        min_credit_per_semester=3,  # Minimum credits (inclusive)
+        min_credit_per_semester=0,  # Minimum credits (inclusive)
         max_credits_per_semester=16,  # Maximum credits (inclusive)
         starts_as_fall=True,
-        start_year=2025,
+        start_year=2026,
         transferred_course_ids=[],  # ["CS1410", "CS1510"],
         desired_course_ids=[
-            # ("CS3430/5430", 4),
-            # ("CS1160",),
+            # ("cs 1410", 1),
+            # ("cs 3470",),
         ],
         undesired_course_ids=[
-            # ("CS4410/5410",),
+            # ("cs 3810",),
+            # ("cs 4410",),
+            # ("cs 5410",),
+            # ("cs 4550",),
         ],
         desired_degree_ids=["CS:BA"],
         first_semester_sophomore=1,  # NOTE: One-indexed!

@@ -1,0 +1,37 @@
+{
+    "CS:BA": {
+        "type": "credit-range",
+        "n": 11,
+        "m": 15,
+        "options": [
+            {
+                "type": "course",
+                "course": "cs 1410"
+            },
+            {
+                "type": "course",
+                "course": "cs 1510"
+            },
+            {
+                "type": "course",
+                "course": "cs 1520"
+            },
+            {
+                "type": "course",
+                "course": "cs 1800"
+            },
+            {
+                "type": "course",
+                "course": "cs 2530"
+            },
+            {
+                "type": "course",
+                "course": "cs 3730"
+            },
+            {
+                "type": "course",
+                "course": "cs 3470"
+            }
+        ]
+    }
+}

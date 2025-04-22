@@ -1,0 +1,159 @@
+{
+    "CS:BA": {
+        "type": "course-range",
+        "n": 3,
+        "m": 3,
+        "options": [
+            {
+                "type": "tag",
+                "info": "SPECIALTY AREA EMPHASIS",
+                "node": {
+                    "type": "course-range",
+                    "n": 3,
+                    "m": 3,
+                    "options": [
+                        {
+                            "type": "course-range",
+                            "n": 3,
+                            "m": 3,
+                            "options": [
+                                {
+                                    "type": "course-range",
+                                    "n": 2,
+                                    "m": 2,
+                                    "options": [
+                                        {
+                                            "type": "course",
+                                            "course": "cs 3530"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "course": "cs 3540"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "course": "cs 3810"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "course",
+                                    "course": "cs 4550"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "course-range",
+                            "n": 3,
+                            "m": 3,
+                            "options": [
+                                {
+                                    "type": "course-range",
+                                    "n": 2,
+                                    "m": 2,
+                                    "options": [
+                                        {
+                                            "type": "course",
+                                            "course": "cs 3140"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "course": "cs 3150"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "course": "cs 3610"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "course": "cs 3650"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "course",
+                                    "course": "cs 4620"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "course-range",
+                            "n": 3,
+                            "m": 3,
+                            "options": [
+                                {
+                                    "type": "course-range",
+                                    "n": 2,
+                                    "m": 2,
+                                    "options": [
+                                        {
+                                            "type": "course",
+                                            "course": "cs 2720"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "course": "cs 3120"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "course": "cs 3750"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "course",
+                                    "course": "cs 4740"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "course-range",
+                            "n": 3,
+                            "m": 3,
+                            "options": [
+                                {
+                                    "type": "course-range",
+                                    "n": 2,
+                                    "m": 2,
+                                    "options": [
+                                        {
+                                            "type": "course",
+                                            "course": "cs 2420"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "course": "cs 3430"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "course": "cs 3470"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "course": "cs 4400"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "course-range",
+                                    "n": 1,
+                                    "m": 1,
+                                    "options": [
+                                        {
+                                            "type": "course",
+                                            "course": "cs 4410"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "course": "cs 4420"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

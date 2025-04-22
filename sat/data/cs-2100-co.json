@@ -1,0 +1,49 @@
+[
+    {
+        "dept": "cs",
+        "number": "2100",
+        "name": "Web Development: Server-side Coding",
+        "hours": [
+            3
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 2100",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "some",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1100"
+                }
+            ]
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Development of interactive web sites: server-side scripting; database definition and use; site security; and additional topics as time allows. Prerequisite(s): CS\u00a01100 or consent of instructor.\n (Fall and Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "1100",
+        "name": "Web Development: Client-Side Coding",
+        "hours": [
+            3
+        ],
+        "semester": "Fall",
+        "id": "cs 1100",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Client-side Web development adhering to recent/current Web standards. Includes by-hand Web page development involving basic HTML, CSS, data acquisition using forms, and JavaScript for data validation and simple Web-based tools.\n (Fall)"
+    }
+]

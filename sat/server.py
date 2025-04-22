@@ -27,19 +27,16 @@ def parseCourseIds(desired_course_ids: str) -> list[str]:
 
 def load_courses():
     with open(COURSES_FILE_NAME, "r") as file:
-        return json.load(file)["courses"]
+        return json.load(file)
 
 
-def filter_credit_range(courses, min, max):
-    if min is None:
-        min = -math.inf
-    if max is None:
-        max = math.inf
-    for course in courses:
-        print(min, course["credits"], max)
-        print(type(min), type(course["credits"]), type(max))
-        print(min <= course["credits"] <= max)
-    return list(filter(lambda course: min <= course["credits"] <= max, courses))
+def filter_credit_range(courses, min_req, max_req):
+    if min_req is None:
+        min_req = -math.inf
+    if max_req is None:
+        max_req = math.inf
+    # TODO: Check this math expression
+    return list(filter(lambda course: min_req <= max(course["hours"]) and min(course["hours"]) <= max_req, courses))
 
 
 def filter_name_or_id(objects, query):
@@ -56,8 +53,11 @@ def filter_season(courses, season: Offering | None):
 
 
 def load_degrees():
+    degrees = {}
     with open(DEGREES_FILE_NAME, "r") as file:
-        return json.load(file)["degrees"]
+        for id, degree in json.load(file).items():
+            degrees[id] = {"id": id, **degree}
+    return degrees
 
 
 @app.get("/courses", summary="Search for courses", tags=["courses"])
@@ -85,18 +85,18 @@ async def get_course_by_id(id):
 
 @app.get("/degrees", summary="Search for degrees", tags=["degrees"])
 async def get_degrees(
-    query: str | None = None,
+    query: str = "",
 ):
     degrees = load_degrees()
-    degrees = filter_name_or_id(degrees, query)
+    degrees = list(filter(lambda object: query in object["id"].lower(), degrees.values()))
     return {"status": "success", "degrees": degrees}
 
 
 @app.get("/degrees/{id}", summary="Get a specific degree by its id", tags=["degrees"])
 async def get_degree_by_id(id):
     degrees = load_degrees()
-    for degree in degrees:
-        if degree["id"] == id:
+    for current_id, degree in degrees.items():
+        if id == current_id:
             return {"status": "success", "degree": degree}
     return {"status": "failure", "message": "Was unable to find a degree with the specified id"}
 
