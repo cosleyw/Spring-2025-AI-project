@@ -263,6 +263,8 @@ class Course:
         # Cannot take for credit multiple places
         requirements.append(sum(self._taken_for_specific_rg) <= 1)
 
+        print(requirements)
+
         return And(requirements)
 
     def at(self, start_semester: int | None = None, end_semester: int | None = None) -> BoolRef:
@@ -599,11 +601,16 @@ class CourseSATSolver:
     # WARNING: Be careful, somethings this makes things take forever, right now
     # it seems to be behaving itself though
     def minimize(self) -> None:
-        refs = []
+        refs = [[] for _ in range(self.course_manager.get_semester_count())]
         for course in self.course_manager:
-            refs.extend(course.get_refs())
+            for i, ref in enumerate(course.get_refs()[1:]):
+                refs[i].append(ref)
 
-        self.solver.minimize(sum(refs))
+        c = 0
+        for sem in refs:
+            self.solver.minimize(sum(sem))
+            print(c, sem)
+            c += 1
 
     def solve_all(self) -> None:
         while self.solve():
