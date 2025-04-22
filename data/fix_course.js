@@ -14,6 +14,12 @@ let des_course = (name) => [
 ];
 
 
+let course_set = new Set(Object.entries(st_data).map(v => v[1]?.courses).filter(v => v).flat().map(v => [
+	...des_course(v.course),
+	v
+]).map(([dept, nums, full]) => nums.map(v => dept + " " + nums)).flat());
+
+
 
 
 let True = () => ({type:"true"})
@@ -56,20 +62,27 @@ let fix_req = (req) => {
 			return Standing(v.replaceAll(/standing/ig, "").trim());
 		}
 
-		if(des_course(v)[1].length != 0){
-			let dc = des_course(v);
-			return Some(...dc[1].map(v => Course(dc[0], v)));
-		}
+		try{
+			if(des_course(v)[1].length != 0){
+				let dc = des_course(v);
+				if(!course_set.has(dc[0] + " " + dc[1][0])){
+					console.error("fixme!", v);
+					return null;
+				}
+				return Some(...dc[1].map(v => Course(dc[0], v)));
+			}
+		}catch{}
 			
 		console.error("unexpected thing:", v);
+		return null;
 	};
 
-	let fstr = str.map(fix_str);
+	let fstr = str.map(fix_str).filter(v => v != null);
 	let farr = arr.map(req => {
 		let arr = req.filter(v => Array.isArray(v));
 		let str = req.filter(v => !Array.isArray(v));
 
-		let fstr = str.map(fix_str);
+		let fstr = str.map(fix_str).filter(v => v != null);
 		let farr = arr.map(fix_req);
 
 		return Some(...fstr, ...farr);
@@ -78,8 +91,6 @@ let fix_req = (req) => {
 
 	return simp_tree(All(...fstr, ...farr));
 }
-
-
 
 let courses = Object.entries(st_data).map(v => v[1]?.courses).filter(v => v).flat().map(v => [
 	...des_course(v.course),

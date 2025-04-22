@@ -561,5 +561,268 @@
   "THEATRE 1050 or consent of instructor": ["THEATRE 1050"],
   "consent of advisor and department head": [],
   "THEATRE 1012 or THEATRE 1015": [["THEATRE 1012", "THEATRE 1015"]],
-  "THEATRE 1015 or THEATRE 1012": [["THEATRE 1015", "THEATRE 1012"]]
+  "THEATRE 1015 or THEATRE 1012": [["THEATRE 1015", "THEATRE 1012"]],
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  "for Technology and Engineering Education majors: sophomore standing or consent of instructor. Prerequisites for all other majors: CS 1510 or CS 1160": "for Technology and Engineering Education majors: sophomore standing or consent of instructor. Prerequisites for all other majors: CS 1510 or CS 1160",
+  "Foundations Sequence. Prerequisite(s) or corequisite(s): Level I in the Professional Education Sequence, or consent of instructor": "Foundations Sequence. Prerequisite(s) or corequisite(s): Level I in the Professional Education Sequence, or consent of instructor",
+  "for Art majors and Art History minors: ARTHIST 1111": "for Art majors and Art History minors: ARTHIST 1111",
+  "junior standing. Prerequisites for Art Studio minors: ARTHIST 1111 or ARTHIST 1222": "junior standing. Prerequisites for Art Studio minors: ARTHIST 1111 or ARTHIST 1222",
+  "for Art majors and Art history minors: ARTHIST 1111": "for Art majors and Art history minors: ARTHIST 1111",
+  "junior standing. Prerequisite(s) for Art Studio minors: ARTHIST 1111 or ARTHIST 1222": "junior standing. Prerequisite(s) for Art Studio minors: ARTHIST 1111 or ARTHIST 1222",
+  "junior standing. Prerequisite(s) for non-Art majors: junior standing": "junior standing. Prerequisite(s) for non-Art majors: junior standing",
+  "junior standing. Prerequisites for non-Art majors: junior standing": "junior standing. Prerequisites for non-Art majors: junior standing",
+  "For Art majors and Art History minors: ARTHIST 1111": "For Art majors and Art History minors: ARTHIST 1111",
+  "Prerequisite(s) for Art and Graphic Design majors: ARTHIST 1222": "Prerequisite(s) for Art and Graphic Design majors: ARTHIST 1222",
+
+
+
+
+
+
+  "MATH 1420 or MATH 1150 . Prerequisite(s) or corequisite(s): PHYSICS 1511 or PHYSICS 1701": [["MATH 1420 or MATH 1150"]],
+  "TECH 1037 . Prerequisite(s) or corequisite(s): MATH 1140 . Automation Engineering Technology majors will be waived from MATH 1140": ["TECH 1037"],
+  "MATH 1140 . Automation Engineering Technology majors will be waived from MATH 1140": ["MATH 1140"],
+  "TECH 1039 . Prerequisite(s) or corequisite(s): MATH 1140 or MATH 1150 or MATH 1420": ["TECH 1039"],
+  "junior standing. Prerequisite(s) or corequisite(s): TECH 4103/5103 or CS 3470/5470": ["junior standing"],
+  "junior standing. Prerequisite(s) or corequisite(s): TECH 2055": ["junior standing"],
+  "consent of instructor. Corequisite(s): TECH 6400": [],
+  "junior standing. Corequisite(s): TECH TEE 4200/5200": ["junior standing"],
+  "junior standing. Prerequisites for non-art majors: junior standing": ["junior standing"],
+  "junior standing. Prerequisite for non-Art major: junior standing": ["junior standing"],
+  "junior standing. Prerequisite(s) for other majors: junior standing": ["junior standing"],
+
+
+  "for Art majors and minors: ARTHIST 1111": "for Art majors and minors: ARTHIST 1111",
+  "three 100/3000/4000-level art history courses": "three 100/3000/4000-level art history courses",
+  "Credit applied to the B.S. Biochemistry or B.S. Chemistry major requires the following prerequisites: CHEM 2110 or CHEM 2230 or CHEM 2330 or consent of department head": "Credit applied to the B.S. Biochemistry or B.S. Chemistry major requires the following prerequisites: CHEM 2110 or CHEM 2230 or CHEM 2330 or consent of department head",
+  "for Communication Theatre Education majors: 12 hours of COMM (48C) course work": "for Communication Theatre Education majors: 12 hours of COMM (48C) course work",
+  "COMM DM 2653 or consent of instructor. For Interactive Digital Studies majors and minors: no prerequisites": "COMM DM 2653 or consent of instructor. For Interactive Digital Studies majors and minors: no prerequisites",
+  "junior standing. For Interactive Digital Studies majors and minors: no prerequisites": "junior standing. For Interactive Digital Studies majors and minors: no prerequisites",
+  "for Computer Science majors: CS 1520": "for Computer Science majors: CS 1520",
+  "junior standing. Prerequisite(s) for Data Science minors: CS 2150": "junior standing. Prerequisite(s) for Data Science minors: CS 2150",
+
+
+  "consent of instructor. Prerequisite(s) for non-Art majors: junior standing": [],
+  "junior standing. Prerequisite(s) or corequisite(s): CHEM 4420/5420": ["junior standing"],
+  "junior standing. Prerequisite(s) or corequisite(s): CHEM 4430/5430": ["junior standing"],
+  "junior standing. Prerequisite(s) or corequisite(s): CHEM 4520/5520": ["junior standing"],
+  "junior standing. Prerequisite(s) or corequisite(s): CHEM 2220": ["junior standing"],
+  "junior standing. Prerequisite(s) or corequisite(s): COMM 3555": ["junior standing"],
+  "junior standing. For other majors: junior standing": ["junior standing"],
+  "admitted to graduate program in Speech-Language Pathology or department consent. Corequisite(s): CSD 6500 or consent of instructor": [],
+  "CSD 6500 or consent of instructor": ["CSD 6500"],
+  "admitted to graduate program in Speech-Language Pathology or department consent. Corequisite(s): CSD 6500": [],
+
+  "CS 1510 or department approval. Prerequisite(s) or corequisite(s): CS 1800 or department approval": ["CS 1510"],
+  "junior standing. Prerequisite(s) for non-Computer Science majors: junior standing": ["junior standing"],
+
+
+
+  "junior standing. Prerequisites for Department of Applied Engineering and Technical Management majors: TECH 1037": "junior standing. Prerequisites for Department of Applied Engineering and Technical Management majors: TECH 1037",
+  "For Networking and System Administration majors: junior standing. For all other majors: CS 2530": "For Networking and System Administration majors: junior standing. For all other majors: CS 2530",
+
+
+  "junior standing. Prerequisite(s) or corequisite(s): CS 3730/5730": "junior standing",
+  "CS 2530 and one of the following: CS 3530 , CS 3540 , CS 3810/5810": ["CS 2530", ["CS 3530", "CS 3540", "CS 3810/5810"]],
+
+
+  "for Computer Science majors: CS 2420 or CS 3430/5430 . Prerequisite(s) for non-Computer Science majors: proficiency in a high-level programming language": "for Computer Science majors: CS 2420 or CS 3430/5430 . Prerequisite(s) for non-Computer Science majors: proficiency in a high-level programming language",
+  "junior standing. Must have a cumulative and UNI GPA of 2.50 or higher to enroll in this course. Prerequisites are waived for students from the Department of Communication Sciences and Disorders. Corequisite(s): SPED 4192/5192 Experience in Special Education: Birth-3": "junior standing. Must have a cumulative and UNI GPA of 2.50 or higher to enroll in this course. Prerequisites are waived for students from the Department of Communication Sciences and Disorders. Corequisite(s): SPED 4192/5192 Experience in Special Education: Birth-3",
+  "SPED 4192/5192 for Early Childhood Special Education minors. Prerequisite(s) or corequisite(s): ELEMECML 4151/5151": "SPED 4192/5192 for Early Childhood Special Education minors. Prerequisite(s) or corequisite(s): ELEMECML 4151/5151",
+
+
+
+
+  "declared Purple Pathway for Paraeducators majors only. Corequisite(s): TEACHING 3134 or TEACHING 3135": [],
+  "TEACHING 3134 or TEACHING 3135": [["TEACHING 3134","TEACHING 3135"]],
+  "SPED 4192/5192 Experience in Special Education: Birth-3": ["SPED 4192/5192"],
+  "junior standing. Corequisite(s): ELEMECML 4192/5192 for Early Childhood majors and minors. ELEMECML 4192/5192": ["junior standing"],
+  "ELEMECML 4192/5192 for Early Childhood majors and minors. ELEMECML 4192/5192": ["ELEMECML 4192/5192"],
+  "junior standing. Prerequisite(s) or corequisite(s): ELEMECML 4152/5152 or equivalent. Registration requires full admission to the Teacher Education Program. Must have a cumulative and UNI GPA of 2.50 or higher to enroll in this course": ["junior standing"],
+  "ELEMECML 4152/5152 or equivalent. Registration requires full admission to the Teacher Education Program. Must have a cumulative and UNI GPA of 2.50 or higher to enroll in this course": ["ELEMECML 4152/5152"],
+  "for undergraduate students: junior standing. Prerequisites for graduate students: admission to the Elementary Education Master's Program (MAE) or consent of instructor": ["junior standing"],
+  "completion of Level I of the Professional Education Requirements - Elementary Education. Prerequisite(s) or corequisite(s): Level II of the Professional Education Requirements. Registration requires full admission to the Teacher Education Program. Must have a cumulative and UNI GPA of 2.50 or higher to enroll in this course": [],
+  "Level II of the Professional Education Requirements. Registration requires full admission to the Teacher Education Program. Must have a cumulative and UNI GPA of 2.50 or higher to enroll in this course": [],
+  "junior standing. Prerequisite(s) or corequisite(s): EDPSYCH 3148": ["junior standing"],
+  "junior standing. Prerequisite(s) or corequisite(s): Level II of the Professional Education Requirements. Registration requires full admission to the Teacher Education Program. Must have a cumulative and UNI GPA of 2.50 or higher to enroll in this course. Students must be available for a 10-hour field experience": ["junior standing"],
+  "Level II of the Professional Education Requirements. Registration requires full admission to the Teacher Education Program. Must have a cumulative and UNI GPA of 2.50 or higher to enroll in this course. Students must be available for a 10-hour field experience": [],
+  "junior standing. Corequisite(s): ELEMECML 4130/5130 for Early Childhood majors and minors. ELEMECML 4130/5130": ["junior standing"],
+
+
+
+
+  "SPED 4192/5192 for Early Childhood Special Education minors": "SPED 4192/5192 for Early Childhood Special Education minors",
+  "ELEMECML 4130/5130 for Early Childhood majors and minors. ELEMECML 4130/5130": ["ELEMECML 4130/5130"],
+  "Registration requires admission to Teacher Education program. Prerequisite(s) or corequisite(s): LITED 1044": [],
+  "junior standing. Requires admission to teacher education program. Prerequisite(s) or corequisite(s): LITED 3115": ["junior standing"],
+  "LITED 1044 and one of the following: LITED 3115 , LITED 3116 or LITED 4117/5117 or consent of instructor": ["LITED 1044",  ["LITED 3115", "LITED 3116", "LITED 4117/5117"]],
+
+
+
+  "junior standing. Students must earn a GPA of 2.50 or above in Literacy Education minor courses numbered LITED 3119/5119 or above and have a cumulative and UNI GPA of 2.50 or higher to enroll in this course. Priority registration for Literacy Education minors and English teaching majors and minors. Corequisite(s): LITED 4193/5193": ["junior standing"],
+  "junior standing. Students must earn a GPA of 2.50 or above in Literacy Education minor courses numbered LITED 3119/5119 or above and have a cumulative and UNI GPA of 2.50 or higher to enroll in this course. Priority registration for Literacy Education minors and English teaching majors and minors. Corequisite(s): LITED 4192/5192": ["junior standing"],
+  "junior standing. For the Literacy Education Minor, students must earn a GPA of 2.50 or above in Literacy Education minor courses numbered LITED 3119/5119 or above and have a cumulative and UNI GPA of 2.50 or higher to enroll in this course. Corequisite(s): LITED 4147/5147": ["junior standing"],
+  "junior standing. Students must earn a GPA of 2.50 or above in Literacy Education minor courses numbered LITED 3119/5119 or above and have a cumulative and UNI GPA of 2.50 or higher to enroll in this course. Corequisite(s): LITED 4140/5140": ["junior standing"],
+  "junior standing. Prerequisite(s) or corequisite(s): EARTHSCI 1300 or EARTHSCI 1320": ["junior standing"],
+  "EDPSYCH 2030 . Registration requires full admission to the Teacher Education Program. Must have a cumulative 2.50 GPA or higher to enroll in this course. Prerequisite(s) or corequisite(s): TEACHING 3128": ["EDPSYCH 2030"],
+  "junior standing. Prerequisite(s) or corequisite(s): POSTSEC 3000": ["junior standing"],
+  "admission to Postsecondary Education: Student Affairs program": [],
+  "admission to the M.A. Postsecondary Education: Student Affairs program or admission to the Doctor of Education": [],
+  "consent of Internship Coordinator. Corequisite(s): for Leisure, Youth and Human Services majors only: RTNL 4520": [],
+
+
+
+
+  "for Leisure, Youth and Human Services majors only: RTNL 4520": "for Leisure, Youth and Human Services majors only: RTNL 4520",
+  "HIST 1011 required for History majors only": "HIST 1011 required for History majors only",
+  "HIST 1010 required for History majors only": "HIST 1010 required for History majors only",
+  "for History majors: HIST 1010": "for History majors: HIST 1010",
+  "senior standing. For non-History majors: consent of instructor": "senior standing. For non-History majors: consent of instructor",
+
+
+
+  "consent of Internship Coordinator. Corequisite(s): RTNL 4510": [],
+  "junior standing. Corequisite(s): RTNL 4996/5996": ["junior standing"],
+  "junior standing. Prerequisite(s) or corequisite(s): RTNL 4995/5995": ["junior standing"],
+  "Prerequisite(s) or corequisite(s): ENGLISH 2770 or ENGLISH 2700 or consent of instructor": [],
+  "consent of department. Prerequisite(s) or corequisite(s): ENGLISH 6100": [],
+  "ENGLISH 4715 or ENGLISH 4725 or written consent of instructor. Prerequisite(s) or corequisite(s): ENGLISH 6100": [["ENGLISH 4715", "ENGLISH 4725"]],
+  "junior standing. Prerequisite(s) or corequisite(s): FREN 3001/5001 or equivalent": ["junior standing"],
+  "or equivalents. Corequisite(s): GER 1002": [],
+  "junior standing. Prerequisite(s) or corequisite(s): GER 3001/5001 or equivalent": ["junior standing"],
+  "GER 3001/5001 . Prerequisite(s) or corequisite(s): LANG 4090": ["GER 3001/5001"],
+
+
+
+
+  "for all students: junior standing. Prerequisites for Spanish Teaching majors and minors: SPAN 3001 or SPAN 3006 or SPAN 3050/5050": "for all students: junior standing. Prerequisites for Spanish Teaching majors and minors: SPAN 3001 or SPAN 3006 or SPAN 3050/5050",
+
+
+
+
+  "TEACHING 3128 . Prerequisite(s) or corequisite(s): SPAN 2002 and consent of instructor": ["TEACHING 3128"],
+  "TEACHING 3128 . Prerequisite(s) or corequisite(s): LANG 4740/5740": ["TEACHING 3128"],
+  "junior standing. Prerequisite(s) or corequisite(s): TESOL 4120/5120 or TESOL 3110": ["junior standing"],
+  "junior standing. Prerequisite(s) or corequisite(s): MGMT 3112 or MGMT 3121": ["junior standing"],
+  "junior standing. Prerequisite(s) or corequisite(s): MGMT 3122": ["junior standing"],
+  "junior standing. Prerequisite(s) or corequisite(s): MGMT 3120": ["junior standing"],
+  "junior standing. Prerequisite(s) or corequisite(s): MGMT 3153 or MGMT 3965/5965": ["junior standing"],
+  "GPA of 3.2 or higher or consent of MBA Director. Prerequisite(s) or corequisite(s): Consent of MBA Director": [],
+
+
+
+  "For Wilson College of Business majors: admittance to Wilson College of Business. For non-Wilson College of Business majors: ENTR 2010": "For Wilson College of Business majors: admittance to Wilson College of Business. For non-Wilson College of Business majors: ENTR 2010",
+  "for Mathematics majors and minors: C- or better in MATH 1421 and MATH 2500 . Prerequisites for non-Mathematics majors and minors: C- or better in MATH 1421": "for Mathematics majors and minors: C- or better in MATH 1421 and MATH 2500 . Prerequisites for non-Mathematics majors and minors: C- or better in MATH 1421",
+
+
+  "MATH 2500 or consent of department": ["MATH 2500"],
+  "junior standing. Prerequisite(s) or corequisite(s): MATH 3203": ["junior standing"],
+  "MATH 4420/5420 . Corequisite(s): MATH 4421/5421 or consent of instructor": ["MATH 4420/5420"],
+  "MATH 4421/5421 or consent of instructor": ["MATH 4421/5421"],
+  "MATH 4500/5500 . Corequisite(s): MATH 4501/5501 or consent of instructor": ["MATH 4500/5500"],
+  "MATH 4501/5501 or consent of instructor": ["MATH 4501/5501"],
+  "junior standing. Prerequisite(s) or corequisite(s): MATH 2422": ["junior standing"],
+  "junior standing or consent of instructor. Corequisite(s): MUS ED 3660": ["junior standing"],
+  "MUS ED 3480/5480 , MUS ED 3495/5495 , MUS ED 6570 , or MUS ED 6580": [["MUS ED 3480/5480", "MUS ED 3495/5495", "MUS ED 6570", "or MUS ED 6580"]],
+
+
+
+  "Undergraduates: successful completion of MUS HIST 1030 and junior standing. Graduates: successful completion of Music History diagnostic exam, or MUS HIST 3800/5800": "Undergraduates: successful completion of MUS HIST 1030 and junior standing. Graduates: successful completion of Music History diagnostic exam, or MUS HIST 3800/5800",
+
+
+  "For freshmen/sophomores: consent of instructor": [],
+  "For freshmen/sophomores: MUS TECH 1500": [["MUS TECH 1500", "junior standing", "senior standing"]],
+  "junior standing. Prerequisite(s) or corequisite(s): for undergraduates: MUS APPL 1460 , MUS APPL 3460/5460 , or consent of instructor. For graduates: MUS APPL 1460 , MUS APPL 3460/5460 , MUS APPL 6460 , or consent of instructor": ["junior standing"],
+
+
+  "for undergraduates: MUS APPL 1460 , MUS APPL 3460/5460 , or consent of instructor. For graduates: MUS APPL 1460 , MUS APPL 3460/5460 , MUS APPL 6460 , or consent of instructor": "for undergraduates: MUS APPL 1460 , MUS APPL 3460/5460 , or consent of instructor. For graduates: MUS APPL 1460 , MUS APPL 3460/5460 , MUS APPL 6460 , or consent of instructor",
+  "for Music majors and minors only: MUS THEO 1150": "for Music majors and minors only: MUS THEO 1150",
+  "for Music majors and minors only: MUS THEO 1160": "for Music majors and minors only: MUS THEO 1160",
+
+
+
+  "MUS THEO 1110 with grade of C or higher, or placement by exam. Corequisite(s): for Music majors and minors only: MUS THEO 1160": ["MUS THEO 1110"],
+  "MUS THEO 1150 with grade of C or higher, MUS THEO 1110 and MUS THEO 1250 with a grade of C or higher, or placement by exam. Corequisite(s): MUS THEO 1120": [["MUS THEO 1150", ["MUS THEO 1110", "MUS THEO 1250"]]],
+  "MUS THEO 1110 , MUS THEO 1150 , and MUS THEO 1250 with grade of C or higher, or placement by exam. Corequisite(s): MUS THEO 1120": ["MUS THEO 1110", "MUS THEO 1150", "MUS THEO 1250"],
+  "MUS THEO 1120 with grade of C or higher, or placement by exam. Corequisite(s): MUS THEO 2170": ["MUS THEO 1120"],
+  "MUS THEO 2130 with grade of C or higher, or placement by exam. Corequisite(s): MUS THEO 2180": ["MUS THEO 2130"],
+  "MUS THEO 1120 , MUS THEO 1160 , and MUS THEO 1260 with grade of C or higher, or placement by exam. Corequisite(s): MUS THEO 2130": ["MUS THEO 1120", "MUS THEO 1160", "MUS THEO 1260"],
+  "MUS THEO 2130 , MUS THEO 2170 , and MUS THEO 2270 with grade of C or higher, or placement by exam. Corequisite(s): MUS THEO 2140": ["MUS THEO 2130", "MUS THEO 2170", "MUS THEO 2270"],
+  "for undergraduate students: MUS THEO 3100 or consent of instructor": [["MUS THEO 3100", "graduate standing"]],
+
+
+
+  "junior standing. Prerequisite for graduate students: MUS THEO 6000": "junior standing. Prerequisite for graduate students: MUS THEO 6000",
+  "Group Piano, Level III MUS APPL 1470 :09 or 10": ["MUS APPL 1470"],
+  "PHYSICS 1511 (minimum grade of B) or PHYSICS 1701 . Prerequisite(s) or corequisite(s): MATH 1421": [["PHYSICS 1511", "PHYSICS 1701"]],
+  "PHYSICS 1702 . Prerequisite(s) or corequisite(s): MATH 2422": ["PHYSICS 1702"],
+  "junior standing. Prerequisite(s) or corequisite(s): PHYSICS 4100/5100": ["junior standing"],
+  "junior standing. Prerequisite(s) or corequisite(s): SW 3192": ["junior standing"],
+
+
+  "6 hours from the following: SOC 3037 , SOC 3060/5060 , SOC 3080/5080 , SOC 3086/5086 , SOC 3087/5087 , SOC 4005/5005 , SOC 4051/5051 , or consent of instructor": "6 hours from the following: SOC 3037 , SOC 3060/5060 , SOC 3080/5080 , SOC 3086/5086 , SOC 3087/5087 , SOC 4005/5005 , SOC 4051/5051 , or consent of instructor",
+
+
+
+  "CSD 3100 . Corequisite(s): SPED 4192/5192 . Prerequisite(s) or corequisite(s): CSD 3200/5200": ["CSD 3100"],
+  "SPED 4192/5192 . Prerequisite(s) or corequisite(s): CSD 3200/5200": ["SPED 4192/5192"],
+  "junior standing. Registration requires full admission to the Teacher Education Program. Must have a cumulative and UNI GPA of 2.50 or higher to enroll in this course. Corequisite(s): ELEMECML 4130/5130": ["junior standing"],
+
+
+
+  "SPED 4192/5192 for Early Childhood majors/Early Childhood Special Education minors": "SPED 4192/5192 for Early Childhood majors/Early Childhood Special Education minors",
+ 
+
+  "junior standing. Registration requires full admission to the Teacher Education Program. Prerequisite(s) or corequisite(s): SPED 4150/5150": ["junior standing"],
+  "junior standing. Registration requires full admission to the Teacher Education Program. Corequisite(s): SPED 4162/5162": ["junior standing"],
+  "SPED 4163/5163 . Prerequisite(s) or corequisite(s): SPED 4150/5150": ["SPED 4163/5163"],
+  "junior standing. Registration requires full admission to the Teacher Education Program. Corequisite(s): SPED 4161/5161": ["junior standing"],
+  "SPED 4162/5162 . Prerequisite(s) or corequisite(s): SPED 4150/5150": ["SPED 4162/5162"],
+  "junior standing. Registration requires full admission to the Teacher Education Program. Corequisite(s): SPED 4172/5172 or SPED 4173/5173": ["junior standing"],
+  "SPED 4192/5192 (a) or SPED 4192/5192 (b) or SPED 4192/5192 (c) (as associated with the SPED 4172/5172 or 4173 co-requisite course and teaching focus area). Prerequisite(s) or corequisite(s): SPED 4151/5151": [["SPED 4192/5192", "SPED 4192/5192", "SPED 4192/5192"]],
+  "SPED 4172/5172 or SPED 4173/5173": [["SPED 4172/5172","SPED 4173/5173"]],
+  "junior standing. Registration requires full admission to the Teacher Education Program. Corequisite(s): SPED 4171/5171": ["junior standing"],
+  "SPED 4192/5192 (a) Practicum in Instructional Strategist I K-8. Prerequisite(s) or corequisite(s): SPED 4151/5151": ["SPED 4192/5192"],
+  "SPED 4192/5192 (b) Practicum in Instructional Strategist I 5-12 OR SPED 4192 (c) Practicum in Instructional Strategist II: Intellectual Disabilities. Prerequisite(s) or corequisite(s): SPED 4151/5151": ["SPED 4192/5192"],
+  "requires admission to teacher education. Corequisite(s): MEASRES 3150 ( MEASRES 3150 is waived as a co-requisite for Early Childhood Education, Music Education and Physical Education majors)": [],
+
+
+  "MEASRES 3150 ( MEASRES 3150 is waived as a co-requisite for Early Childhood Education, Music Education and Physical Education majors)": "MEASRES 3150 ( MEASRES 3150 is waived as a co-requisite for Early Childhood Education, Music Education and Physical Education majors)",
+
+
+
+  "Corequisite(s): TEACHING 3128": [],
+  "For Theatre majors: none. All others: consent of instructor": [],
+
+
+
+  "Theatre majors: THEATRE 1010": "Theatre majors: THEATRE 1010",
+  "THEATRE 1050 . These prerequisites are waived for Communication-Theatre Teaching majors and minors. Prerequisite for other students: consent of instructor": "THEATRE 1050 . These prerequisites are waived for Communication-Theatre Teaching majors and minors. Prerequisite for other students: consent of instructor",
+  "for Theatre majors: THEATRE 1010": "for Theatre majors: THEATRE 1010",
+  "THEATRE 2025 OR THEATRE 1030 . For non-Theatre majors: junior standing": "THEATRE 2025 OR THEATRE 1030 . For non-Theatre majors: junior standing",
+  "For Theatre majors: THEATRE 1010": "For Theatre majors: THEATRE 1010",
+
+
+  "or consent of instructor. Prerequisite for other students: consent of instructor": [],
+  "or consent of instructor. Prerequisites for other students: consent of instructor": [],
+  "THEATRE 1012 or THEATRE 1015 . Prerequisite for other students: consent of instructor": "THEATRE 1012 or THEATRE 1015 . Prerequisite for other students: consent of instructor",
+  "junior standing and either THEATRE 1012 OR THEATRE 1015 as applicable to the specific content of the course": ["junior standing", ["THEATRE 1012", "THEATRE 1015"]],
+
+
+  "or consent of instructor. Prerequisites for other students: junior standing and consent of instructor": "or consent of instructor. Prerequisites for other students: junior standing and consent of instructor",
+  "junior standing. For Communication-Theatre-Teaching majors: THEATRE 1022": "junior standing. For Communication-Theatre-Teaching majors: THEATRE 1022"
 }

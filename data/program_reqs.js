@@ -1,4 +1,4 @@
-let Course = (course) => ({type: "course", course});
+let Course = (dept, number) => ({type: "course", dept, number, course: dept + " " + number});
 let All = (...reqs) => ({type: "all", reqs});
 let AtleastNCourses = (n, m) => (...options) => ({type: "course-range", n, m, options});
 let AtleastNCredits = (n, m) => (...options) => ({type: "credit-range", n, m, options});
@@ -33,7 +33,7 @@ let course_wildcard = (dept, wc) => {
 		console.error(set);
 	}
 
-	return AtleastNCourses(1,1)(...set.map(v => Course(dept + " " + v)));
+	return AtleastNCourses(1,1)(...set.map(v => Course(dept, number.toString().trim())));
 }
 
 
@@ -325,18 +325,18 @@ let fix_tree = (tr) => {
 	let get_type = (type) => type_map[get_line_type(type)];
 	let fix_course = ([id, dept, number]) => {
 		try{
-			let course_name = des_course(dept + " " + 1000);
+			let course_name = des_course(dept + " 1000");
 			if(/#/.test(number))
 				return course_wildcard(course_name[0], number.trim());
-			return Course(course_name[0] + " " + number.tirm());
-		}catch{
+			return Course(course_name[0], number.toString().trim());
+		}catch (e){
 			return null;
 		}
 	}
 
 	let fix_line = (tr) => {
 		let keys = Object.keys(tr);
-		return keys.map(v => get_type(v)(...tr[v].nodes.map(fix_course).filter(v => v)));
+		return keys.map(v => get_type(v)(...tr[v].nodes.map(fix_course).filter(v => v != null)));
 	}
 
 	let fix_req = (tr) => {

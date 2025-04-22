@@ -116,14 +116,18 @@ let scrape_department = (dom, meta) => {
 
 let hash = a => a.toLowerCase().match(/[a-z0-9]/g).join("");
 let req_repl = Object.fromEntries(Object.entries(JSON.parse(read_file("req_repl.json"))).map(([k, v])=> [hash(k), v]));
+let course_set = null;
+let broken_reqs = {};
 
 let structure_course = (course) => {
 	let semester = course.desc.at(-1).match(/\(([^()]*)\)$/)?.[1];
 	let desc = course.desc.join(" ");
 
-	let prereq = desc.match(/Prerequisite\(s\):([^:]*)\./)?.[1] ?? "";
-	let coreq = desc.match(/Corequisite\(s\):([^.:]*)\./)?.[1] ?? "";
-	let preorco = desc.match(/Prerequisite\(s\) or corequisite\(s\):([^.:]*)\./)?.[1] ?? "";
+	let prereq = desc.match(/Prerequisite\(s\):((\.[^]|[^.])*)\./);
+	let coreq = desc.match(/Corequisite\(s\):((\.[^]|[^.])*)\./)?.[1] ?? "";
+	let preorco = desc.match(/Prerequisite\(s\) or corequisite\(s\):((\.[^]|[^.])*)\./)?.[1] ?? "";
+
+	prereq = prereq?.[1] ?? "";
 
 	let fmt = (str) => {
 		let reqs = str
@@ -136,13 +140,23 @@ let structure_course = (course) => {
 
 		//console.log("reqs", reqs, "maps to", reqs.map(v => req_repl[hash(v)]));
 
+		
+		let broken = keep.filter(v => !course_set.has(hash(v)));
+		if(broken.length > 0){
+			console.error(course.course, broken);
+			broken.map(v => broken_reqs[v] = v);
+		}
 
 		return [keep, ...repl].flat();
 	};
 
+
 	prereq = fmt(prereq);
 	coreq = fmt(coreq);
 	preorco = fmt(preorco);
+
+	//if(/^cs/i.test(course.course))
+		//console.error(course.course, prereq, "\n\n\n\n\n");
 
 	return {...course, desc, prereq, coreq, preorco, semester};
 }
@@ -181,6 +195,10 @@ let structure_data = (dept) => {
 	}
 
 	let data = JSON.parse(read_file("data.json"));
+	course_set = new Set(data.map(v => v.courses ? v.courses.map(v => hash(v.course)) : null).flat());
 	
 	write_file("structured_data.json", JSON.stringify(data.map(structure_data)));
+	write_file("broken_reqs.json", JSON.stringify(broken_reqs));
+
+
 })();
