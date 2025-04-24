@@ -13,16 +13,23 @@ from degree_requirement_manager import DegreeRequirementManager
 
 @typechecked
 class Offering(StrEnum):
-    FALL = "FALL"
+    FALL_SPRING_SUMMER = "FALL, SPRING, SUMMER"
     SPRING = "SPRING"
+    FALL = "FALL"
     FALL_AND_SPRING = "FALL AND SPRING"
+    SUMMER = "SUMMER"
     VARIABLE = "VARIABLE"
-    EVEN_FALLS = "EVEN FALLS"
+    ODD_SPRINGS = "ODD SPRINGS"
     ODD_FALLS = "ODD FALLS"
     EVEN_SPRINGS = "EVEN SPRINGS"
-    ODD_SPRINGS = "ODD SPRINGS"
-    FALL_SPRING_SUMMER = "FALL, SPRING, SUMMER"
-    SUMMER = "SUMMER"
+    EVEN_FALLS = "EVEN FALLS"
+    ODD_SUMMERS = "ODD SUMMERS"
+    SPRING_AND_SUMMER = "SPRING AND SUMMER"
+    FALL_OR_SPRING = "FALL OR SPRING"
+    EVEN_SUMMERS = "EVEN SUMMERS"
+    FALL_AND_VARIABLE_SPRINGS = "FALL AND VARIABLE SPRINGS"
+    SPRING_AND_EVEN_FALLS = "SPRING AND EVEN FALLS"
+    SPRING_AND_VARIABLE_FALLS = "SPRING AND VARIABLE FALLS"
 
 
 T = TypeVar("T")
@@ -314,16 +321,20 @@ class Course:
                 offering_list = [True, False, True, False]
             case Offering.ODD_FALLS:
                 offering_list = [True, False, False, False]
+            case Offering.SPRING_AND_EVEN_FALLS:
+                offering_list = [False, True, True, True]
             case Offering.EVEN_FALLS:
                 offering_list = [False, False, True, False]
-            case Offering.SPRING:
+            case Offering.SPRING | Offering.SPRING_AND_SUMMER:
                 offering_list = [False, True, False, True]
             case Offering.ODD_SPRINGS:
                 offering_list = [False, False, False, True]
             case Offering.EVEN_SPRINGS:
                 offering_list = [False, True, False, False]
-            case Offering.FALL_AND_SPRING | Offering.VARIABLE:
+            case Offering.FALL_SPRING_SUMMER | Offering.FALL_AND_SPRING | Offering.VARIABLE | Offering.FALL_OR_SPRING | Offering.FALL_AND_VARIABLE_SPRINGS | Offering.SPRING_AND_VARIABLE_FALLS:
                 offering_list = [True, True, True, True]
+            case Offering.SUMMER | Offering.EVEN_SUMMERS | Offering.ODD_SUMMERS:
+                offering_list = [False, False, False, False]
             case _:
                 raise NotImplementedError(f"Not yet implemented offering for {self._season}...")
 
@@ -394,8 +405,10 @@ class Course:
                         return junior.at(semester)
                     elif standing == "senior":
                         return senior.at(semester)
+                    elif standing == "graduate":
+                        return BoolVal(False)
                     else:
-                        raise ValueError(f"Invalid rank {standing} detected while parsing requirements")
+                        raise ValueError(f"Invalid rank '{standing}' detected while parsing requirements")
                 case "all":
                     reqs: list[BoolRef] = []
                     for req in requirements.get("req"):
@@ -706,7 +719,7 @@ if __name__ == "__main__":
     ##########################
     # These will all be taken as input from the user
     c: CourseSATSolver = CourseSATSolver(
-        semester_count=4,  # Number of semester to calculate for
+        semester_count=8,  # Number of semester to calculate for
         min_credit_per_semester=0,  # Minimum credits (inclusive)
         max_credits_per_semester=16,  # Maximum credits (inclusive)
         starts_as_fall=True,
@@ -722,10 +735,11 @@ if __name__ == "__main__":
             # ("cs 5410",),
             # ("cs 4550",),
         ],
-        desired_degree_ids=["CS:BA"],
-        first_semester_sophomore=1,  # NOTE: One-indexed!
-        first_semester_junior=1,
-        first_semester_senior=1,
+        # desired_degree_ids=["CS:BA"],
+        desired_degree_ids=["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"],
+        first_semester_sophomore=3,  # NOTE: One-indexed!
+        first_semester_junior=5,
+        first_semester_senior=7,
     )
     ########################
     ### END CONFIG VARIABLES

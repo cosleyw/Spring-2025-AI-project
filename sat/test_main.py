@@ -2,26 +2,7 @@ from typing import Any, override
 import unittest
 import os
 
-from main import Course, CourseSATSolver
-
-# semester_count = 2  # Number of semester to calculate for
-# min_credit_per_semester = 0  # Minimum credits (inclusive)
-# max_credits_per_semester = 4  # Maximum credits (inclusive)
-# starts_as_fall = True
-# start_year = 2025
-# transferred_course_ids: list[str] = []  # ["CS1410", "CS1510"]
-# desired_course_ids: list[tuple[str] | tuple[str, int]] = [
-#    # ("CS3430/5430", 4),
-#    # ("CS1160",),
-# ]
-# undesired_course_ids: list[tuple[str] | tuple[str, int]] = [
-#    # ("CS4410/5410",),
-# ]
-# desired_degree_ids: list[str] = ["CS:BA"]
-## NOTE: One-indexed!
-# first_semester_sophomore: int | None = 1
-# first_semester_junior: int | None = 1
-# first_semester_senior: int | None = 1
+from main import CourseSATSolver
 
 
 class TestCourseSATSolver(unittest.TestCase):
@@ -136,7 +117,7 @@ class TestCourseSATSolver(unittest.TestCase):
 
         self.assertEqual(
             len(flat_plan),
-            3,
+            4,
         )
 
     def test_flat_course_range(self):
