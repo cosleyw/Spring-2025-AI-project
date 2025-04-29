@@ -1,0 +1,164 @@
+/* App.css */
+
+/* Reset & base styles */
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+.middle-panel {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 columns */
+  grid-template-rows: repeat(2, 1fr);    /* 2 rows */
+  gap: 20px;
+  height: calc(100vh - 100px); /* fill viewport minus nav/footer */
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.semester-box {
+  background-color: #f7f7f7;
+  border: 2px dashed #aaa;
+  border-radius: 10px;
+  padding: 16px;
+  height: 100%; /* fill grid cell */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow-y: auto;
+}
+.semester-box h4 {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #333;
+}
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #1e1e1e;
+  color: #f4f4f4;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Layout wrapper */
+.app-layout {
+  display: grid;
+  grid-template-columns: 20% 60% 20%;
+  gap: 1rem;
+  height: calc(100vh - /* your header height */ 4rem);
+  background: #ffffff;
+}
+
+/* Panel styles */
+.left-panel,
+.middle-panel,
+.right-panel {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 20px;
+  overflow-y: auto;
+  color: #111;
+}
+
+.left-panel {
+  flex: 1.2;
+  min-width: 280px;
+  max-width: 350px;
+}
+
+.middle-panel {
+  flex: 2;
+  min-width: 500px;
+}
+
+.right-panel {
+  flex: 1.2;
+  min-width: 280px;
+}
+
+/* Course card styling */
+.course-card {
+  background-color: #f9f9f9;
+  padding: 12px 16px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+}
+
+.course-card h4 {
+  font-size: 1rem;
+  color: #222;
+}
+
+.course-card button {
+  background-color: #ffc107;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Manual schedule styling */
+.manual-schedule h3 {
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 6px;
+  color: #333;
+}
+
+.semester-block {
+  margin-bottom: 20px;
+  padding: 10px 0;
+}
+
+.semester-block h4 {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+/* Navigation (top) - add to Layout if needed */
+.navbar {
+  background-color: #0d47a1;
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  margin-left: 20px;
+  font-weight: 500;
+}
+
+.navbar a:hover {
+  text-decoration: underline;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  color: #aaa;
+  padding: 20px 0;
+  font-size: 0.85rem;
+  margin-top: 40px;
+}
