@@ -1,0 +1,98 @@
+/* CourseDetails.css */
+
+/* Container for the details panel */
+.course-details {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+    color: #222;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+  }
+  
+  /* Placeholder when no course is selected */
+  .placeholder-content {
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+  }
+  
+  /* Headings */
+  .course-details h2 {
+    margin-top: 0;
+    font-size: 1.5rem;
+  }
+  
+  .course-details h4 {
+    margin-bottom: 8px;
+    margin-top: 16px;
+    font-size: 1.2rem;
+  }
+  
+  /* Lists */
+  .course-details ul {
+    list-style: disc inside;
+    margin: 0;
+    padding-left: 20px;
+  }
+  
+  .course-details li {
+    margin-bottom: 4px;
+  }
+  
+  /* Modal backdrop */
+  .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  /* Modal content box */
+  .modal-content {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80%;
+    overflow-y: auto;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  }
+  
+  /* Close button */
+  .modal-content button {
+    background: #d32f2f;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    float: right;
+  }
+  
+  .modal-content button:hover {
+    background: #b71c1c;
+  }
+  /* src/components/CourseDetails.css */
+.course-details {
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+  }
+  
+  .course-details h3 {
+    margin-top: 0;
+  }
+  
+  .course-details p {
+    margin: 0.5rem 0;
+  }
+  

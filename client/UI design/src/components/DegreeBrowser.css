@@ -1,0 +1,91 @@
+/* DegreeBrowser.css */
+
+/* Root container: two panels side-by-side */
+.degree-browser {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  /* Left panel: list of degrees */
+  .degree-list {
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 16px;
+    overflow-y: auto;
+  }
+  
+  .degree-list h3 {
+    margin-bottom: 12px;
+    font-size: 1.25rem;
+    color: #222;
+  }
+  
+  .degree-list .error {
+    color: #c00;
+    margin-bottom: 12px;
+  }
+  
+  .degree-list ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .degree-list li {
+    margin-bottom: 8px;
+  }
+  
+  .degree-list button {
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 1rem;
+    color: #333;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .degree-list button:hover,
+  .degree-list button:focus {
+    background-color: #ececec;
+    outline: none;
+  }
+  
+  /* Right panel: tree view */
+  .degree-tree {
+    flex: 2;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 16px;
+    overflow-y: auto;
+    min-height: 400px;
+  }
+  
+  .degree-tree h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.25rem;
+    color: #222;
+  }
+  
+  .degree-tree p {
+    color: #666;
+    margin: 8px 0;
+    font-style: italic;
+  }
+  
+  /* Optional: add a bit of spacing between each TreeNode line */
+  .degree-tree > div > div {
+    margin-bottom: 4px;
+  }
+  

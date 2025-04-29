@@ -1,0 +1,34 @@
+/* src/components/ScheduleViewer.css */
+
+.middle-panel {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 20px;
+    padding: 10px;
+    height: calc(100% - 20px);
+    box-sizing: border-box;
+  }
+  
+  .semester-box {
+    background-color: #f7f7f7;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    min-height: 0; /* allow grid cells to scroll */
+  }
+  
+  .semester-box h4 {
+    margin: 0 0 10px;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .semester-box .course-card {
+    margin-bottom: 8px;
+  }
+  
