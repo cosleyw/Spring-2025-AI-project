@@ -17,7 +17,9 @@ let des_course = (name) => [
 let course_set = new Set(Object.entries(st_data).map(v => v[1]?.courses).filter(v => v).flat().map(v => [
 	...des_course(v.course),
 	v
-]).map(([dept, nums, full]) => nums.map(v => dept + " " + nums)).flat());
+]).map(([dept, nums, full]) => nums.map(v => dept + " " + v)).flat());
+
+//console.error(course_set);
 
 
 
@@ -29,18 +31,34 @@ let Course = (dept, number) => ({type:"course", dept, number})
 let Some = (...req) => ({type:"some", req})
 let All = (...req) => ({type:"all", req})
 
+let rm_graduate_courses = (tree) => ({
+  "true": (tr) => tr,
+  "false": (tr) => tr,
+  "some": (tr) => Some(...tr.req.map(rm_graduate_courses)),
+  "all": (tr) => All(...tr.req.map(rm_graduate_courses)),
+  "course": (tr) => +tr.number < 5000 ? tr : False(),
+  "standing": (tr) => tr
+})[tree.type](tree)
+
 
 let simp_tree = (tree) => ({
   "true": (tr) => tr,
   "false": (tr) => tr,
   "some": (tr) => {
-    return tr.req.length == 1 ? tr.req[0] : Some(...tr.req.map(simp_tree))
+    let req = tr.req.map(simp_tree).filter(v => v.type != "false");
+    if(req.length == 0)
+	  return False();
+    if(req.some(v => v.type == "true"))
+	  return True();
+    return req.length == 1 ? req[0] : Some(...req);
   },
   "all": (tr) => {
-    let req = tr.req.filter(v => v.type != "true");
+    let req = tr.req.map(simp_tree).filter(v => v.type != "true");
     if(req.length == 0)
 	  return True();
-    return tr.req.length == 1 ? tr.req[0] : All(...req.map(simp_tree))
+    if(req.some(v => v.type == "false"))
+	  return False();
+    return req.length == 1 ? req[0] : All(...req)
   },
   "course": (tr) => tr,
   "standing": (tr) => tr
@@ -59,14 +77,20 @@ let fix_req = (req) => {
 
 	let fix_str = v => {
 		if(v.match(/standing/) != null){
-			return Standing(v.replaceAll(/standing/ig, "").trim());
+			let thing = v.replaceAll(/standing/ig, "").trim();
+
+			if(/^[a-zA-z]+$/.test(thing))
+				return Standing(thing);
+			
+
+			return null;
 		}
 
 		try{
 			if(des_course(v)[1].length != 0){
 				let dc = des_course(v);
 				if(!course_set.has(dc[0] + " " + dc[1][0])){
-					console.error("fixme!", v);
+					console.error("fixme!", v, dc[0] + " " + dc[1][0]);
 					return null;
 				}
 				return Some(...dc[1].map(v => Course(dc[0], v)));
@@ -89,7 +113,7 @@ let fix_req = (req) => {
 	});
 
 
-	return simp_tree(All(...fstr, ...farr));
+	return simp_tree(rm_graduate_courses(All(...fstr, ...farr)));
 }
 
 let courses = Object.entries(st_data).map(v => v[1]?.courses).filter(v => v).flat().map(v => [
@@ -105,10 +129,11 @@ let courses = Object.entries(st_data).map(v => v[1]?.courses).filter(v => v).fla
 ).flat();
 
 
+courses = Object.entries(Object.fromEntries(courses.map(v => [v.id, v]))).map(v => v[1]);
 
 
 
-console.log(JSON.stringify(courses));
+console.log(JSON.stringify(courses.filter(v => +v.number < 5000)));
 
 
 

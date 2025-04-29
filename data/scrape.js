@@ -51,7 +51,7 @@ let scrape_course = (el) => {
 
 	course = course.trim();
 	name = name.trim();
-	hours = hours?.match(/[0-9]+/g).map(v => +v) ?? [-1];
+	hours = hours?.match(/[0-9]+/g).map(v => +v) ?? [0];
 
 	let desc = [...descr.childNodes]
 		.map(v => v.data ?? v.textContent)
@@ -120,7 +120,7 @@ let course_set = null;
 let broken_reqs = {};
 
 let structure_course = (course) => {
-	let semester = course.desc.at(-1).match(/\(([^()]*)\)$/)?.[1];
+	let semester = course.desc.at(-1).match(/\(([^()]*)\)$/)?.[1] ?? "Variable";
 	let desc = course.desc.join(" ");
 
 	let prereq = desc.match(/Prerequisite\(s\):((\.[^]|[^.])*)\./);
@@ -146,6 +146,8 @@ let structure_course = (course) => {
 			console.error(course.course, broken);
 			broken.map(v => broken_reqs[v] = v);
 		}
+
+		//console.error(keep, repl);
 
 		return [keep, ...repl].flat();
 	};

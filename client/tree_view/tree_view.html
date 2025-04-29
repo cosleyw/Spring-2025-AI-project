@@ -2,9 +2,376 @@
 <html>
 <head></head>
 <body>
-<div id="paper" style="width:90vw;height:90vh"></div>
+<div>
+<input id="courseSelect"> course select </input>
+<input id="exact_check" type="checkbox">only selected</input>
+<input id="dep_check" type="checkbox">dep</input>
+<input id="dap_check" type="checkbox">dap</input>
+</div>
+<div id="paper" style="width:100%;height:80vh"></div>
+<pre id="info" style="width:100%;white-space:pre-wrap">
+click on a course to display its description here!
+</pre>
+</body>
 <script src="course_data.js"></script>
 <script src="cool_tree.js"></script>
 <script src="bundle.js"></script>
-</body>
+<script>
+let d3 = window.d3;
+//let data := [{source:"",target:"",type:""}]
+
+
+let gen_graph = (suits) => {
+	function linkArc(d) {
+		const r = Math.hypot(d.target.x - d.source.x, d.target.y - d.source.y);
+		return `
+    M${d.source.x},${d.source.y}
+    A${r},${r} 0 0,1 ${d.target.x},${d.target.y}
+  `;
+	}
+
+	let sim_state = true;
+	window.addEventListener("keydown", (e) => {
+	  if(e.code == "Space")
+	    sim_state = !sim_state;
+
+	  if(paper.childNodes[0].sim){
+	    if(sim_state){
+	      paper.childNodes[0].sim.restart();
+	    }else{
+	      paper.childNodes[0].sim.stop();
+	    }
+	  }
+	});
+
+
+	let drag = simulation => {
+		function dragstarted(event, d) {
+			let course = data.find(v => v.id == d.id);
+			if(course != null)
+			info.innerText = course.id + ": " + course.name + "\n\n" + course.desc;
+
+			if (sim_state && !event.active) simulation.alphaTarget(0.3).restart();
+			d.fx = d.x;
+			d.fy = d.y;
+		}
+
+		function dragged(event, d) {
+			d.fx = event.x;
+			d.fy = event.y;
+		}
+
+		function dragended(event, d) {
+			if (sim_state && !event.active) simulation.alphaTarget(0);
+			d.fx = null;
+			d.fy = null;
+		}
+
+		return d3.drag()
+			.on("start", dragstarted)
+			.on("drag", dragged)
+			.on("end", dragended);
+	}
+
+	const width = 928;
+	const height = 600;
+	const types = ["prereq", "preorco", "coreq", "self"]
+	const nodes = Array.from(new Set(suits.flatMap(l => [l.source, l.target])), id => ({id}));
+	const links = suits.map(d => Object.create(d))
+
+	const color = d3.scaleOrdinal(types, d3.schemeCategory10);
+
+	const simulation = d3.forceSimulation(nodes)
+		.force("link", d3.forceLink(links).id(d => d.id))
+		.force("charge", d3.forceManyBody().strength(-400))
+		.force("x", d3.forceX())
+		.force("y", d3.forceY());
+
+	const svg = d3.create("svg")
+		.attr("viewBox", [-width / 2, -height / 2, width, height])
+		.attr("width", width)
+		.attr("height", height)
+		.attr("style", "width: 100%; height: 100%; font: 12px sans-serif;");
+
+	function updateWindow(e){
+		x = paper.clientWidth;
+		y = paper.clientHeight;
+
+		svg.attr("width", x).attr("height", y);
+	}
+	d3.select(window).on('resize.updatesvg', updateWindow);
+	updateWindow();
+
+	// Per-type markers, as they don't inherit styles.
+	svg.append("defs").selectAll("marker")
+		.data(types)
+		.join("marker")
+		.attr("id", d => `arrow-${d}`)
+		.attr("viewBox", "0 -5 10 10")
+		.attr("refX", 15)
+		.attr("refY", -0.5)
+		.attr("markerWidth", 6)
+		.attr("markerHeight", 6)
+		.attr("orient", "auto")
+		.append("path")
+		.attr("fill", color)
+		.attr("d", "M0,-5L10,0L0,5");
+
+	const link = svg.append("g")
+		.attr("fill", "none")
+		.attr("stroke-width", 1.5)
+		.selectAll("path")
+		.data(links)
+		.join("path")
+		.attr("stroke", d => color(d.type))
+		.attr("marker-end", d => `url(${new URL(`#arrow-${d.type}`, location)})`);
+
+	const node = svg.append("g")
+		.attr("fill", "currentColor")
+		.attr("stroke-linecap", "round")
+		.attr("stroke-linejoin", "round")
+		.selectAll("g")
+		.data(nodes)
+		.join("g")
+		.call(drag(simulation));
+
+	const circle = node.append("circle")
+		.attr("stroke", "white")
+		.attr("stroke-width", 1.5)
+		.attr("r", 4);
+
+	const text1 = node.append("text")
+		.attr("x", 8)
+		.attr("y", "0.31em")
+		.text(d => d.id)
+
+	const text2 = text1
+		.clone(true).lower()
+		.attr("fill", "none")
+		.attr("stroke", "white")
+		.attr("stroke-width", 3);
+
+	simulation.on("tick", () => {
+		link.attr("d", linkArc);
+		circle.attr("cx", d => d.x)
+			.attr("cy", d => d.y);
+		text1.attr("dx", d => d.x)
+			.attr("dy", d => d.y)
+		text2.attr("dx", d => d.x)
+			.attr("dy", d => d.y)
+	});
+
+	let myZoom = d3.zoom().on('zoom', handleZoom);
+
+	function handleZoom(e) {
+		link.attr("transform", e.transform);
+		node.attr("transform", e.transform);
+	}
+
+	svg.call(myZoom);
+
+	Object.assign(svg.node(), {scales: {color}});
+	let nd = svg.node();
+	nd.sim = simulation;
+
+	return nd;
+};
+
+
+let get_edges = (data) => {
+	let graph = [];
+
+	let get_edges = (course, type, graph, tr) => ({
+		"true": () => null,
+		"false": () => null,
+		"some": () => tr.req.forEach(v => get_edges(course, type, graph, v)),
+		"all": () => tr.req.forEach(v => get_edges(course, type, graph, v)),
+		"course": () => graph.push({source: tr.dept + " " + tr.number, target: course, type}),
+		"standing": () => null
+	})[tr.type](tr)
+
+	data.forEach(v => {
+		get_edges(v.id.toLowerCase(), "prereq", graph, v.prereq);
+		get_edges(v.id.toLowerCase(), "coreq", graph, v.coreq);
+		get_edges(v.id.toLowerCase(), "preorco", graph, v.preorco);
+	});
+
+	return graph;
+}
+
+let edges = get_edges(data);
+
+edges = edges.filter(v => +v.target.match(/[0-9]+/)[0] < 5000)
+	.filter(v => +v.source.match(/[0-9]+/)[0] < 5000)
+
+data = data.filter(v => +v.number < 5000);
+
+let to_graph = (edges) => {
+	let graph = {};
+
+	edges.forEach(v => {
+		graph[v.source] ??= {in: {}, out: {}};
+		graph[v.target] ??= {in: {}, out: {}};
+		graph[v.source].out[v.target + ":" + v.type] = graph[v.target];
+		graph[v.target].in[v.source + ":" + v.type] = graph[v.source];
+	});
+
+	return graph;
+}
+
+let to_edges = (graph) => {
+	let edges = [];
+
+	Object.entries(graph).forEach(([source, node]) => {
+		Object.entries(node.out).forEach(([target, node]) => {
+			edges.push({source, target: target.split(":")[0], type: target.split(":")[1]});
+		})
+	});
+
+	return edges;
+}
+
+let get_dep_graph = (graph, course) => {
+	let n_graph = {};
+
+	let get_deps = (course) => {
+		if(n_graph[course] != null)
+			return;
+
+		n_graph[course] ??= {in: {}, out: {}};
+
+		Object.entries(graph[course].in).forEach(([icourse, node]) => {
+			let [ncourse, type] = icourse.split(":");
+
+			get_deps(ncourse);
+			n_graph[course].in[icourse] = n_graph[ncourse];
+			n_graph[ncourse].out[course+":"+type] = n_graph[course];
+		});
+	};
+
+	get_deps(course);
+	return n_graph;
+}
+
+let get_dap_graph = (graph, course) => {
+	let n_graph = {};
+
+	let get_deps = (course) => {
+		if(n_graph[course] != null)
+			return;
+
+		n_graph[course] ??= {in: {}, out: {}};
+
+		Object.entries(graph[course].out).forEach(([icourse, node]) => {
+			let [ncourse, type] = icourse.split(":");
+
+			get_deps(ncourse);
+			n_graph[course].out[icourse] = n_graph[ncourse];
+			n_graph[ncourse].in[course+":"+type] = n_graph[course];
+		});
+	};
+
+	get_deps(course);
+	return n_graph;
+}
+
+
+let join_graph = (g1, g2) => to_graph([...to_edges(g1), ...to_edges(g2)]);
+
+let set_graph = (svg) => {
+	if(paper.childNodes[0])
+		paper.childNodes[0].sim.stop();
+
+	paper.replaceChildren(svg);
+}
+
+let disp_full_graph = () => set_graph(gen_graph(edges));
+let disp_dep_graph = (course) => set_graph(gen_graph(to_edges(get_dep_graph(to_graph(edges), course))));
+
+disp_full_graph();
+
+let update_graph = () => {
+	let graph = to_graph(edges);
+	let courses = courseSelect.value.split(",").map(v => v.trim())
+		.flatMap(cid => data.filter(v => v.id == cid.replace("*", v.number)))
+		.map(v => v.id)
+		.filter(v => graph[v]);
+
+	if(courses.length != 0){
+		let g = [
+			...(dep_check.checked ? courses.map(v => get_dep_graph(graph, v)) : []),
+			...(dap_check.checked ? courses.map(v => get_dap_graph(graph, v)) : [])
+		].reduce(join_graph, {});
+
+		let n_edges = to_edges(g).concat(courses.map(v => ({source: v, target: v, type: "self"})))
+
+		if(exact_check.checked)
+			n_edges = n_edges.filter(v => courses.find(k => k == v.source) != null && courses.find(k => k == v.target) != null);
+
+		set_graph(gen_graph(n_edges));
+	}
+
+	if(courseSelect.value == "")
+		disp_full_graph();
+}
+
+courseSelect.addEventListener("input", update_graph);
+exact_check.addEventListener("input", update_graph);
+dep_check.addEventListener("input", update_graph);
+dap_check.addEventListener("input", update_graph);
+
+
+let find_longest_path = (graph) => {
+	let lsf = {};
+	let queue = Object.entries(graph).map(v => [[v[0]], v[1]]);
+
+	while(queue.length){
+		let [path, course] = queue.shift();
+		let cur = path.at(-1);
+
+		lsf[cur] ??= [[]];
+
+		if(lsf[cur][0].length == path.length){
+			lsf[cur].push(path);
+			continue;
+		}
+
+		if(lsf[cur][0].length < path.length)
+			lsf[cur] = [path];
+
+		Object.entries(course.out).forEach(([edge, node]) => {
+			let [n_course, type] = edge.split(":");
+
+			if(path.find(v => v == n_course) != null)
+				return null;
+
+			let n_path = path.concat(n_course);
+
+			queue.push([n_path, node]);
+		});
+	}
+
+	return lsf;
+}
+/*
+	let paths = Object.entries(find_longest_path(to_graph(edges))).flatMap(v => v[1]);
+	let max_len = Math.max(...paths.map(v => v.length));
+	let filtered = paths.filter(v => v.length == max_len);
+	console.log(filtered[0].toString());
+*/
+
+
+/*
+	let in_degree = Object.entries(to_graph(edges)).map(([c, n]) => [c, Object.keys(n.in).length]);
+	let out_degree = Object.entries(to_graph(edges)).map(([c, n]) => [c, Object.keys(n.out).length]);
+
+	let max_in = Math.max(...in_degree.map(v => v[1]));
+	let max_out = Math.max(...out_degree.map(v => v[1]));
+
+	let max_in_nodes = in_degree.filter(v => v[1] == max_in);
+	let max_out_nodes = out_degree.filter(v => v[1] == max_out);
+*/
+
+
+</script>
 </html>

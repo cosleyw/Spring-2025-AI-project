@@ -9,12 +9,66 @@
 	</body>
 	<script type="application/javascript" src="https://unpkg.com/react@18.3.0/umd/react.production.min.js"></script>
   	<script type="application/javascript" src="https://unpkg.com/react-dom@18.3.0/umd/react-dom.production.min.js"></script>
+	<script src="bundle.js"></script>
 	<script defer>
-const React = this.React;
-const ReactDOM = this.ReactDOM;
-const e = React.createElement;
+	let url = "127.0.0.1:8000";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(e('div', null, 'Hello World'));
+	let get_degrees = async () => fetch("/degrees")
+	  .then(v => v.text())
+	  .then(v => JSON.parse(v));
+
+	let get_degree = async (id) => fetch(`/degrees/${id}`)
+	  .then(v => v.text())
+	  .then(v => JSON.parse(v));
+
+	let get_courses = async () => fetch("/courses")
+	  .then(v => v.text())
+	  .then(v => JSON.parse(v));
+
+	let get_course = async (id) => fetch(`/courses/${id}`)
+	  .then(v => v.text())
+	  .then(v => JSON.parse(v));
+
+
+	/*
+	const query = new URLSearchParams({
+	  semester_count: 8,
+	  min_credit_per_semester: 12,
+	  max_credit_per_semester: 18,
+	  starts_as_fall: 'true',
+	  start_year: 2025,
+	  first_semester_sophomore: 3,
+	  first_semester_junior: 5,
+	  first_semester_senior: 7,
+
+	  // These are passed as strings, not arrays
+	  transferred_course_ids_str: 'CS101,CS102',
+	  desired_course_ids_str: 'CS201@1,CS202',
+	  undesired_course_ids_str: 'HIST101',
+	  desired_degree_ids_str: 'DEG001,DEG002',
+	});*/
+
+	let get_schedule = async (query) => {
+
+	fetch(`/schedules/generate?${query.toString()}`)
+	  .then(res => {
+	    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+	    return res.json();
+	  })
+	  .then(data => {
+	    console.log('Generated schedule:', data.schedule);
+	  })
+	  .catch(err => {
+	    console.error('Error:', err);
+	  });
+	};
+
+
+	const React = this.React;
+	const ReactDOM = this.ReactDOM;
+	const e = React.createElement;
+
+	const root = ReactDOM.createRoot(document.getElementById('root'));
+	root.render(e('div', null, 'Hello World'));
 	</script>
 </html>

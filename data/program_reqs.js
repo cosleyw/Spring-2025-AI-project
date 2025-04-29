@@ -1,8 +1,13 @@
-let Course = (dept, number) => ({type: "course", dept, number, course: dept + " " + number});
-let All = (...reqs) => ({type: "all", reqs});
+let Course = (dept, number) => ({type: "course", dept, number});
+let All = (...req) => ({type: "all", req});
 let AtleastNCourses = (n, m) => (...options) => ({type: "course-range", n, m, options});
 let AtleastNCredits = (n, m) => (...options) => ({type: "credit-range", n, m, options});
 let Tag = (info, node) => ({type:"tag", info, node});
+let True = () => ({type:"true"});
+let False = () => ({type:"false"});
+
+
+
 
 let hash = a => a.toLowerCase().match(/[a-z0-9]/g).join("");
 
@@ -21,6 +26,7 @@ let des_course = (name) => [
 ];
 
 
+let every_course = () => courses.map(v => Course(v.dept, v.number));
 
 let course_wildcard = (dept, wc) => {
 	let set = courses.filter(v => v.dept == dept).map(v => v.number).flat().filter(v => v.length == wc.length);
@@ -96,7 +102,7 @@ let type_map = {
 	'Must have grade of C or better': AtleastNCourses(1,1), //this guy is a lil bit broken
 	'Students can choose from courses not used above or from the following courses in religion': AtleastNCredits(18,18),
 	'Students can choose from courses not used listed above or from the following courses in Philosophy': AtleastNCredits(9, 9),
-	'Additional units to meet the 16 unit requirement': (...reqs) => Tag("fixme!", AtleastNCredits(0,8)), //this guy sucks lmao
+	'Additional units to meet the 16 unit requirement': (...reqs) => Tag("fixme!", AtleastNCredits(0,8)(...reqs)), //this guy sucks lmao
 
 	'1 Course Required': AtleastNCourses(1,1),
 	'12 Units Required': AtleastNCredits(12,12),
@@ -127,7 +133,7 @@ let type_map = {
 	'3 Units of Sociology or Criminology required from the following courses:': AtleastNCredits(3,3),
 	'Choose two courses from the following': AtleastNCourses(2,2),
 	'Choose three courses from the following': AtleastNCourses(3,3),
-	'At least one course': AtleastNCourses(1, Infinity),
+	'At least one course': AtleastNCourses(1, 1),
 	'10-15 Units Required': AtleastNCredits(10,15),
 	'15 Units Required': AtleastNCredits(15,15),
 	'6 Units Required from the following courses': AtleastNCredits(6,6),
@@ -136,7 +142,7 @@ let type_map = {
 	'Select at least 9 hours of the following': AtleastNCredits(9,9),
 	'3 units required': AtleastNCredits(3,3),
 	'9 units required': AtleastNCredits(9,9),
-	'At least one course, this course can also count as a World History Elective': AtleastNCourses(1, Infinity),
+	'At least one course, this course can also count as a World History Elective': AtleastNCourses(1, 1),
 	'3 Units Required *COMM 4216 OR POL AMER 4160*': AtleastNCredits(3,3),
 	'9 Units Required in Sociology or Criminology from the following courses': AtleastNCredits(9, 9),
 	'3 Courses Required': AtleastNCourses(3,3),
@@ -194,7 +200,7 @@ let type_map = {
 	'1 Units Required': AtleastNCredits(1,1),
 	'12 Units': AtleastNCredits(12,12),
 	'2  Units Required': AtleastNCredits(2,2),
-	'31 Units Required': AtleastNCredits(31),
+	'31 Units Required': AtleastNCredits(31,31),
 	'11-12 Units Required': AtleastNCredits(11,12),
 	'33 Units Required': AtleastNCredits(33,33),
 	'9-12 Units': AtleastNCredits(9,12),
@@ -247,7 +253,7 @@ let type_map = {
 	'4-5 Courses Required': AtleastNCourses(4,5),
 	'20 Units Required': AtleastNCredits(20,20),
 	'10 Courses Required': AtleastNCourses(10,10),
-	'5 Courses Required': AtleastNCourses(5),
+	'5 Courses Required': AtleastNCourses(5,5),
 
 	'8-9 Courses Required': AtleastNCourses(8,9),
 
@@ -257,10 +263,10 @@ let type_map = {
 	'23 Units Required': AtleastNCredits(23,23),
 	'30-32 Units Required': AtleastNCredits(30,32),
 	'62-63 Units Required': AtleastNCredits(62,63),
-	'54 Units Required': AtleastNCredits(54),
+	'54 Units Required': AtleastNCredits(54,54),
 	'59-62 Units Required': AtleastNCredits(59,62),
-	'60 Units Required': AtleastNCredits(60),
-	'57 Units Required': AtleastNCredits(57),
+	'60 Units Required': AtleastNCredits(60,60),
+	'57 Units Required': AtleastNCredits(57,57),
 	'31-32 Units Required': AtleastNCredits(31,32),
 	'39-40 Units Required': AtleastNCredits(39,40),
 	'63 Units Required': AtleastNCredits(63,63),
@@ -315,6 +321,106 @@ let type_map = {
 }
 
 
+let rm_graduate_courses = (tree) => ({
+	course: (tr) => tr.number < 5000 ? tr : False(),
+	all: (tr) => All(...tr.req.map(rm_graduate_courses)),
+	"course-range": (tr) => AtleastNCourses(tr.n, tr.m)(...tr.options.map(rm_graduate_courses)),
+	"credit-range": (tr) => AtleastNCredits(tr.n, tr.m)(...tr.options.map(rm_graduate_courses)),
+	tag: (tr) => Tag(tr.info, rm_graduate_courses(tr.node)),
+	true: (tr) => tr,
+	false: (tr) => tr
+})[tree.type](tree);
+
+
+
+let simp_tree = (tree) => ({
+	course: (tr) => tr,
+	all: (tr) => {
+		let req = tr.req.map(simp_tree).filter(v => v.type != "true").flatMap(v => v.type == "all" ? v.req : [v]);
+		
+		if(req.length == 0)
+			return True();
+		if(req.some(v => v.type == "false"))
+			return False();
+		return req.length == 1 ? req[0] : All(...req);
+	},
+	"course-range": (tr) => {
+		if(tr.n == null || tr.m == null)
+			console.error("you fucked up: ", tr);
+		let req = tr.options.map(simp_tree).filter(v => v.type != "true" && v.type != "false")
+		if(req.length == 0)
+			return False();
+
+		if(req.every(v => v.type == "course")){
+			if(req.length < tr.n)
+				return False();
+
+			if(req.length <= tr.m)
+				return simp_tree(All(...req));
+		}
+
+		if(req.length == 1 && req[0].type == "course-range"){
+			let nd = req[0];
+
+			if(tr.n <= nd.n && tr.m >= nd.m)
+				return nd;
+		}
+
+
+		if(req.every(v => v.type == "course-range")){
+			let lb = req.map(v => v.n).reduce((a, b) => a + b);
+			let rb = req.map(v => v.m).reduce((a, b) => a + b);
+
+			if(lb >= tr.n && rb <= tr.m)
+				return simp_tree(All(...req));
+		}
+
+		return AtleastNCourses(tr.n, tr.m)(...req);
+	},
+	"credit-range": (tr) => {
+		if(tr.n == null || tr.m == null)
+			console.error("you fucked up: ", tr);
+		let req = tr.options.map(simp_tree).filter(v => v.type != "true" && v.type != "false")
+		if(req.length == 0)
+			return False();
+
+
+		if(req.length == 1 && req[0].type == "credit-range"){
+			let nd = req[0];
+
+			if(tr.n <= nd.n && tr.m >= nd.m)
+				return nd;
+		}
+
+		if(req.every(v => v.type == "credit-range")){
+			let lb = req.map(v => v.n).reduce((a, b) => a + b);
+			let rb = req.map(v => v.m).reduce((a, b) => a + b);
+
+			if(lb >= tr.n && rb <= tr.m)
+				return simp_tree(All(...req));
+		}
+
+		if(req.length == 1 && req[0].type == "course"){
+			let course = courses.find(v => v.id == (req[0].dept + " " + req[0].number));
+
+			if(course != null){
+				if(course.hours.some(v => v >= tr.n))
+					return req[0];
+
+				return False();
+			}
+			console.error("missing course:", req[0]);
+		}
+
+
+		return AtleastNCredits(tr.n, tr.m)(...req);
+	},
+	tag: (tr) => Tag(tr.info, simp_tree(tr.node)),
+	true: (tr) => tr,
+	false: (tr) => tr
+})[tree.type](tree);
+
+
 
 let assert = (b, descr) => {
 	if(!b) throw new Error(descr);
@@ -324,19 +430,26 @@ let assert = (b, descr) => {
 let fix_tree = (tr) => {
 	let get_type = (type) => type_map[get_line_type(type)];
 	let fix_course = ([id, dept, number]) => {
+		if(dept.trim() == "(***)"){
+			console.error("weird wildcard thing");
+			return every_course();
+		}
+
+
 		try{
 			let course_name = des_course(dept + " 1000");
 			if(/#/.test(number))
-				return course_wildcard(course_name[0], number.trim());
-			return Course(course_name[0], number.toString().trim());
+				return [course_wildcard(course_name[0], number.trim())];
+
+			return [Course(course_name[0], number.toString().trim())];
 		}catch (e){
-			return null;
+			return [];
 		}
 	}
 
 	let fix_line = (tr) => {
 		let keys = Object.keys(tr);
-		return keys.map(v => get_type(v)(...tr[v].nodes.map(fix_course).filter(v => v != null)));
+		return keys.map(v => get_type(v)(...tr[v].nodes.flatMap(fix_course)));
 	}
 
 	let fix_req = (tr) => {
@@ -358,8 +471,12 @@ let fix_tree = (tr) => {
 
 	delete tr["PROFESSIONAL EDUCATION REQUIREMENTS"];
 
-	return Object.fromEntries(Object.entries(tr).map(v => [v[0], fix_rg(v[1])]));
+	return Object.fromEntries(Object.entries(tr).map(v => [v[0], simp_tree(rm_graduate_courses(fix_rg(v[1])))]));
 }
+
+
+
+
 
 
 let csv = require("csv-parser");
