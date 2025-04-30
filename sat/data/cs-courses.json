@@ -155,14 +155,9 @@
             "type": "true"
         },
         "preorco": {
-            "type": "some",
-            "req": [
-                {
-                    "type": "course",
-                    "dept": "cs",
-                    "number": "1510"
-                }
-            ]
+            "type": "course",
+            "dept": "cs",
+            "number": "1510"
         },
         "desc": "Study of computers in terms of their major functional units. Machine representations of data, digital logic, memory, CPUs, buses, and input/output. Instruction set architectures and their implementations, addressing methods, and sequencing. Assembly language programming. Prerequisite(s) or corequisite(s): CS\u00a01510 .\n (Fall and Spring)"
     },
@@ -196,27 +191,17 @@
         "semester": "Fall and Spring",
         "id": "cs 1520",
         "prereq": {
-            "type": "some",
-            "req": [
-                {
-                    "type": "course",
-                    "dept": "cs",
-                    "number": "1510"
-                }
-            ]
+            "type": "course",
+            "dept": "cs",
+            "number": "1510"
         },
         "coreq": {
             "type": "true"
         },
         "preorco": {
-            "type": "some",
-            "req": [
-                {
-                    "type": "course",
-                    "dept": "cs",
-                    "number": "1800"
-                }
-            ]
+            "type": "course",
+            "dept": "cs",
+            "number": "1800"
         },
         "desc": "Introduction to use and implementation of data structures such as sets, hash tables, stacks, trees, queues, heaps, and graphs. Additional topics include searching algorithms, sorting algorithms, and algorithmic time and space complexity analysis. Design and implementation of programs using functional decomposition. Prerequisite(s): CS\u00a01510 or department approval. Prerequisite(s) or corequisite(s): CS\u00a01800 or department approval.\n (Fall and Spring)"
     },
@@ -233,34 +218,19 @@
             "type": "some",
             "req": [
                 {
-                    "type": "some",
-                    "req": [
-                        {
-                            "type": "course",
-                            "dept": "cs",
-                            "number": "1130"
-                        }
-                    ]
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1130"
                 },
                 {
-                    "type": "some",
-                    "req": [
-                        {
-                            "type": "course",
-                            "dept": "cs",
-                            "number": "1160"
-                        }
-                    ]
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1160"
                 },
                 {
-                    "type": "some",
-                    "req": [
-                        {
-                            "type": "course",
-                            "dept": "cs",
-                            "number": "1510"
-                        }
-                    ]
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1510"
                 }
             ]
         },
@@ -282,14 +252,9 @@
         "semester": "Fall and Spring",
         "id": "cs 2100",
         "prereq": {
-            "type": "some",
-            "req": [
-                {
-                    "type": "course",
-                    "dept": "cs",
-                    "number": "1100"
-                }
-            ]
+            "type": "course",
+            "dept": "cs",
+            "number": "1100"
         },
         "coreq": {
             "type": "true"
@@ -309,14 +274,9 @@
         "semester": "Spring",
         "id": "cs 2150",
         "prereq": {
-            "type": "some",
-            "req": [
-                {
-                    "type": "course",
-                    "dept": "cs",
-                    "number": "1510"
-                }
-            ]
+            "type": "course",
+            "dept": "cs",
+            "number": "1510"
         },
         "coreq": {
             "type": "true"
@@ -336,14 +296,9 @@
         "semester": "Fall",
         "id": "cs 2420",
         "prereq": {
-            "type": "some",
-            "req": [
-                {
-                    "type": "course",
-                    "dept": "cs",
-                    "number": "1410"
-                }
-            ]
+            "type": "course",
+            "dept": "cs",
+            "number": "1410"
         },
         "coreq": {
             "type": "true"
@@ -494,7 +449,18 @@
         "semester": "Fall",
         "id": "cs 3120",
         "prereq": {
-            "type": "true"
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                },
+                {
+                    "type": "standing",
+                    "value": "junior"
+                }
+            ]
         },
         "coreq": {
             "type": "true"
@@ -666,8 +632,19 @@
                     "number": "1800"
                 },
                 {
-                    "type": "standing",
-                    "value": "junior"
+                    "type": "course",
+                    "dept": "tech",
+                    "number": "2051"
+                },
+                {
+                    "type": "course",
+                    "dept": "tech",
+                    "number": "2053"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1160"
                 }
             ]
         },
@@ -861,7 +838,8 @@
         "semester": "Fall and Spring",
         "id": "cs 3730",
         "prereq": {
-            "type": "true"
+            "type": "standing",
+            "value": "junior"
         },
         "coreq": {
             "type": "true"
@@ -951,14 +929,9 @@
             "type": "all",
             "req": [
                 {
-                    "type": "some",
-                    "req": [
-                        {
-                            "type": "course",
-                            "dept": "cs",
-                            "number": "3470"
-                        }
-                    ]
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "3470"
                 },
                 {
                     "type": "standing",
@@ -987,14 +960,9 @@
             "type": "all",
             "req": [
                 {
-                    "type": "some",
-                    "req": [
-                        {
-                            "type": "course",
-                            "dept": "cs",
-                            "number": "3470"
-                        }
-                    ]
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "3470"
                 },
                 {
                     "type": "standing",
@@ -1006,14 +974,9 @@
             "type": "true"
         },
         "preorco": {
-            "type": "some",
-            "req": [
-                {
-                    "type": "course",
-                    "dept": "cs",
-                    "number": "3730"
-                }
-            ]
+            "type": "course",
+            "dept": "cs",
+            "number": "3730"
         },
         "desc": "Topics include the need for security services, data integrity, network intrusion and monitoring, configuration of secure services, root kits, and buffer overflow techniques and remedies. Additional topics include enterprise-wide monitoring, honeypots, and recognizing trends in a networked environment. Prerequisite(s): CS\u00a03470/5470 ; junior standing. Prerequisite(s) or corequisite(s): CS\u00a03730/5730 .\n (Spring)"
     },
@@ -1045,14 +1008,9 @@
                     "number": "1800"
                 },
                 {
-                    "type": "some",
-                    "req": [
-                        {
-                            "type": "course",
-                            "dept": "cs",
-                            "number": "3430"
-                        }
-                    ]
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "3430"
                 }
             ]
         },
@@ -1074,20 +1032,46 @@
         "semester": "Fall",
         "id": "cs 4550",
         "prereq": {
-            "type": "true"
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "2530"
+                },
+                {
+                    "type": "standing",
+                    "value": "junior"
+                },
+                {
+                    "type": "some",
+                    "req": [
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "3530"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "3540"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "3810"
+                        }
+                    ]
+                }
+            ]
         },
         "coreq": {
             "type": "true"
         },
         "preorco": {
-            "type": "some",
-            "req": [
-                {
-                    "type": "course",
-                    "dept": "cs",
-                    "number": "3730"
-                }
-            ]
+            "type": "course",
+            "dept": "cs",
+            "number": "3730"
         },
         "desc": "Introduction to analysis of programming languages and construction of translators. Prerequisite(s): CS\u00a02530 and one of the following: CS\u00a03530 , CS\u00a03540 , CS\u00a03810/5810 ; junior standing. Prerequisite(s) or corequisite(s): CS\u00a03730/5730 .\n (Fall)"
     },
@@ -1109,14 +1093,9 @@
                     "number": "2530"
                 },
                 {
-                    "type": "some",
-                    "req": [
-                        {
-                            "type": "course",
-                            "dept": "cs",
-                            "number": "3610"
-                        }
-                    ]
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "3610"
                 },
                 {
                     "type": "standing",
@@ -1128,14 +1107,9 @@
             "type": "true"
         },
         "preorco": {
-            "type": "some",
-            "req": [
-                {
-                    "type": "course",
-                    "dept": "cs",
-                    "number": "3730"
-                }
-            ]
+            "type": "course",
+            "dept": "cs",
+            "number": "3730"
         },
         "desc": "Design and implementation of programs that apply artificial intelligence techniques to problems such as design, diagnosis, and distributed problem solving. Emphasis on team design and development of large systems. Prerequisite(s): CS\u00a02530 ; CS\u00a03610/5610 or equivalent; junior standing. Prerequisite(s) or corequisite(s): CS\u00a03730/5730 .\n (Spring)"
     },
@@ -1171,14 +1145,9 @@
             "type": "true"
         },
         "preorco": {
-            "type": "some",
-            "req": [
-                {
-                    "type": "course",
-                    "dept": "cs",
-                    "number": "3730"
-                }
-            ]
+            "type": "course",
+            "dept": "cs",
+            "number": "3730"
         },
         "desc": "Specification, design, and implementation principles and techniques for real-time embedded systems. Topics include programming languages and paradigms, reliability and fault tolerance, concurrent programming, scheduling, and the interaction between hardware and software. Student teams will complete a significant real-time embedded software project. Prerequisite(s): CS\u00a02530 ; CS\u00a02720 ; junior standing. Prerequisite(s) or corequisite(s): CS\u00a03730/5730 .\n (Fall)"
     },

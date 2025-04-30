@@ -1,14 +1,24 @@
 from enum import StrEnum
 import json
 from typing import Any, Generator, TypeVar, override
+import os
 
 from typeguard import typechecked
 from z3 import Implies
 from z3.z3 import And, Bool, BoolRef, BoolVal, ModelRef, Not, Optimize, Or, sat  # type: ignore[import-untyped]
 
-from config import COURSES_FILE_NAME, DEGREES_FILE_NAME
+from config import COURSES_FILE_NAME, DATA_DIR, DEGREES_FILE_NAME
 
 from degree_requirement_manager import DegreeRequirementManager
+
+import logging
+
+logging.basicConfig(
+    filename="out.log",
+    level=logging.INFO,
+    format="%(asctime)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s",
+    datefmt="%H:%M:%S",  # datefmt='%Y-%m-%d:%H:%M:%S',
+)
 
 
 @typechecked
@@ -84,9 +94,9 @@ class DegreeManager:
     ) -> None:
         for degree in self:
             degree.get_requirements().setup(Course, Degree, sophomore, junior, senior)
-            print("Printing degree requirement classes:")
+            logging.debug("Printing degree requirement classes:")
             for course in degree.get_requirements().get_courses():
-                print(f"\t{course._name}")
+                logging.debug(f"\t{course._name}")
 
     def add_degree(self, degree: "Degree"):
         if degree.get_id() in self.degrees:
@@ -96,7 +106,7 @@ class DegreeManager:
 
     def by_id(self, id: Any) -> "Degree":
         if id not in self.degrees:
-            raise IndexError(f"Unable to find id '{id}' in courses")
+            raise IndexError(f"Unable to find id '{id}' in degrees")
         return self.degrees[id]
 
     def __iter__(self) -> Generator["Degree", Any, None]:
@@ -189,6 +199,21 @@ class CourseManager:
         yield from self._courses.values()
 
     def by_id(self, id: Any) -> "Course":
+        if any(
+            [
+                id.startswith(x)
+                for x in [
+                    "business",
+                    "univ",
+                    "ph",
+                    "rtnl",
+                    "fam serv",
+                    "cap",
+                    "gero",
+                ]
+            ]
+        ):
+            return self._courses["stat 1772"]
         if id not in self._courses:
             raise IndexError(f"Unable to find id '{id}' in courses")
         return self._courses[id]
@@ -270,7 +295,7 @@ class Course:
         # Cannot take for credit multiple places
         requirements.append(sum(self._taken_for_specific_rg) <= 1)
 
-        print(requirements)
+        logging.debug(requirements)
 
         return And(requirements)
 
@@ -367,9 +392,9 @@ class Course:
 
     def generate_requisites(self, requirements: Any, semester: int, sophomore: Rank, junior: Rank, senior: Rank) -> BoolRef | None:
         def generate_requisites_helper(requirements: Any, mode: str) -> BoolRef | None:
-            print(requirements, mode)
-            if len(requirements) == 0:
-                return
+            logging.debug(f"{requirements}, {mode}")
+            # if len(requirements) == 0:
+            #    return
 
             type = requirements.get("type")
 
@@ -381,8 +406,7 @@ class Course:
                     try:
                         course = self._course_manager.by_id(course_id)
                     except Exception as e:
-                        print(e)
-                        print("However, we keep moving...")
+                        logging.warning(e)
                         return BoolVal(False)
                     if mode == "prereq":
                         start_semester = 0
@@ -524,21 +548,31 @@ class CourseSATSolver:
             )
 
         # for degree in self.degree_manager:
-        #    print(degree)
+        #    logging.debug(degree)
 
     def setup(self) -> None:
         self.solver = Optimize()
 
         self._generate_bootstrap()
 
+        non_credit_courses = []
+
         for course in self.course_manager:
-            print(f"Applying cnf for {course.get_name()}...")
+            logging.debug(f"Applying cnf for {course.get_name()}...")
             course.apply_cnf(self.solver, self.sophomore, self.junior, self.senior)
+
+            if course.get_credits() == 0:
+                non_credit_courses.extend(course.get_refs())
+
+        # We always want to avoid adding tons of 0 credit courses
+        self.solver.minimize(sum(non_credit_courses))
 
         self._add_desired_courses()
         self._add_undesired_courses()
 
         self._add_semester_credit_requirements()
+
+        self._add_degree_reqs()
 
     def _generate_bootstrap(self) -> None:
         self._generate_transfer_bootstrap()
@@ -604,7 +638,7 @@ class CourseSATSolver:
 
     # TODO: Implementation might be weird with courses requiring you have a specific
     # major, when not all majors have references.
-    def add_degree_reqs(self) -> None:
+    def _add_degree_reqs(self) -> None:
         for degree_id in self.desired_degree_ids:
             self.solver.add(self.degree_manager.by_id(degree_id).generate_cnf())
 
@@ -622,12 +656,11 @@ class CourseSATSolver:
         c = 0
         for sem in reversed(refs):
             self.solver.minimize(sum(sem))
-            print(c, sem)
             c += 1
 
     def solve_all(self) -> None:
         while self.solve():
-            self.display()
+            pass
 
     # TODO: Could implement a pseudo-minimization by after we solve it, going through
     # and setting each variable to false then seeing if you are still sat.
@@ -638,10 +671,10 @@ class CourseSATSolver:
         self.plan = [[] for _ in range(self.course_manager.get_semester_count() + 1)]  # TODO: Fix the semester count here
 
         # for k, v in RefManager.store.items():
-        #    print(f"{k}: {v}")
+        #    logging.debug(f"{k}: {v}")
 
         if self.solver.check() == sat:
-            print("SAT")
+            logging.info("SAT")
             model: ModelRef = self.solver.model()
 
             for funcDeclRef in model.decls():
@@ -651,7 +684,7 @@ class CourseSATSolver:
 
                 reference_result: Any = RefManager.get(boolRef)
                 if isinstance(reference_result, Course):
-                    print(f"{boolRef} != {model[boolRef]}")
+                    # logging.debug(f"{boolRef} != {model[boolRef]}")
                     negation_of_current_solution.append(boolRef != model[boolRef])
                     course: Course = reference_result
                     semester: int = course.get_refs().index(boolRef)
@@ -664,7 +697,7 @@ class CourseSATSolver:
             return True
 
         else:
-            print("UNSAT")
+            logging.info("UNSAT")
             return False
 
     def get_plans_with_ids(self) -> list[list[Any]]:
@@ -684,22 +717,21 @@ class CourseSATSolver:
         return possible_plans
 
     def display(self) -> None:
-        if self.plan is None:
-            raise ValueError("CourseSATSolver needs to be solver before a plan can be displayed")
-        if len(self.possible_plans) == 0:
-            raise ValueError("CourseSATSolver needs at least 1 valid solution before a plan can be displayed")
+        if self.plan is None or len(self.possible_plans) == 0:
+            logging.warning("CourseSATSolver needs to be solver before a plan can be displayed")
+            return
 
         for plan_id, plan in enumerate(self.possible_plans):
-            print(f"\nPlan {plan_id + 1}:")
+            logging.info(f"Plan {plan_id + 1}:")
             for i, semester in enumerate(plan):
                 semester_name: str
                 if i == 0:
                     semester_name = "Transferred"
                 else:
                     semester_name = self._get_semester_name(i)
-                print(f"Semester {i}: {semester_name}")
+                logging.info(f"Semester {i}: {semester_name}")
                 for course in sorted(semester, key=lambda course: course.get_id()):
-                    print(f"\t{course}")
+                    logging.info(f"\t{course}")
 
     def _get_semester_name(self, semester: int) -> str:
         season: str
@@ -718,51 +750,63 @@ if __name__ == "__main__":
     ### START CONFIG VARIABLES
     ##########################
     # These will all be taken as input from the user
-    c: CourseSATSolver = CourseSATSolver(
-        semester_count=8,  # Number of semester to calculate for
-        min_credit_per_semester=0,  # Minimum credits (inclusive)
-        max_credits_per_semester=16,  # Maximum credits (inclusive)
-        starts_as_fall=True,
-        start_year=2026,
-        transferred_course_ids=[],  # ["CS1410", "CS1510"],
-        desired_course_ids=[
-            # ("cs 1410", 1),
-            # ("cs 3470",),
-        ],
-        undesired_course_ids=[
-            # ("cs 3810",),
-            # ("cs 4410",),
-            # ("cs 5410",),
-            # ("cs 4550",),
-        ],
-        # desired_degree_ids=["CS:BA"],
-        desired_degree_ids=["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"],
-        first_semester_sophomore=3,  # NOTE: One-indexed!
-        first_semester_junior=5,
-        first_semester_senior=7,
-    )
-    ########################
-    ### END CONFIG VARIABLES
-    ########################
 
-    c.setup()
-    c.add_degree_reqs()
-    c.minimize()
+    with open(os.path.join(DATA_DIR, "degree-names"), "r") as infile:
+        degree_names = [l.strip() for l in infile.readlines()]
 
-    c.solve()
-    c.display()
+    degree_names = ["ENVIRONMENTAL RESOURCE MANAGEMENT BA - ECOSYSTEMS (2024-present) 97LBA"]
 
-    # while c.solve():
-    #    pass
+    for degree in degree_names:
+        logging.info(f"Running for {degree}...")
+        c: CourseSATSolver = CourseSATSolver(
+            semester_count=8,  # Number of semester to calculate for
+            min_credit_per_semester=12,  # Minimum credits (inclusive)
+            max_credits_per_semester=12,  # Maximum credits (inclusive)
+            starts_as_fall=True,
+            start_year=2025,
+            transferred_course_ids=[],  # ["CS1410", "CS1510"],
+            desired_course_ids=[
+                # ("cs 1410", 1),
+                # ("cs 3470",),
+            ],
+            undesired_course_ids=[
+                # ("cs 3810",),
+                # ("cs 4410",),
+                # ("cs 5410",),
+                # ("cs 4550",),
+            ],
+            # desired_degree_ids=["CS:BA"],
+            # desired_degree_ids=["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"],
+            desired_degree_ids=[degree],
+            first_semester_sophomore=3,  # NOTE: One-indexed!
+            first_semester_junior=5,
+            first_semester_senior=7,
+        )
+        ########################
+        ### END CONFIG VARIABLES
+        ########################
 
-    # plan_ids = []
-    # for plan in c.possible_plans:
-    #    semester_ids = []
-    #    for semester in plan:
-    #        courses = [c.get_id() for c in semester]
-    #        semester_ids.append(courses)
-    #    plan_ids.append(semester_ids)
-    # print(plan_ids)
-    #
-    # print(c.possible_plans)
-    # c.display()
+        c.setup()
+        logging.info("Finished setup")
+        # c.minimize()
+        # logging.info("Added minimization")
+
+        if c.solve():
+            c.display()
+        else:
+            logging.error(f"No valid schedule for '{degree}'")
+
+        # while c.solve():
+        #    pass
+
+        # plan_ids = []
+        # for plan in c.possible_plans:
+        #    semester_ids = []
+        #    for semester in plan:
+        #        courses = [c.get_id() for c in semester]
+        #        semester_ids.append(courses)
+        #    plan_ids.append(semester_ids)
+        # logging.debug(plan_ids)
+        #
+        # logging.debug(c.possible_plans)
+        # c.display()

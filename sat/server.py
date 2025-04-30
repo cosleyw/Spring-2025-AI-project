@@ -5,6 +5,7 @@ from models import ScheduleConfiguration
 from config import COURSES_FILE_NAME, DEGREES_FILE_NAME
 import math
 import json
+import logging
 
 
 from main import CourseSATSolver, Offering
@@ -130,11 +131,10 @@ def generate_schedule(configuration: Annotated[ScheduleConfiguration, Query()]):
     )
 
     c.setup()
-    c.add_degree_reqs()
     c.minimize()
     c.solve()
     c.display()
-    print(configuration)
+    logging.debug(configuration)
     return {
         "status": "success",
         "schedule": c.get_plan_with_ids(),

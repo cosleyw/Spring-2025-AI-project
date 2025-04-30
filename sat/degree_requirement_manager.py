@@ -2,7 +2,10 @@ from typeguard import typechecked
 from typing import Any, override
 from abc import abstractmethod
 import z3.z3 as z3
+import logging
 from uuid import UUID, uuid4
+
+logger = logging.getLogger(__name__)
 
 
 @typechecked
@@ -149,6 +152,80 @@ class CourseRange(DegreeRequirement):
 
 
 @typechecked
+class All(DegreeRequirement):
+    def __init__(self, items: list[DegreeRequirement], required: bool = False):
+        super().__init__()
+        self._items: list[DegreeRequirement] = items
+        self._required = required
+
+    @override
+    def get_courses(self) -> list[Any]:
+        courses = []
+        for item in self._items:
+            courses.extend(item.get_courses())
+        return courses
+
+    @override
+    def get_nodes(self) -> list["DegreeRequirement"]:
+        nodes: list["DegreeRequirement"] = [self]
+        for item in self._items:
+            nodes.extend(item.get_nodes())
+        return nodes
+
+    @override
+    def eval(self) -> z3.BoolRef:
+        # and we meet all other requirements
+        recursive_requirements = [item.eval() for item in self._items if not isinstance(item, ReqCourse)]
+
+        if not self._required:
+            return z3.Or([z3.And(recursive_requirements), sum(recursive_requirements) == 0])
+        else:
+            return z3.And(recursive_requirements)
+
+
+@typechecked
+class ReqTrue(DegreeRequirement):
+    def __init__(self):
+        self._id: UUID = uuid4()
+
+    def get_id(self) -> UUID:
+        return self._id
+
+    @abstractmethod
+    def eval(self) -> z3.BoolRef:
+        return z3.BoolVal(True)
+
+    @abstractmethod
+    def get_courses(self) -> list[Any]:
+        return []
+
+    @abstractmethod
+    def get_nodes(self) -> list["DegreeRequirement"]:
+        return [self]
+
+
+@typechecked
+class ReqFalse(DegreeRequirement):
+    def __init__(self):
+        self._id: UUID = uuid4()
+
+    def get_id(self) -> UUID:
+        return self._id
+
+    @abstractmethod
+    def eval(self) -> z3.BoolRef:
+        return z3.BoolVal(False)
+
+    @abstractmethod
+    def get_courses(self) -> list[Any]:
+        return []
+
+    @abstractmethod
+    def get_nodes(self) -> list["DegreeRequirement"]:
+        return [self]
+
+
+@typechecked
 class ReqCourse(DegreeRequirement):
     def __init__(self, course):
         super().__init__()
@@ -213,10 +290,11 @@ class DegreeRequirementManager:
                 type = requirements.get("type")
 
             if type == "course":
-                course_id = requirements.get("course")
+                dept = requirements.get("dept")
+                number = requirements.get("number")
+                course_id = f"{dept} {number}"
                 course = self._course_manager.by_id(course_id)
                 return ReqCourse(course)
-                raise NotImplementedError("Degrees requireing courses is not in yet")
             elif type.endswith("-range"):
                 minimum = requirements.get("n")
                 maximum = requirements.get("m")
@@ -228,6 +306,16 @@ class DegreeRequirementManager:
                     return CourseRange(minimum, maximum, options, required)
                 else:
                     raise ValueError(f"Found invalid degree requirement type {type}.")
+            elif type == "true":
+                return ReqTrue()
+            elif type == "all":
+                req = requirements.get("req")
+                req = [parse_recursive_helper(option) for option in req]
+                return All(req)
+            elif type == "false":
+                return ReqFalse()
+            else:
+                raise ValueError(f"Found invalid degree requirement type {type}.")
 
         if len(requirements) == 0:
             raise ValueError("Trying to parse non-existant requirements")
