@@ -1,5 +1,6 @@
 from typing import Annotated
 from fastapi import FastAPI, Query
+from fastapi.middleware.cors import CORSMiddleware
 from models import ScheduleConfiguration
 from config import COURSES_FILE_NAME, DEGREES_FILE_NAME
 import math
@@ -17,6 +18,16 @@ app = FastAPI(
         {"name": "degrees", "description": "Operations with degrees."},
         {"name": "schedules", "description": "Operations with schedules."},
     ],
+)
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
