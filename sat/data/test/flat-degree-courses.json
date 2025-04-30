@@ -6,31 +6,38 @@
         "options": [
             {
                 "type": "course",
-                "course": "cs 1410"
+                "dept": "cs",
+                "number": "1410"
             },
             {
                 "type": "course",
-                "course": "cs 1510"
+                "dept": "cs",
+                "number": "1510"
             },
             {
                 "type": "course",
-                "course": "cs 1520"
+                "dept": "cs",
+                "number": "1520"
             },
             {
                 "type": "course",
-                "course": "cs 1800"
+                "dept": "cs",
+                "number": "1800"
             },
             {
                 "type": "course",
-                "course": "cs 2530"
+                "dept": "cs",
+                "number": "2530"
             },
             {
                 "type": "course",
-                "course": "cs 3650"
+                "dept": "cs",
+                "number": "3650"
             },
             {
                 "type": "course",
-                "course": "cs 3470"
+                "dept": "cs",
+                "number": "3470"
             }
         ]
     }

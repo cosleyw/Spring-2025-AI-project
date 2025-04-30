@@ -6,12 +6,13 @@
         "options": [
             {
                 "type": "course-range",
-                "n": 2,
-                "m": 2,
+                "n": 1,
+                "m": 1,
                 "options": [
                     {
                         "type": "course",
-                        "course": "cs 1410"
+                        "dept": "cs",
+                        "number": "1410"
                     }
                 ]
             },
@@ -22,7 +23,8 @@
                 "options": [
                     {
                         "type": "course",
-                        "course": "cs 1410"
+                        "dept": "cs",
+                        "number": "1410"
                     }
                 ]
             }

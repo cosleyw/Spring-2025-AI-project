@@ -9,14 +9,9 @@
         "semester": "Fall and Spring",
         "id": "cs 2100",
         "prereq": {
-            "type": "some",
-            "req": [
-                {
-                    "type": "course",
-                    "dept": "cs",
-                    "number": "1100"
-                }
-            ]
+            "type": "course",
+            "dept": "cs",
+            "number": "1100"
         },
         "coreq": {
             "type": "true"
@@ -33,7 +28,7 @@
         "hours": [
             3
         ],
-        "semester": "Fall",
+        "semester": "Fall and Spring",
         "id": "cs 1100",
         "prereq": {
             "type": "true"

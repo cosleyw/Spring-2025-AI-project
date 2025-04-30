@@ -1,0 +1,104 @@
+[
+    {
+        "dept": "cs",
+        "number": "2100",
+        "name": "Web Development: Server-side Coding",
+        "hours": [
+            3
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 2100",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1100"
+                },
+                {
+                    "type": "all",
+                    "req": [
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "1000"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "1025"
+                        }
+                    ]
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Development of interactive web sites: server-side scripting; database definition and use; site security; and additional topics as time allows. Prerequisite(s): CS\u00a01100 or consent of instructor.\n (Fall and Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "1100",
+        "name": "Web Development: Client-Side Coding",
+        "hours": [
+            3
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 1100",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Client-side Web development adhering to recent/current Web standards. Includes by-hand Web page development involving basic HTML, CSS, data acquisition using forms, and JavaScript for data validation and simple Web-based tools.\n (Fall)"
+    },
+    {
+        "dept": "cs",
+        "number": "1000",
+        "name": "Computing Skills and Concepts",
+        "hours": [
+            3
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 1000",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Introduction to operation, applications, implications of computers, microcomputers, and network communications. Develops skill in current applications and sensitizes students to societal issues related to computing.\n (Fall and Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "1025",
+        "name": "Modern Tools for Exploring Data",
+        "hours": [
+            3
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 1025",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Explores use of computational tools to explore data sets, find patterns, and solve complex problems. Topics include representing problems, modeling data, simulating processes, and validating models, with applications in the sciences, social sciences, humanities, and business.\n (Fall and Spring)"
+    }
+]

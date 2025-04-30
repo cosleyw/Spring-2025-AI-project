@@ -19,7 +19,8 @@
                             "options": [
                                 {
                                     "type": "course",
-                                    "course": "cs 1410"
+                                    "dept": "cs",
+                                    "number": "1410"
                                 }
                             ]
                         },
@@ -30,7 +31,8 @@
                             "options": [
                                 {
                                     "type": "course",
-                                    "course": "cs 1510"
+                                    "dept": "cs",
+                                    "number": "1510"
                                 }
                             ]
                         },
@@ -41,7 +43,8 @@
                             "options": [
                                 {
                                     "type": "course",
-                                    "course": "cs 1520"
+                                    "dept": "cs",
+                                    "number": "1520"
                                 }
                             ]
                         },
@@ -52,7 +55,8 @@
                             "options": [
                                 {
                                     "type": "course",
-                                    "course": "cs 1800"
+                                    "dept": "cs",
+                                    "number": "1800"
                                 }
                             ]
                         },
@@ -63,7 +67,8 @@
                             "options": [
                                 {
                                     "type": "course",
-                                    "course": "cs 2530"
+                                    "dept": "cs",
+                                    "number": "2530"
                                 }
                             ]
                         },
@@ -74,7 +79,8 @@
                             "options": [
                                 {
                                     "type": "course",
-                                    "course": "cs 3730"
+                                    "dept": "cs",
+                                    "number": "3730"
                                 }
                             ]
                         }
@@ -101,21 +107,25 @@
                                     "options": [
                                         {
                                             "type": "course",
-                                            "course": "cs 3530"
+                                            "dept": "cs",
+                                            "number": "3530"
                                         },
                                         {
                                             "type": "course",
-                                            "course": "cs 3540"
+                                            "dept": "cs",
+                                            "number": "3540"
                                         },
                                         {
                                             "type": "course",
-                                            "course": "cs 3810"
+                                            "dept": "cs",
+                                            "number": "3810"
                                         }
                                     ]
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 4550"
+                                    "dept": "cs",
+                                    "number": "4550"
                                 }
                             ]
                         },
@@ -131,25 +141,30 @@
                                     "options": [
                                         {
                                             "type": "course",
-                                            "course": "cs 3140"
+                                            "dept": "cs",
+                                            "number": "3140"
                                         },
                                         {
                                             "type": "course",
-                                            "course": "cs 3150"
+                                            "dept": "cs",
+                                            "number": "3150"
                                         },
                                         {
                                             "type": "course",
-                                            "course": "cs 3610"
+                                            "dept": "cs",
+                                            "number": "3610"
                                         },
                                         {
                                             "type": "course",
-                                            "course": "cs 3650"
+                                            "dept": "cs",
+                                            "number": "3650"
                                         }
                                     ]
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 4620"
+                                    "dept": "cs",
+                                    "number": "4620"
                                 }
                             ]
                         },
@@ -165,21 +180,25 @@
                                     "options": [
                                         {
                                             "type": "course",
-                                            "course": "cs 2720"
+                                            "dept": "cs",
+                                            "number": "2720"
                                         },
                                         {
                                             "type": "course",
-                                            "course": "cs 3120"
+                                            "dept": "cs",
+                                            "number": "3120"
                                         },
                                         {
                                             "type": "course",
-                                            "course": "cs 3750"
+                                            "dept": "cs",
+                                            "number": "3750"
                                         }
                                     ]
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 4740"
+                                    "dept": "cs",
+                                    "number": "4740"
                                 }
                             ]
                         },
@@ -195,19 +214,23 @@
                                     "options": [
                                         {
                                             "type": "course",
-                                            "course": "cs 2420"
+                                            "dept": "cs",
+                                            "number": "2420"
                                         },
                                         {
                                             "type": "course",
-                                            "course": "cs 3430"
+                                            "dept": "cs",
+                                            "number": "3430"
                                         },
                                         {
                                             "type": "course",
-                                            "course": "cs 3470"
+                                            "dept": "cs",
+                                            "number": "3470"
                                         },
                                         {
                                             "type": "course",
-                                            "course": "cs 4400"
+                                            "dept": "cs",
+                                            "number": "4400"
                                         }
                                     ]
                                 },
@@ -218,11 +241,13 @@
                                     "options": [
                                         {
                                             "type": "course",
-                                            "course": "cs 4410"
+                                            "dept": "cs",
+                                            "number": "4410"
                                         },
                                         {
                                             "type": "course",
-                                            "course": "cs 4420"
+                                            "dept": "cs",
+                                            "number": "4420"
                                         }
                                     ]
                                 }
@@ -246,19 +271,23 @@
                             "options": [
                                 {
                                     "type": "course",
-                                    "course": "cs 3530"
+                                    "dept": "cs",
+                                    "number": "3530"
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 3540"
+                                    "dept": "cs",
+                                    "number": "3540"
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 3810"
+                                    "dept": "cs",
+                                    "number": "3810"
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 4550"
+                                    "dept": "cs",
+                                    "number": "4550"
                                 }
                             ]
                         },
@@ -269,23 +298,28 @@
                             "options": [
                                 {
                                     "type": "course",
-                                    "course": "cs 3140"
+                                    "dept": "cs",
+                                    "number": "3140"
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 3150"
+                                    "dept": "cs",
+                                    "number": "3150"
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 3610"
+                                    "dept": "cs",
+                                    "number": "3610"
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 3650"
+                                    "dept": "cs",
+                                    "number": "3650"
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 4620"
+                                    "dept": "cs",
+                                    "number": "4620"
                                 }
                             ]
                         },
@@ -296,19 +330,23 @@
                             "options": [
                                 {
                                     "type": "course",
-                                    "course": "cs 2720"
+                                    "dept": "cs",
+                                    "number": "2720"
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 3120"
+                                    "dept": "cs",
+                                    "number": "3120"
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 3750"
+                                    "dept": "cs",
+                                    "number": "3750"
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 4740"
+                                    "dept": "cs",
+                                    "number": "4740"
                                 }
                             ]
                         },
@@ -319,27 +357,33 @@
                             "options": [
                                 {
                                     "type": "course",
-                                    "course": "cs 2420"
+                                    "dept": "cs",
+                                    "number": "2420"
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 3430"
+                                    "dept": "cs",
+                                    "number": "3430"
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 3470"
+                                    "dept": "cs",
+                                    "number": "3470"
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 4400"
+                                    "dept": "cs",
+                                    "number": "4400"
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 4410"
+                                    "dept": "cs",
+                                    "number": "4410"
                                 },
                                 {
                                     "type": "course",
-                                    "course": "cs 4420"
+                                    "dept": "cs",
+                                    "number": "4420"
                                 }
                             ]
                         }

@@ -1,0 +1,1242 @@
+[
+    {
+        "dept": "cs",
+        "number": "1000",
+        "name": "Computing Skills and Concepts",
+        "hours": [
+            3
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 1000",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Introduction to operation, applications, implications of computers, microcomputers, and network communications. Develops skill in current applications and sensitizes students to societal issues related to computing.\n (Fall and Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "1025",
+        "name": "Modern Tools for Exploring Data",
+        "hours": [
+            3
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 1025",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Explores use of computational tools to explore data sets, find patterns, and solve complex problems. Topics include representing problems, modeling data, simulating processes, and validating models, with applications in the sciences, social sciences, humanities, and business.\n (Fall and Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "1100",
+        "name": "Web Development: Client-Side Coding",
+        "hours": [
+            3
+        ],
+        "semester": "Fall",
+        "id": "cs 1100",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Client-side Web development adhering to recent/current Web standards. Includes by-hand Web page development involving basic HTML, CSS, data acquisition using forms, and JavaScript for data validation and simple Web-based tools.\n (Fall)"
+    },
+    {
+        "dept": "cs",
+        "number": "1120",
+        "name": "Media Computation",
+        "hours": [
+            3
+        ],
+        "semester": "Spring",
+        "id": "cs 1120",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Introduction to computation, algorithmic thinking, data transformation and processing, and programming in the context of media such as images, sound, and video.\n (Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "1130",
+        "name": "Visual BASIC Programming",
+        "hours": [
+            3
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 1130",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Programming using the language Visual BASIC. Broad coverage of language syntax, programming practice, and programming problems appropriate to the novice or end-use programmer using a personal computer.\n (Fall and Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "1160",
+        "name": "C/C++ Programming",
+        "hours": [
+            3
+        ],
+        "semester": "Fall",
+        "id": "cs 1160",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Programming using the C and C++ languages including the object-oriented paradigm. Broad coverage of language syntax and programming practice. Appropriate for developers of general computing applications and systems. Course presumes no prior programming experience.\n (Fall)"
+    },
+    {
+        "dept": "cs",
+        "number": "1170",
+        "name": "Introductory Programming for Data Science",
+        "hours": [
+            3
+        ],
+        "semester": "Fall",
+        "id": "cs 1170",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Explores use of software development and tools to explore data sets, find patterns, and solve complex problems in the area of data science. Topics include introductory programming methodologies, data visualization, and an introduction to data mining.\n (Fall)"
+    },
+    {
+        "dept": "cs",
+        "number": "1410",
+        "name": "Computer Organization",
+        "hours": [
+            3
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 1410",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "some",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1510"
+                }
+            ]
+        },
+        "desc": "Study of computers in terms of their major functional units. Machine representations of data, digital logic, memory, CPUs, buses, and input/output. Instruction set architectures and their implementations, addressing methods, and sequencing. Assembly language programming. Prerequisite(s) or corequisite(s): CS\u00a01510 .\n (Fall and Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "1510",
+        "name": "Introduction to Computing",
+        "hours": [
+            4
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 1510",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Introduction to software development through algorithmic problem solving and procedural abstraction. Programming in the small. Fundamental control structures, data modeling, and file processing. Significant emphasis on program design and style.\n (Fall and Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "1520",
+        "name": "Data Structures",
+        "hours": [
+            4
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 1520",
+        "prereq": {
+            "type": "some",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1510"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "some",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                }
+            ]
+        },
+        "desc": "Introduction to use and implementation of data structures such as sets, hash tables, stacks, trees, queues, heaps, and graphs. Additional topics include searching algorithms, sorting algorithms, and algorithmic time and space complexity analysis. Design and implementation of programs using functional decomposition. Prerequisite(s): CS\u00a01510 or department approval. Prerequisite(s) or corequisite(s): CS\u00a01800 or department approval.\n (Fall and Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "1800",
+        "name": "Discrete Structures",
+        "hours": [
+            3
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 1800",
+        "prereq": {
+            "type": "some",
+            "req": [
+                {
+                    "type": "some",
+                    "req": [
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "1130"
+                        }
+                    ]
+                },
+                {
+                    "type": "some",
+                    "req": [
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "1160"
+                        }
+                    ]
+                },
+                {
+                    "type": "some",
+                    "req": [
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "1510"
+                        }
+                    ]
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Introduction to logical forms, arguments, predicates, and quantified statements; methods of proof; elementary number theory; counting; sequences; sets; functions; relations; graphs; and Boolean algebra in the context of computer science. Prerequisite(s): CS\u00a01130 , CS\u00a01160 , or CS\u00a01510 .\n (Fall and Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "2100",
+        "name": "Web Development: Server-side Coding",
+        "hours": [
+            3
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 2100",
+        "prereq": {
+            "type": "some",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1100"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Development of interactive web sites: server-side scripting; database definition and use; site security; and additional topics as time allows. Prerequisite(s): CS\u00a01100 or consent of instructor.\n (Fall and Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "2150",
+        "name": "Computing for Data Science",
+        "hours": [
+            3
+        ],
+        "semester": "Spring",
+        "id": "cs 2150",
+        "prereq": {
+            "type": "some",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1510"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Introduction to basic data and file structures for data science, such as sets, lists, matrices, and maps, and the algorithms that use them. Boolean algebra and its role in reasoning about data. Basics of the software development life cycle with emphasis on requirements and testing. Not available for credit to students with credit in CS\u00a01800 or CS\u00a01520 . Prerequisite(s): CS\u00a01510 ; consent of department.\n (Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "2420",
+        "name": "Computer Architecture and Parallel Programming",
+        "hours": [
+            3
+        ],
+        "semester": "Fall",
+        "id": "cs 2420",
+        "prereq": {
+            "type": "some",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1410"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Computer architecture of uniprocessor and multiprocessor systems with an emphasis on parallel programming to achieve high performance. Topics include processor design (pipelining and superscalar), memory hierarchy, interconnection networks, performance metrics, parallel program design, and parallel programming tools for multi-core systems, clusters, and graphics processing units. Prerequisite(s): CS\u00a01410 .\n (Fall)"
+    },
+    {
+        "dept": "cs",
+        "number": "2530",
+        "name": "Intermediate Computing",
+        "hours": [
+            3
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 2530",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1510"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1520"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Intermediate software development in an object-oriented environment. Further experience with object-oriented analysis and design, including modeling languages. Focus on software reuse through frameworks and patterns and on software development methodology and tools. Prerequisite(s): CS\u00a01510 ; CS\u00a01520 ; CS\u00a01800 ; or department approval.\n (Fall and Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "2720",
+        "name": "Software Engineering",
+        "hours": [
+            3
+        ],
+        "semester": "Spring",
+        "id": "cs 2720",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1520"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Study of software life cycle models and their phases--planning, requirements, specifications, design, implementation, testing, and maintenance. Emphasis on tools, documentation, and applications. Prerequisite(s): CS\u00a01520 ; CS\u00a01800 .\n (Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "2880",
+        "name": "Topics in Computing",
+        "hours": [
+            3
+        ],
+        "semester": "Variable",
+        "id": "cs 2880",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Topics from recent developments in computing appropriate to students with limited computer science background, often relating to relatively sophisticated or technical use of computing or recent developments in programming. May be repeated on different topic.\n (Variable)"
+    },
+    {
+        "dept": "cs",
+        "number": "3110",
+        "name": "Web Application Development",
+        "hours": [
+            3
+        ],
+        "semester": "Variable",
+        "id": "cs 3110",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1520"
+                },
+                {
+                    "type": "some",
+                    "req": [
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "1100"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "comm",
+                            "number": "3555"
+                        }
+                    ]
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Development of web applications such as content management systems. Involves HTML and CSS coding, client- and server-side scripting, the creation and manipulation of databases to generate web pages, and secure authentication of users. Prerequisite(s): CS\u00a01520 ; CS\u00a01100 or COMM\u00a03555 .\n (Variable)"
+    },
+    {
+        "dept": "cs",
+        "number": "3120",
+        "name": "User Interface Design",
+        "hours": [
+            3
+        ],
+        "semester": "Fall",
+        "id": "cs 3120",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Examination of the theory, design, programming, and evaluation of interactive application interfaces. Topics include human capabilities and limitations, the interface design and engineering process, prototyping and interface construction, interface evaluation, and possibly topics such as data visualization and the World Wide Web. Prerequisite(s): for Computer Science majors: CS\u00a01520 ; CS\u00a01800 ; junior standing. Prerequisite(s) for non-Computer Science majors: junior standing; department approval.\n (Fall)"
+    },
+    {
+        "dept": "cs",
+        "number": "3140",
+        "name": "Database Systems",
+        "hours": [
+            3
+        ],
+        "semester": "Fall",
+        "id": "cs 3140",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1520"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                },
+                {
+                    "type": "standing",
+                    "value": "junior"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Storage of, and access to, physical databases; data models, query languages, transaction processing, and recovery techniques; object-oriented and distributed database systems; and database design. Prerequisite(s): CS\u00a01520 ; CS\u00a01800 ; junior standing. Prerequisite(s) for Data Science minors: CS\u00a02150 ; junior standing.\n (Fall)"
+    },
+    {
+        "dept": "cs",
+        "number": "3150",
+        "name": "Information Storage and Retrieval",
+        "hours": [
+            3
+        ],
+        "semester": "Spring",
+        "id": "cs 3150",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1520"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                },
+                {
+                    "type": "standing",
+                    "value": "junior"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Natural language processing; analysis of textual material by statistical, syntactic, and logical methods; retrieval systems models, dictionary construction, query processing, file structures, content analysis; automatic retrieval systems and question-answering systems; and evaluation of retrieval effectiveness. Prerequisite(s): CS\u00a01520 ; CS\u00a01800 ; junior standing.\n (Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "3179",
+        "name": "Cooperative Education",
+        "hours": [
+            1,
+            4
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 3179",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Application of classroom learning to field experience. Credit may not be applied to major or minor. Offered on credit/no credit basis only. May be retaken for up to six credits total.\n (Fall and Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "3430",
+        "name": "Operating Systems",
+        "hours": [
+            3
+        ],
+        "semester": "Spring",
+        "id": "cs 3430",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1410"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1520"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                },
+                {
+                    "type": "standing",
+                    "value": "junior"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "History and evolution of operating systems; process and processor management; primary and auxiliary storage management; performance evaluation, security, and distributed systems issues; and case studies of modern operating systems. Prerequisite(s): CS\u00a01410 ; CS\u00a01520 ; CS\u00a01800 ; junior standing.\n (Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "3470",
+        "name": "Networking",
+        "hours": [
+            3
+        ],
+        "semester": "Fall",
+        "id": "cs 3470",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1410"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1520"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                },
+                {
+                    "type": "standing",
+                    "value": "junior"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Network architectures and communication protocol standards. Topics include communication of digital data, data-link protocols, local-area networks, network-layer protocols, transport-layer protocols, applications, network security, and management. Prerequisite(s): CS\u00a01410 ; CS\u00a01520 ; CS\u00a01800 ; junior standing. Prerequisites for Department of Applied Engineering and Technical Management majors: TECH\u00a01037 ; TECH\u00a02051 ; TECH\u00a02053 ; CS\u00a01160 .\n (Fall)"
+    },
+    {
+        "dept": "cs",
+        "number": "3510",
+        "name": "Topics in Programming",
+        "hours": [
+            1
+        ],
+        "semester": "Variable",
+        "id": "cs 3510",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1520"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Quick study of a specified programming language or environment for those with considerable programming experience. Language syntax and semantics, common problems solved using it, and best practices. May be repeated with different topics. Prerequisite(s): CS\u00a01520 ; CS\u00a01800 .\n (Variable)"
+    },
+    {
+        "dept": "cs",
+        "number": "3530",
+        "name": "Design and Analysis of Algorithms",
+        "hours": [
+            3
+        ],
+        "semester": "Fall",
+        "id": "cs 3530",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1520"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Algorithm design techniques such as dynamic programming and greedy algorithms; complexity analysis of algorithms; efficient algorithms for classical problems; intractable problems and techniques for addressing them; and algorithms for parallel machines. Prerequisite(s): CS\u00a01520 ; CS\u00a01800 .\n (Fall)"
+    },
+    {
+        "dept": "cs",
+        "number": "3540",
+        "name": "Programming Languages and Paradigms",
+        "hours": [
+            3
+        ],
+        "semester": "Spring",
+        "id": "cs 3540",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1520"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                },
+                {
+                    "type": "standing",
+                    "value": "junior"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Organization of programming languages; language design issues including syntax, data types, sequence control, and storage management; comparison of language features from object-oriented, imperative, functional, and logical paradigms. Prerequisite(s): CS\u00a01520 ; CS\u00a01800 ; junior standing.\n (Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "3610",
+        "name": "Artificial Intelligence",
+        "hours": [
+            3
+        ],
+        "semester": "Fall",
+        "id": "cs 3610",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1520"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                },
+                {
+                    "type": "standing",
+                    "value": "junior"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Models of intelligent behavior and problem solving; knowledge representation and search methods; learning; topics such as knowledge-based systems, language understanding, and vision. Prerequisite(s): CS\u00a01520 ; CS\u00a01800 ; junior standing.\n (Fall)"
+    },
+    {
+        "dept": "cs",
+        "number": "3650",
+        "name": "Computational Biology",
+        "hours": [
+            3
+        ],
+        "semester": "Spring",
+        "id": "cs 3650",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1520"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                },
+                {
+                    "type": "standing",
+                    "value": "junior"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Applications of computer science techniques to biological problems; introduction to computational DNA and protein sequence analysis; dynamic programming; optimal alignment algorithms; DNA sequencing and fragment assembly; gene expression arrays; clustering algorithms; evolutionary trees; multiple alignments; hidden Markov models. Prerequisite(s): CS\u00a01520 and CS\u00a01800 ; junior standing.\n (Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "3730",
+        "name": "Project Management",
+        "hours": [
+            1
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 3730",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Examination of problems of organizing, controlling, managing, and evaluating a software project; software metrics and human input. Prerequisite(s): For Networking and System Administration majors: junior standing. For all other majors: CS\u00a02530 ; junior standing.\n (Fall and Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "3750",
+        "name": "Software Verification and Validation",
+        "hours": [
+            3
+        ],
+        "semester": "Spring",
+        "id": "cs 3750",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1520"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                },
+                {
+                    "type": "standing",
+                    "value": "junior"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Taxonomy of software defects and approaches to identifying them, including black box testing, functional testing, control flow testing, data flow testing, software inspection. Introduction to use of static analysis in development of high integrity software. Prerequisite(s): CS\u00a01520 ; CS\u00a01800 ; junior standing.\n (Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "3810",
+        "name": "Theory of Computation",
+        "hours": [
+            3
+        ],
+        "semester": "Spring",
+        "id": "cs 3810",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                },
+                {
+                    "type": "standing",
+                    "value": "junior"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Topics include regular languages and grammars; finite state automata; context-free languages and grammars; language recognition and parsing; and Turing computability and undecidability. Prerequisite(s): CS\u00a01800 ; junior standing.\n (Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "4400",
+        "name": "System Administration",
+        "hours": [
+            3
+        ],
+        "semester": "Spring",
+        "id": "cs 4400",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "some",
+                    "req": [
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "3470"
+                        }
+                    ]
+                },
+                {
+                    "type": "standing",
+                    "value": "junior"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Major concepts and mechanisms associated with computer system administration. Focus on issues surrounding user management, the configuration of services, and the coordination of distributed resources. Prerequisite(s): CS\u00a03470/5470 ; junior standing.\n (Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "4410",
+        "name": "System Security",
+        "hours": [
+            3
+        ],
+        "semester": "Spring",
+        "id": "cs 4410",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "some",
+                    "req": [
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "3470"
+                        }
+                    ]
+                },
+                {
+                    "type": "standing",
+                    "value": "junior"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "some",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "3730"
+                }
+            ]
+        },
+        "desc": "Topics include the need for security services, data integrity, network intrusion and monitoring, configuration of secure services, root kits, and buffer overflow techniques and remedies. Additional topics include enterprise-wide monitoring, honeypots, and recognizing trends in a networked environment. Prerequisite(s): CS\u00a03470/5470 ; junior standing. Prerequisite(s) or corequisite(s): CS\u00a03730/5730 .\n (Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "4420",
+        "name": "Applied Systems Forensics",
+        "hours": [
+            3
+        ],
+        "semester": "Fall",
+        "id": "cs 4420",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1410"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1520"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                },
+                {
+                    "type": "some",
+                    "req": [
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "3430"
+                        }
+                    ]
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Essentials of applied computer system forensics; evidence preserving techniques; reconstruction of storage volumes and deleted volumes and files; identification of evidence in computer memory; encryption; log analysis; generation of forensic reports. Topics are covered in the context of incidence response to compromised systems. Prerequisite(s): CS\u00a01410 ; CS\u00a01520 ; CS\u00a01800 ; CS\u00a03430/5430 .\n (Fall)"
+    },
+    {
+        "dept": "cs",
+        "number": "4550",
+        "name": "Translation of Programming Languages",
+        "hours": [
+            3
+        ],
+        "semester": "Fall",
+        "id": "cs 4550",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "some",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "3730"
+                }
+            ]
+        },
+        "desc": "Introduction to analysis of programming languages and construction of translators. Prerequisite(s): CS\u00a02530 and one of the following: CS\u00a03530 , CS\u00a03540 , CS\u00a03810/5810 ; junior standing. Prerequisite(s) or corequisite(s): CS\u00a03730/5730 .\n (Fall)"
+    },
+    {
+        "dept": "cs",
+        "number": "4620",
+        "name": "Intelligent Systems",
+        "hours": [
+            3
+        ],
+        "semester": "Spring",
+        "id": "cs 4620",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "2530"
+                },
+                {
+                    "type": "some",
+                    "req": [
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "3610"
+                        }
+                    ]
+                },
+                {
+                    "type": "standing",
+                    "value": "junior"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "some",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "3730"
+                }
+            ]
+        },
+        "desc": "Design and implementation of programs that apply artificial intelligence techniques to problems such as design, diagnosis, and distributed problem solving. Emphasis on team design and development of large systems. Prerequisite(s): CS\u00a02530 ; CS\u00a03610/5610 or equivalent; junior standing. Prerequisite(s) or corequisite(s): CS\u00a03730/5730 .\n (Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "4740",
+        "name": "Real-Time Embedded Systems",
+        "hours": [
+            3
+        ],
+        "semester": "Fall",
+        "id": "cs 4740",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "2530"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "2720"
+                },
+                {
+                    "type": "standing",
+                    "value": "junior"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "some",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "3730"
+                }
+            ]
+        },
+        "desc": "Specification, design, and implementation principles and techniques for real-time embedded systems. Topics include programming languages and paradigms, reliability and fault tolerance, concurrent programming, scheduling, and the interaction between hardware and software. Student teams will complete a significant real-time embedded software project. Prerequisite(s): CS\u00a02530 ; CS\u00a02720 ; junior standing. Prerequisite(s) or corequisite(s): CS\u00a03730/5730 .\n (Fall)"
+    },
+    {
+        "dept": "cs",
+        "number": "4800",
+        "name": "Undergraduate Research in Computer Science",
+        "hours": [
+            1,
+            3
+        ],
+        "semester": "Fall and Spring",
+        "id": "cs 4800",
+        "prereq": {
+            "type": "true"
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "May be repeated for maximum of 6 hours.\n (Fall and Spring)"
+    },
+    {
+        "dept": "cs",
+        "number": "4880",
+        "name": "Topics in Computer Science",
+        "hours": [
+            3
+        ],
+        "semester": "Variable",
+        "id": "cs 4880",
+        "prereq": {
+            "type": "all",
+            "req": [
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1520"
+                },
+                {
+                    "type": "course",
+                    "dept": "cs",
+                    "number": "1800"
+                },
+                {
+                    "type": "standing",
+                    "value": "junior"
+                }
+            ]
+        },
+        "coreq": {
+            "type": "true"
+        },
+        "preorco": {
+            "type": "true"
+        },
+        "desc": "Topics of general interest from any area of computer science, including systems, software, or theory. Can be counted in any specialization area, with department approval for individual topics. Prerequisite(s): CS\u00a01520 ; CS\u00a01800 ; junior standing.\n (Variable)"
+    }
+]

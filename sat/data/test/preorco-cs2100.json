@@ -15,14 +15,9 @@
             "type": "true"
         },
         "preorco": {
-            "type": "some",
-            "req": [
-                {
-                    "type": "course",
-                    "dept": "cs",
-                    "number": "1100"
-                }
-            ]
+            "type": "course",
+            "dept": "cs",
+            "number": "1100"
         },
         "desc": "Development of interactive web sites: server-side scripting; database definition and use; site security; and additional topics as time allows. Prerequisite(s): CS\u00a01100 or consent of instructor.\n (Fall and Spring)"
     },
@@ -33,7 +28,7 @@
         "hours": [
             3
         ],
-        "semester": "Fall",
+        "semester": "Fall and Spring",
         "id": "cs 1100",
         "prereq": {
             "type": "true"

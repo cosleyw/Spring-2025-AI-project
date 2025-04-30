@@ -562,10 +562,11 @@ class CourseSATSolver:
             course.apply_cnf(self.solver, self.sophomore, self.junior, self.senior)
 
             if course.get_credits() == 0:
-                non_credit_courses.extend(course.get_refs())
+                non_credit_courses.extend(course.get_refs()[1:])
 
         # We always want to avoid adding tons of 0 credit courses
-        self.solver.minimize(sum(non_credit_courses))
+        if len(non_credit_courses) > 0:
+            self.solver.minimize(sum(non_credit_courses))
 
         self._add_desired_courses()
         self._add_undesired_courses()
@@ -753,8 +754,6 @@ if __name__ == "__main__":
 
     with open(os.path.join(DATA_DIR, "degree-names"), "r") as infile:
         degree_names = [l.strip() for l in infile.readlines()]
-
-    degree_names = ["ENVIRONMENTAL RESOURCE MANAGEMENT BA - ECOSYSTEMS (2024-present) 97LBA"]
 
     for degree in degree_names:
         logging.info(f"Running for {degree}...")

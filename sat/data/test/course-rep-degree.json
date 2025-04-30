@@ -1,0 +1,33 @@
+{
+    "cs 2100": {
+        "type": "course-range",
+        "n": 2,
+        "m": 2,
+        "options": [
+            {
+                "type": "course-range",
+                "n": 1,
+                "m": 1,
+                "options": [
+                    {
+                        "type": "course",
+                        "dept": "cs",
+                        "number": "2100"
+                    }
+                ]
+            },
+            {
+                "type": "course-range",
+                "n": 1,
+                "m": 1,
+                "options": [
+                    {
+                        "type": "course",
+                        "dept": "cs",
+                        "number": "2100"
+                    }
+                ]
+            }
+        ]
+    }
+}
