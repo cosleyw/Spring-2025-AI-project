@@ -1,5 +1,6 @@
 from enum import StrEnum
 import json
+import copy
 from typing import Any, Generator, TypeVar, override
 import os
 
@@ -15,7 +16,7 @@ import logging
 
 logging.basicConfig(
     filename="out.log",
-    level=logging.INFO,
+    level=logging.DEBUG,
     format="%(asctime)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s",
     datefmt="%H:%M:%S",  # datefmt='%Y-%m-%d:%H:%M:%S',
 )
@@ -53,7 +54,7 @@ def rotate(lst: list[T], n: int) -> list[T]:
 @typechecked
 class RefManager:
     count: int = 0
-    store: dict[BoolRef, Any] = {}
+    store: dict[str, Any] = {}
 
     @classmethod
     def allocate(cls, value: Any) -> BoolRef:
@@ -63,12 +64,13 @@ class RefManager:
         allocated_value: BoolRef = Bool(RefManager.count)
 
         # Add new item to the store
-        RefManager.store[allocated_value] = value
+        RefManager.store[str(allocated_value)] = value
         # Return items id
         return allocated_value
 
     @classmethod
-    def get(cls, id: BoolRef) -> Any:
+    def get(cls, id: str | BoolRef) -> Any:
+        id = str(id)
         if id not in RefManager.store:
             raise KeyError(f"Cannot find id '{id}' in store")
         return RefManager.store[id]
@@ -93,10 +95,11 @@ class DegreeManager:
         senior: "Rank",
     ) -> None:
         for degree in self:
+            logging.debug(f"Setting up {degree} requirements")
             degree.get_requirements().setup(Course, Degree, sophomore, junior, senior)
-            logging.debug("Printing degree requirement classes:")
-            for course in degree.get_requirements().get_courses():
-                logging.debug(f"\t{course._name}")
+            # logging.debug("Printing degree requirement classes:")
+            # for course in degree.get_requirements().get_courses():
+            #    logging.debug(f"\t{course._name}")
 
     def add_degree(self, degree: "Degree"):
         if degree.get_id() in self.degrees:
@@ -273,6 +276,9 @@ class Course:
     def get_refs(self) -> list[BoolRef]:
         return self._refs
 
+    def get_str_refs(self) -> list[str]:
+        return [str(ref) for ref in self._refs]
+
     def get_credits(self) -> int:
         return self._credits
 
@@ -295,7 +301,7 @@ class Course:
         # Cannot take for credit multiple places
         requirements.append(sum(self._taken_for_specific_rg) <= 1)
 
-        logging.debug(requirements)
+        # logging.debug(requirements)
 
         return And(requirements)
 
@@ -392,7 +398,7 @@ class Course:
 
     def generate_requisites(self, requirements: Any, semester: int, sophomore: Rank, junior: Rank, senior: Rank) -> BoolRef | None:
         def generate_requisites_helper(requirements: Any, mode: str) -> BoolRef | None:
-            logging.debug(f"{requirements}, {mode}")
+            # logging.debug(f"{requirements}, {mode}")
             # if len(requirements) == 0:
             #    return
 
@@ -479,39 +485,29 @@ class Course:
 
 
 @typechecked
-class CourseSATSolver:
+class CourseSATBlueprint:
     def __init__(
         self,
         semester_count: int,
-        min_credit_per_semester: int,
-        max_credits_per_semester: int,
         starts_as_fall: bool,
         start_year: int,
         first_semester_sophomore: int | None,
         first_semester_junior: int | None,
         first_semester_senior: int | None,
-        transferred_course_ids: list[str],
-        desired_course_ids: list[tuple[str] | tuple[str, int]],
-        undesired_course_ids: list[tuple[str] | tuple[str, int]],
         desired_degree_ids: list[str],
-        courses_file_name: str = COURSES_FILE_NAME,
-        degrees_file_name: str = DEGREES_FILE_NAME,
+        courses_file_name: str,
+        degrees_file_name: str,
     ):
+        logging.debug("Creating blueprint")
         self.course_manager: CourseManager = CourseManager(semester_count)
         self.degree_manager: DegreeManager = DegreeManager()
-        self.min_credits_per_semester: int = min_credit_per_semester
-        self.max_credits_per_semester: int = max_credits_per_semester
         self.starts_as_fall: bool = starts_as_fall
         self.start_year: int = start_year
+        self.desired_degree_ids: list[str] = desired_degree_ids
         self.sophomore: Rank = Rank("sophomore", first_semester_sophomore, semester_count)
         self.junior: Rank = Rank("junior", first_semester_junior, semester_count)
         self.senior: Rank = Rank("senior", first_semester_senior, semester_count)
-        self.transferred_course_ids: list[str] = transferred_course_ids
-        self.desired_course_ids: list[tuple[str] | tuple[str, int]] = desired_course_ids
-        self.undesired_course_ids: list[tuple[str] | tuple[str, int]] = undesired_course_ids
-        self.desired_degree_ids: list[str] = desired_degree_ids
-        self.plan: list[list[Course]] | None = None
-        self.possible_plans: list[list[list[Course]]] = []
+        self.solver = Optimize()
 
         self._load_courses(courses_file_name)
         self._load_degrees(degrees_file_name)
@@ -522,11 +518,36 @@ class CourseSATSolver:
             self.senior,
         )
 
-        for course_id in self.transferred_course_ids:
-            if not self.course_manager.by_id(course_id):
-                raise Exception(f"Attempting to transfer an invalid course id '{course_id}'.")
+    def setup(self):
+        logging.debug("Setting up blueprint")
+        self._generate_bootstrap()
+
+        non_credit_courses: list[BoolRef] = []
+
+        for course in self.course_manager:
+            # logging.debug(f"Applying cnf for {course.get_name()}...")
+            course.apply_cnf(self.solver, self.sophomore, self.junior, self.senior)
+
+            if course.get_credits() == 0:
+                non_credit_courses.extend(course.get_refs()[1:])
+
+        # We always want to avoid adding tons of 0 credit courses
+        if len(non_credit_courses) > 0:
+            self.solver.minimize(sum(non_credit_courses))
+
+        self._add_degree_reqs()
+
+    def _generate_bootstrap(self) -> None:
+        self._generate_rank_bootstrap()
+
+    def _generate_rank_bootstrap(self) -> None:
+        rank_bootstrap: list[BoolRef] = []
+        for rank in (self.sophomore, self.junior, self.senior):
+            rank_bootstrap.extend(rank.generate_bootstrap())
+        self.solver.add(And(rank_bootstrap))
 
     def _load_courses(self, file_name: str) -> None:
+        logging.debug("Loading courses")
         with open(file_name, "r") as file:
             raw_courses = json.load(file)
 
@@ -534,6 +555,7 @@ class CourseSATSolver:
             self.course_manager.add_course(Course(**raw_course, course_manager=self.course_manager, starts_as_fall=self.starts_as_fall, start_year=self.start_year))
 
     def _load_degrees(self, file_name: str) -> None:
+        logging.debug("Loading degrees")
         with open(file_name, "r") as file:
             raw_degrees = json.load(file)
 
@@ -547,61 +569,125 @@ class CourseSATSolver:
                 )
             )
 
-        # for degree in self.degree_manager:
-        #    logging.debug(degree)
+    # TODO: Implementation might be weird with courses requiring you have a specific
+    # major, when not all majors have references.
+    def _add_degree_reqs(self) -> None:
+        logging.debug("Adding degree requirements")
+        for degree_id in self.desired_degree_ids:
+            self.solver.add(self.degree_manager.by_id(degree_id).generate_cnf())
+
+        for course in self.course_manager:
+            self.solver.add(course.generate_taken_requirement_cnf())
+
+    def copy_solver(self):
+        smt2 = self.solver.sexpr()
+        with open("cache.dat", mode="w", encoding="ascii") as f:  # overwrite
+            f.write(smt2)
+            f.close()
+
+        o = Optimize()
+        o.from_file("cache.dat")
+        return o
+
+
+@typechecked
+class CourseSATSolver:
+    def from_values(
+        min_credit_per_semester: int,
+        max_credits_per_semester: int,
+        transferred_course_ids: list[str],
+        desired_course_ids: list[tuple[str] | tuple[str, int]],
+        undesired_course_ids: list[tuple[str] | tuple[str, int]],
+        desired_degree_ids: list[str],
+        semester_count: int | None,
+        starts_as_fall: bool,
+        start_year: int,
+        first_semester_sophomore: int | None,
+        first_semester_junior: int | None,
+        first_semester_senior: int | None,
+        courses_file_name: str,
+        degrees_file_name: str,
+    ):
+        blueprint = CourseSATBlueprint(
+            semester_count=semester_count,
+            starts_as_fall=starts_as_fall,
+            start_year=start_year,
+            first_semester_sophomore=first_semester_sophomore,
+            first_semester_junior=first_semester_junior,
+            first_semester_senior=first_semester_senior,
+            desired_degree_ids=desired_degree_ids,
+            courses_file_name=courses_file_name,
+            degrees_file_name=degrees_file_name,
+        )
+        blueprint.setup()
+        return CourseSATSolver(
+            min_credit_per_semester=min_credit_per_semester,
+            max_credits_per_semester=max_credits_per_semester,
+            transferred_course_ids=transferred_course_ids,
+            desired_course_ids=desired_course_ids,
+            undesired_course_ids=undesired_course_ids,
+            blueprint=blueprint,
+        )
+
+    def __init__(
+        self,
+        min_credit_per_semester: int,
+        max_credits_per_semester: int,
+        transferred_course_ids: list[str],
+        desired_course_ids: list[tuple[str] | tuple[str, int]],
+        undesired_course_ids: list[tuple[str] | tuple[str, int]],
+        blueprint: CourseSATBlueprint,
+    ):
+        # "Blueprint" configuration
+        self.blueprint = blueprint
+        # "Base" configuration
+        self.transferred_course_ids: list[str] = transferred_course_ids
+        self.desired_course_ids: list[tuple[str] | tuple[str, int]] = desired_course_ids
+        self.undesired_course_ids: list[tuple[str] | tuple[str, int]] = undesired_course_ids
+        # "Transitive" configuration
+        self.min_credits_per_semester: int = min_credit_per_semester
+        self.max_credits_per_semester: int = max_credits_per_semester
+
+        self.plan: list[list[Course]] | None = None
+        self.possible_plans: list[list[list[Course]]] = []
+
+        for course_id in self.transferred_course_ids:
+            if not self.blueprint.course_manager.by_id(course_id):
+                raise Exception(f"Attempting to transfer an invalid course id '{course_id}'.")
 
     def setup(self) -> None:
-        self.solver = Optimize()
+        logging.debug("Setting up sat solver")
+        self.solver = self.blueprint.copy_solver()
 
         self._generate_bootstrap()
 
-        non_credit_courses = []
-
-        for course in self.course_manager:
-            logging.debug(f"Applying cnf for {course.get_name()}...")
-            course.apply_cnf(self.solver, self.sophomore, self.junior, self.senior)
-
-            if course.get_credits() == 0:
-                non_credit_courses.extend(course.get_refs()[1:])
-
-        # We always want to avoid adding tons of 0 credit courses
-        if len(non_credit_courses) > 0:
-            self.solver.minimize(sum(non_credit_courses))
-
+        # Generate your "base"
         self._add_desired_courses()
         self._add_undesired_courses()
 
+        # Generate your "transitive" elements
         self._add_semester_credit_requirements()
-
-        self._add_degree_reqs()
 
     def _generate_bootstrap(self) -> None:
         self._generate_transfer_bootstrap()
-        self._generate_rank_bootstrap()
 
     def _generate_transfer_bootstrap(self) -> None:
         transfer_courses: list[BoolRef] = []
-        for course in self.course_manager:
+        for course in self.blueprint.course_manager:
             if course.get_id() in self.transferred_course_ids:
                 transfer_courses.append(course.at(0))
             else:
                 transfer_courses.append(Not(course.at(0)))
         self.solver.add(And(transfer_courses))
 
-    def _generate_rank_bootstrap(self) -> None:
-        rank_bootstrap: list[BoolRef] = []
-        for rank in (self.sophomore, self.junior, self.senior):
-            rank_bootstrap.extend(rank.generate_bootstrap())
-        self.solver.add(And(rank_bootstrap))
-
     def _add_desired_courses(self) -> None:
         desired_refs = []
         for pair in self.desired_course_ids:
             id: str = pair[0]
-            course = self.course_manager.by_id(id)
+            course = self.blueprint.course_manager.by_id(id)
             count: int | None = pair[1] if len(pair) > 1 else None
             if count is None:
-                desired_refs.append(course.at(1, self.course_manager.get_semester_count()))
+                desired_refs.append(course.at(1, self.blueprint.course_manager.get_semester_count()))
             else:
                 desired_refs.append(course.at(count, count))
 
@@ -614,10 +700,10 @@ class CourseSATSolver:
         undesired_refs = []
         for pair in self.undesired_course_ids:
             id: str = pair[0]
-            course = self.course_manager.by_id(id)
+            course = self.blueprint.course_manager.by_id(id)
             count: int | None = pair[1] if len(pair) > 1 else None
             if count is None:
-                undesired_refs.append(And([Not(course.at(i, i)) for i in range(1, self.course_manager.get_semester_count() + 1)]))
+                undesired_refs.append(And([Not(course.at(i, i)) for i in range(1, self.blueprint.course_manager.get_semester_count() + 1)]))
             else:
                 undesired_refs.append(Not(course.at(count, count)))
 
@@ -627,9 +713,9 @@ class CourseSATSolver:
         self.solver.add(And(undesired_refs))
 
     def _add_semester_credit_requirements(self) -> None:
-        for semester in range(1, self.course_manager.get_semester_count() + 1):
-            refs: list[BoolRef] = [course.at(semester) for course in self.course_manager]
-            weights: list[int] = [course.get_credits() for course in self.course_manager]
+        for semester in range(1, self.blueprint.course_manager.get_semester_count() + 1):
+            refs: list[BoolRef] = [course.at(semester) for course in self.blueprint.course_manager]
+            weights: list[int] = [course.get_credits() for course in self.blueprint.course_manager]
 
             # Upper bound
             self.solver.add(sum([weight * ref for weight, ref in zip(weights, refs)]) <= self.max_credits_per_semester)
@@ -637,20 +723,11 @@ class CourseSATSolver:
             # Lower bound
             self.solver.add(sum([weight * ref for weight, ref in zip(weights, refs)]) >= self.min_credits_per_semester)
 
-    # TODO: Implementation might be weird with courses requiring you have a specific
-    # major, when not all majors have references.
-    def _add_degree_reqs(self) -> None:
-        for degree_id in self.desired_degree_ids:
-            self.solver.add(self.degree_manager.by_id(degree_id).generate_cnf())
-
-        for course in self.course_manager:
-            self.solver.add(course.generate_taken_requirement_cnf())
-
     # WARNING: Be careful, somethings this makes things take forever, right now
     # it seems to be behaving itself though
     def minimize(self) -> None:
-        refs = [[] for _ in range(self.course_manager.get_semester_count())]
-        for course in self.course_manager:
+        refs = [[] for _ in range(self.blueprint.course_manager.get_semester_count())]
+        for course in self.blueprint.course_manager:
             for i, ref in enumerate(course.get_refs()[1:]):
                 refs[i].append(ref)
 
@@ -669,7 +746,7 @@ class CourseSATSolver:
     # though... not sure how to do that part
     def solve(self) -> bool:
         negation_of_current_solution = []
-        self.plan = [[] for _ in range(self.course_manager.get_semester_count() + 1)]  # TODO: Fix the semester count here
+        self.plan = [[] for _ in range(self.blueprint.course_manager.get_semester_count() + 1)]  # TODO: Fix the semester count here
 
         # for k, v in RefManager.store.items():
         #    logging.debug(f"{k}: {v}")
@@ -688,7 +765,9 @@ class CourseSATSolver:
                     # logging.debug(f"{boolRef} != {model[boolRef]}")
                     negation_of_current_solution.append(boolRef != model[boolRef])
                     course: Course = reference_result
-                    semester: int = course.get_refs().index(boolRef)
+                    # str_refs: list[str] = course.get_str_refs()
+                    # boolRefIdx = str_refs.index(str(boolRef)
+                    semester: int = course.get_str_refs().index(str(boolRef))
 
                     if model[boolRef]:
                         self.plan[semester].append(course)
@@ -737,12 +816,12 @@ class CourseSATSolver:
     def _get_semester_name(self, semester: int) -> str:
         season: str
         year: int
-        if self.starts_as_fall:
+        if self.blueprint.starts_as_fall:
             season = "Fall" if semester % 2 == 1 else "Spring"
-            year = self.start_year + (semester // 2)
+            year = self.blueprint.start_year + (semester // 2)
         else:
             season = "Spring" if semester % 2 == 1 else "Fall"
-            year = self.start_year + ((semester - 1) // 2)
+            year = self.blueprint.start_year + ((semester - 1) // 2)
         return f"{season} {year}"
 
 
@@ -753,38 +832,55 @@ if __name__ == "__main__":
     # These will all be taken as input from the user
 
     with open(os.path.join(DATA_DIR, "degree-names"), "r") as infile:
-        degree_names = [l.strip() for l in infile.readlines()]
+        degree_names = [line.strip() for line in infile.readlines()]
 
+    degree_names = ["ENVIRONMENTAL RESOURCE MANAGEMENT BA - ECOSYSTEMS (2024-present) 97LBA", "ENVIRONMENTAL RESOURCE MANAGEMENT BA - ECOSYSTEMS (2024-present) 97LBA"]
+
+    bp = CourseSATBlueprint(
+        semester_count=8,
+        starts_as_fall=True,
+        start_year=2025,
+        first_semester_sophomore=3,  # NOTE: One-indexed!
+        first_semester_junior=5,
+        first_semester_senior=7,
+        desired_degree_ids=["ENVIRONMENTAL RESOURCE MANAGEMENT BA - ECOSYSTEMS (2024-present) 97LBA"],
+        degrees_file_name=DEGREES_FILE_NAME,
+        courses_file_name=COURSES_FILE_NAME,
+    )
+    bp.setup()
+
+    i = 0
     for degree in degree_names:
+        if i == 0:
+            undes = [("biol 2051",)]
+        else:
+            undes = []
         logging.info(f"Running for {degree}...")
+        logging.info(f"Undesired course list is: {undes}")
         c: CourseSATSolver = CourseSATSolver(
-            semester_count=8,  # Number of semester to calculate for
             min_credit_per_semester=12,  # Minimum credits (inclusive)
             max_credits_per_semester=12,  # Maximum credits (inclusive)
-            starts_as_fall=True,
-            start_year=2025,
             transferred_course_ids=[],  # ["CS1410", "CS1510"],
             desired_course_ids=[
                 # ("cs 1410", 1),
                 # ("cs 3470",),
             ],
-            undesired_course_ids=[
-                # ("cs 3810",),
-                # ("cs 4410",),
-                # ("cs 5410",),
-                # ("cs 4550",),
-            ],
+            undesired_course_ids=undes,
+            # undesired_course_ids=[
+            # ("cs 3810",),
+            # ("cs 4410",),
+            # ("cs 5410",),
+            # ("cs 4550",),
+            # ],
             # desired_degree_ids=["CS:BA"],
             # desired_degree_ids=["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"],
-            desired_degree_ids=[degree],
-            first_semester_sophomore=3,  # NOTE: One-indexed!
-            first_semester_junior=5,
-            first_semester_senior=7,
+            blueprint=bp,
         )
         ########################
         ### END CONFIG VARIABLES
         ########################
 
+        logging.info("Starting setup")
         c.setup()
         logging.info("Finished setup")
         # c.minimize()
@@ -809,3 +905,4 @@ if __name__ == "__main__":
         #
         # logging.debug(c.possible_plans)
         # c.display()
+        i += 1

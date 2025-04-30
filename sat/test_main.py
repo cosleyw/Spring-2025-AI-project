@@ -49,7 +49,7 @@ def test_path(file_name):
 
 class TestCourseSATSolver(unittest.TestCase):
     def create_with_defaults(self, **kwargs) -> CourseSATSolver:
-        c: CourseSATSolver = CourseSATSolver(
+        c: CourseSATSolver = CourseSATSolver.from_values(
             **{
                 **self.default_args,
                 **kwargs,
