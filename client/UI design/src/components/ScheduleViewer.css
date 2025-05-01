@@ -31,4 +31,6 @@
   .semester-box .course-card {
     margin-bottom: 8px;
   }
-  
+  .course-card {
+    cursor: pointer;    /* ← added this */
+  }

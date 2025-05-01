@@ -5,29 +5,30 @@
     right: 0;
     width: 320px;
     height: 100%;
+    padding: 24px;
     background: #fff;
-    box-shadow: -4px 0 8px rgba(0,0,0,0.2);
-    padding: 16px;
+    color: #222;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.1);
     overflow-y: auto;
     z-index: 10;
   }
   .course-detail-panel .close-btn {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: 3px;
+    left: 0px;
     border: none;
-    background: transparent;
-    font-size: 1.4rem;
+    background: red;
+    font-size: 0.5rem;
     cursor: pointer;
   }
-  .course-detail-panel .error {
-    color: red;
-    margin-bottom: 1em;
+  .course-detail-panel h2 {
+    margin-top: 0;
   }
   .course-detail-panel .loading {
     font-style: italic;
   }
-  .course-detail-panel .details h2 {
-    margin-top: 0;
+  .course-detail-panel .error {
+    color: red;
+    margin-bottom: 16px;
   }
   

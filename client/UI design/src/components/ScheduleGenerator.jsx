@@ -1,6 +1,7 @@
 // src/components/ScheduleGenerator.jsx
 import React, { useState, useEffect } from 'react';
 import ScheduleViewer                 from './ScheduleViewer';
+import CourseDetailPanel              from './CourseDetailPanel';
 import { get_degrees, get_courses, generate_schedule } from '../api';
 import './ScheduleGenerator.css';
 
@@ -23,9 +24,10 @@ export default function ScheduleGenerator() {
     desired_ids:              []
   });
 
-  const [schedule, setSchedule] = useState(null);
-  const [loading,  setLoading]  = useState(false);
-  const [error,    setError]    = useState('');
+  const [schedule,      setSchedule]      = useState(null);
+  const [loading,       setLoading]       = useState(false);
+  const [error,         setError]         = useState('');
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
   useEffect(() => {
     get_degrees().then(setDegrees).catch(console.error);
@@ -38,6 +40,7 @@ export default function ScheduleGenerator() {
       : e.target.value;
     setForm(f => ({ ...f, [key]: val }));
   };
+
   const handleMulti = key => e => {
     const vals = Array.from(e.target.selectedOptions).map(o => o.value);
     setForm(f => ({ ...f, [key]: vals }));
@@ -48,8 +51,10 @@ export default function ScheduleGenerator() {
     setLoading(true);
     setError('');
     try {
-      const sched = await generate_schedule(form);
-      setSchedule(sched);
+      const raw = await generate_schedule(form);
+      // Slice off the dummy first slot, then take exactly semester_count:
+      const onlyN = raw.slice(1, 1 + form.semester_count);
+      setSchedule(onlyN);
     } catch (err) {
       console.error(err);
       setError('Failed to generate schedule: ' + err.message);
@@ -58,26 +63,32 @@ export default function ScheduleGenerator() {
     }
   };
 
-  // once we have a schedule array, hand off to the viewer
+  // Once we have the schedule array, show the grid + detail panel:
   if (Array.isArray(schedule)) {
     return (
-      <ScheduleViewer
-        schedule={schedule}
-        allCourses={allCourses}
-      />
+      <div className="schedule-viewer-container">
+        <ScheduleViewer
+          schedule={schedule}
+          allCourses={allCourses}
+          onSelectCourse={setSelectedCourse}
+        />
+        {selectedCourse && (
+          <CourseDetailPanel
+            courseId={selectedCourse}
+            onClose={() => setSelectedCourse(null)}
+          />
+        )}
+      </div>
     );
   }
 
-  // —————————————————
-  // FORM LAYOUT UNCHANGED
-  // —————————————————
+  // … otherwise render exactly the original form layout …
   return (
     <div className="schedule-generator">
       <h2>Schedule Configuration</h2>
       {error && <div className="error">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        {/* … all of my labels / selects / fieldsets exactly as before … */}
 
+      <form onSubmit={handleSubmit}>
         <label>
           Degree:
           <select
@@ -87,9 +98,7 @@ export default function ScheduleGenerator() {
           >
             <option value="">— select degree —</option>
             {degrees.map(d => (
-              <option key={d.id} value={d.id}>
-                {d.name}
-              </option>
+              <option key={d.id} value={d.id}>{d.name}</option>
             ))}
           </select>
         </label>

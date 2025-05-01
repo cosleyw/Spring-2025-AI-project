@@ -5,33 +5,31 @@ import './CourseDetailPanel.css';
 
 export default function CourseDetailPanel({ courseId, onClose }) {
   const [course, setCourse] = useState(null);
-  const [error, setError]   = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    setCourse(null);
+    if (!courseId) return;
     get_course(courseId)
-      .then(setCourse)
-      .catch(err => {
-        console.error(err);
-        setError('Failed to load details.');
-      });
+      .then(c => setCourse(c))
+      .catch(err => setError(err.message));
   }, [courseId]);
 
+  if (!courseId) return null;
+
   return (
-    <div className="course-detail-panel">
-      <button className="close-btn" onClick={onClose}>×</button>
+    <aside className="course-detail-panel">
+      <button className="close-btn" onClick={onClose}>&times;</button>
       {error && <div className="error">{error}</div>}
-      {!course
-        ? <div className="loading">Loading…</div>
-        : (
-          <div className="details">
-            <h2>{course.code}: {course.name}</h2>
-            <p><strong>Description:</strong></p>
-            <p>{course.description || 'No description available.'}</p>
-            {/* add more fields here as you'd like */}
-          </div>
-        )
-      }
-    </div>
+      {!course ? (
+        <div className="loading">Loading…</div>
+      ) : (
+        <>
+          <h2>{course.code}: {course.name}</h2>
+          <p><strong>ID:</strong> {course.id}</p>
+          <h3>Description</h3>
+          <p>{course.description || 'No description available.'}</p>
+        </>
+      )}
+    </aside>
   );
 }

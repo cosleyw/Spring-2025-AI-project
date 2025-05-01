@@ -1,9 +1,12 @@
 // src/components/ScheduleViewer.jsx
 import React from 'react';
-import { Link } from 'react-router-dom';
 import './ScheduleViewer.css';
 
-export default function ScheduleViewer({ schedule, allCourses }) {
+export default function ScheduleViewer({
+  schedule,
+  allCourses,
+  onSelectCourse
+}) {
   if (!Array.isArray(schedule)) {
     return <div className="middle-panel">No schedule to display</div>;
   }
@@ -11,8 +14,8 @@ export default function ScheduleViewer({ schedule, allCourses }) {
   return (
     <div className="middle-panel">
       {schedule.map((sem, sIdx) => {
-        // title + list of course-IDs or course-objects
         const title = sem.name || `Semester ${sIdx + 1}`;
+        // sem.courses array or fallback to sem itself if array
         const items = Array.isArray(sem.courses)
           ? sem.courses
           : Array.isArray(sem)
@@ -20,29 +23,28 @@ export default function ScheduleViewer({ schedule, allCourses }) {
           : [];
 
         return (
-          <div key={sem.id ?? sIdx} className="semester-box">
+          <div key={sIdx} className="semester-box">
             <h4>{title}</h4>
-
             {items.map((item, idx) => {
-              // unify string-ID vs. object
+              // unify item → { id, code, name }
               let id, code, name;
               if (typeof item === 'string') {
-                id   = item;
+                id = item;
                 const meta = allCourses.find(c => c.id === item) || {};
                 code = meta.code || item;
                 name = meta.name || '';
               } else {
-                // object
                 id   = item.id;
                 code = item.code ?? id;
                 name = item.name ?? '';
               }
-
               return (
-                <div key={id} className="course-card">
-                  <Link to={`/courses/${encodeURIComponent(id)}`}>
-                    {code}: {name}
-                  </Link>
+                <div
+                  key={id}
+                  className="course-card"
+                  onClick={() => onSelectCourse(id)}
+                >
+                  {code}: {name}
                 </div>
               );
             })}
