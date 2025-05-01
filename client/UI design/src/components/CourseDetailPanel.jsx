@@ -1,11 +1,10 @@
-// src/components/CourseDetailPanel.jsx
 import React, { useState, useEffect } from 'react';
 import { get_course } from '../api';
 import './CourseDetailPanel.css';
 
 export default function CourseDetailPanel({ courseId, onClose }) {
   const [course, setCourse] = useState(null);
-  const [error, setError] = useState('');
+  const [error, setError]   = useState('');
 
   useEffect(() => {
     if (!courseId) return;

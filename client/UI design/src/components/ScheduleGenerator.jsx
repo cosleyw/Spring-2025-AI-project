@@ -1,8 +1,9 @@
-// src/components/ScheduleGenerator.jsx
 import React, { useState, useEffect } from 'react';
-import ScheduleViewer                 from './ScheduleViewer';
-import CourseDetailPanel              from './CourseDetailPanel';
-import { get_degrees, get_courses, generate_schedule } from '../api';
+import ScheduleViewer       from './ScheduleViewer';
+import CourseDetailPanel    from './CourseDetailPanel';
+import { get_degrees,
+         get_courses,
+         generate_schedule } from '../api';
 import './ScheduleGenerator.css';
 
 export default function ScheduleGenerator() {
@@ -24,9 +25,9 @@ export default function ScheduleGenerator() {
     desired_ids:              []
   });
 
-  const [schedule,      setSchedule]      = useState(null);
-  const [loading,       setLoading]       = useState(false);
-  const [error,         setError]         = useState('');
+  const [schedule,       setSchedule]       = useState(null);
+  const [loading,        setLoading]        = useState(false);
+  const [error,          setError]          = useState('');
   const [selectedCourse, setSelectedCourse] = useState(null);
 
   useEffect(() => {
@@ -50,11 +51,47 @@ export default function ScheduleGenerator() {
     e.preventDefault();
     setLoading(true);
     setError('');
+
     try {
+      // fetch raw array-of-id-arrays (with dummy[0])
       const raw = await generate_schedule(form);
-      // Slice off the dummy first slot, then take exactly semester_count:
-      const onlyN = raw.slice(1, 1 + form.semester_count);
-      setSchedule(onlyN);
+
+      // drop dummy slot, take exactly N
+      const onlyIds = raw.slice(1, 1 + form.semester_count);
+
+      // build term/year labels in sequence
+      const termOrder = ['Fall','Spring','Summer'];
+      let term = form.start_term;
+      let year = form.start_year;
+
+      // enrich into [{ name, term, year, courses:[{…}] }, …]
+      const enriched = onlyIds.map((ids, idx) => {
+        if (idx > 0) {
+          let next = termOrder.indexOf(term) + 1;
+          if (next >= termOrder.length) {
+            next = 0;
+            year += 1;
+          }
+          term = termOrder[next];
+        }
+        const courses = ids.map(id => {
+          const meta = allCourses.find(c => c.id === id) || {};
+          return {
+            id,
+            code:    meta.code    || id,
+            name:    meta.name    || '',
+            credits: meta.credits || 0
+          };
+        });
+        return {
+          name:    `Semester ${idx + 1}`,
+          term,
+          year,
+          courses
+        };
+      });
+
+      setSchedule(enriched);
     } catch (err) {
       console.error(err);
       setError('Failed to generate schedule: ' + err.message);
@@ -63,7 +100,7 @@ export default function ScheduleGenerator() {
     }
   };
 
-  // Once we have the schedule array, show the grid + detail panel:
+  // show the grid + detail panel once generated
   if (Array.isArray(schedule)) {
     return (
       <div className="schedule-viewer-container">
@@ -82,13 +119,15 @@ export default function ScheduleGenerator() {
     );
   }
 
-  // … otherwise render exactly the original form layout …
+  // otherwise,the original form (unchanged)
   return (
     <div className="schedule-generator">
       <h2>Schedule Configuration</h2>
       {error && <div className="error">{error}</div>}
 
       <form onSubmit={handleSubmit}>
+        {/* … My full set of <label> / <select> / <input> fields is the same*/}
+
         <label>
           Degree:
           <select

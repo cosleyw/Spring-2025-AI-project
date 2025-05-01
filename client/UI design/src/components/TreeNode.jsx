@@ -5,7 +5,7 @@ export default function TreeNode({ node, level = 0 }) {
   if (!node) return null;
   const indent = { marginLeft: level * 16 };
 
-  // 1) course leaf
+  //  course leaf
   if (node.type === 'course') {
     const code  = `${(node.dept ?? '').toUpperCase()} ${node.number ?? ''}`;
     const title = node.name || node.info || '';
@@ -16,7 +16,7 @@ export default function TreeNode({ node, level = 0 }) {
     );
   }
 
-  // 2) tag wrapper
+  // tag wrapper
   if (node.type === 'tag') {
     return (
       <div style={indent}>
@@ -26,7 +26,7 @@ export default function TreeNode({ node, level = 0 }) {
     );
   }
 
-  // 3) credit-range with options
+  //  credit-range with options
   if (node.type === 'credit-range') {
     return (
       <div style={indent}>
@@ -38,7 +38,7 @@ export default function TreeNode({ node, level = 0 }) {
     );
   }
 
-  // 4) generic fallback
+  //  generic fallback
   if (Array.isArray(node.options)) {
     return (
       <div style={indent}>

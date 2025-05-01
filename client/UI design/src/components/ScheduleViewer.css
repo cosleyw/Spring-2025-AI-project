@@ -34,3 +34,10 @@
   .course-card {
     cursor: pointer;    /* ← added this */
   }
+  /* style for the credit total badge */
+.credit-badge {
+  margin-left: 0.5rem;
+  font-weight: 400;
+  font-size: 0.85em;
+  color: #666;
+}

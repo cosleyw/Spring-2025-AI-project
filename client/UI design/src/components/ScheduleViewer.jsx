@@ -1,4 +1,3 @@
-// src/components/ScheduleViewer.jsx
 import React from 'react';
 import './ScheduleViewer.css';
 
@@ -14,40 +13,36 @@ export default function ScheduleViewer({
   return (
     <div className="middle-panel">
       {schedule.map((sem, sIdx) => {
-        const title = sem.name || `Semester ${sIdx + 1}`;
-        // sem.courses array or fallback to sem itself if array
-        const items = Array.isArray(sem.courses)
-          ? sem.courses
-          : Array.isArray(sem)
-          ? sem
-          : [];
+        //  Semester title (I already set sem.name in the generator)
+        const title = sem.name;
+        //  Term + year
+        const term = sem.term;
+        const year = sem.year;
+        //  List of course objects (you built them in generator)
+        const courses = sem.courses || [];
+
+        // Sum up credits
+        const totalCredits = courses.reduce(
+          (sum, c) => sum + (c.credits || 0),
+          0
+        );
 
         return (
           <div key={sIdx} className="semester-box">
-            <h4>{title}</h4>
-            {items.map((item, idx) => {
-              // unify item → { id, code, name }
-              let id, code, name;
-              if (typeof item === 'string') {
-                id = item;
-                const meta = allCourses.find(c => c.id === item) || {};
-                code = meta.code || item;
-                name = meta.name || '';
-              } else {
-                id   = item.id;
-                code = item.code ?? id;
-                name = item.name ?? '';
-              }
-              return (
-                <div
-                  key={id}
-                  className="course-card"
-                  onClick={() => onSelectCourse(id)}
-                >
-                  {code}: {name}
-                </div>
-              );
-            })}
+            <h4>
+              {term} {year} — {title}{' '}
+              <small className="credit-badge">({totalCredits} cr)</small>
+            </h4>
+
+            {courses.map(c => (
+              <div
+                key={c.id}
+                className="course-card"
+                onClick={() => onSelectCourse(c.id)}
+              >
+                {c.code}: {c.name}
+              </div>
+            ))}
           </div>
         );
       })}
