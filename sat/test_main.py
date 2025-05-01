@@ -90,6 +90,27 @@ class TestCourseSATSolver(unittest.TestCase):
             "desired_degree_ids": ["CS:BA"],
         }
 
+    def test_nonpermanence(self):
+        c: CourseSATSolver = self.create_with_defaults(
+            desired_degree_ids=["cs 2100"],
+            undesired_course_ids=[("cs 2100",)],
+            courses_file_name=test_path("noreq-cs2100.json"),
+            degrees_file_name=test_path("single-course-degree.json"),
+        )
+
+        self.assertFalse(c.solve(), "Cannot take degree with undesired course")
+
+        c: CourseSATSolver = self.create_with_defaults(
+            desired_degree_ids=["cs 2100"],
+            courses_file_name=test_path("noreq-cs2100.json"),
+            degrees_file_name=test_path("single-course-degree.json"),
+        )
+
+        c.solve_all()
+        plans = c.get_plans_with_ids()
+
+        self.assertEqual(len(plans), 4, "Can find schedules after seperate undesired course")
+
     def test_noreq(self):
         c: CourseSATSolver = self.create_with_defaults(
             desired_degree_ids=["cs 2100"],

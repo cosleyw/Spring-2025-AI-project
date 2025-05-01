@@ -13,11 +13,12 @@ from degree_requirement_manager import DegreeRequirementManager
 
 import logging
 
+# Alternated format for date - datefmt='%Y-%m-%d:%H:%M:%S',
 logging.basicConfig(
-    filename="out.log",
+    filename="log.out",
     level=logging.INFO,
     format="%(asctime)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s",
-    datefmt="%H:%M:%S",  # datefmt='%Y-%m-%d:%H:%M:%S',
+    datefmt="%H:%M:%S",
 )
 
 
@@ -52,33 +53,29 @@ def rotate(lst: list[T], n: int) -> list[T]:
 
 @typechecked
 class RefManager:
-    count: int = 0
-    store: dict[BoolRef, Any] = {}
+    def __init__(self):
+        self.count: int = 0
+        self.store: dict[BoolRef, Any] = {}
 
-    @classmethod
-    def allocate(cls, value: Any) -> BoolRef:
+    def allocate(self, value: Any) -> BoolRef:
         # Update the count
-        RefManager.count += 1
-
-        allocated_value: BoolRef = Bool(RefManager.count)
-
+        self.count += 1
         # Add new item to the store
-        RefManager.store[allocated_value] = value
+        allocated_value: BoolRef = Bool(self.count)
+        self.store[allocated_value] = value
         # Return items id
         return allocated_value
 
-    @classmethod
-    def get(cls, id: BoolRef) -> Any:
-        if id not in RefManager.store:
+    def get(self, id: BoolRef) -> Any:
+        if id not in self.store:
             raise KeyError(f"Cannot find id '{id}' in store")
-        return RefManager.store[id]
+        return self.store[id]
 
-    @classmethod
-    def find(cls, value: Any, default_return: Any = -1) -> Any | None:
-        for k, v in RefManager.store.items():
-            if v == value:
-                return k
-        return default_return
+    # def find(self, value: Any, default_return: Any = -1) -> Any | None:
+    #    for k, v in self.store.items():
+    #        if v == value:
+    #            return k
+    #    return default_return
 
 
 @typechecked
@@ -120,11 +117,12 @@ class Degree:
         id: Any,
         name: str,
         course_manager: "CourseManager",
+        ref_manager: "RefManager",
         requirements: dict[Any, Any] = {},
     ):
         self._id: Any = id
         self._name: str = name
-        self._ref = RefManager.allocate(self)
+        self._ref = ref_manager.allocate(self)
         self._requirements: DegreeRequirementManager = DegreeRequirementManager(course_manager, requirements)
 
     def get_requirements(self) -> DegreeRequirementManager:
@@ -147,13 +145,13 @@ class Degree:
 class Rank:
     # first_semester_with_rank of None is intepreted as you never become the rank
     # first_semester_with_rank of 0 is intepreted as you start with the rank
-    def __init__(self, name: str, first_semester_with_rank: int | None, semester_count: int):
+    def __init__(self, name: str, first_semester_with_rank: int | None, semester_count: int, ref_manager: "RefManager"):
         self._name: str = name
         self._first_semester_with_rank: int | None = first_semester_with_rank
         self._refs: list[BoolRef] = []
         self._semester_count: int = semester_count
         for _ in range(semester_count):
-            self._refs.append(RefManager.allocate(self))
+            self._refs.append(ref_manager.allocate(self))
 
         if (first_semester_with_rank is not None) and (first_semester_with_rank < 1 or first_semester_with_rank > semester_count):
             raise ValueError(f"Cannot start semester with rank {name} cannot be before first semester or after last semester. Set as None if never reached, and 0 is instantly reached.")
@@ -233,6 +231,7 @@ class Course:
         hours: list[int],
         semester: Offering | str,
         course_manager: "CourseManager",
+        ref_manager: "RefManager",
         starts_as_fall: bool,
         start_year: int,
         dept: str,
@@ -261,8 +260,9 @@ class Course:
         self._refs: list[BoolRef] = []
         self._taken_for_specific_rg: list[BoolRef] = []
         self._course_manager: CourseManager = course_manager
+        self._ref_manager: RefManager = ref_manager
         for _ in range(self._course_manager.get_semester_count() + 1):  # +1 because allows a slot for transfer credits
-            self._refs.append(RefManager.allocate(self))
+            self._refs.append(self._ref_manager.allocate(self))
 
     def get_id(self) -> Any:
         return self._id
@@ -278,7 +278,7 @@ class Course:
 
     # TODO: Make sure this is right
     def add_as_degree_req(self) -> BoolRef:
-        ref = RefManager.allocate(None)
+        ref = self._ref_manager.allocate(None)
         self._taken_for_specific_rg.append(ref)
         return ref
 
@@ -497,15 +497,16 @@ class CourseSATSolver:
         courses_file_name: str = COURSES_FILE_NAME,
         degrees_file_name: str = DEGREES_FILE_NAME,
     ):
+        self.ref_manager = RefManager()
         self.course_manager: CourseManager = CourseManager(semester_count)
         self.degree_manager: DegreeManager = DegreeManager()
         self.min_credits_per_semester: int = min_credit_per_semester
         self.max_credits_per_semester: int = max_credits_per_semester
         self.starts_as_fall: bool = starts_as_fall
         self.start_year: int = start_year
-        self.sophomore: Rank = Rank("sophomore", first_semester_sophomore, semester_count)
-        self.junior: Rank = Rank("junior", first_semester_junior, semester_count)
-        self.senior: Rank = Rank("senior", first_semester_senior, semester_count)
+        self.sophomore: Rank = Rank("sophomore", first_semester_sophomore, semester_count, self.ref_manager)
+        self.junior: Rank = Rank("junior", first_semester_junior, semester_count, self.ref_manager)
+        self.senior: Rank = Rank("senior", first_semester_senior, semester_count, self.ref_manager)
         self.transferred_course_ids: list[str] = transferred_course_ids
         self.desired_course_ids: list[tuple[str] | tuple[str, int]] = desired_course_ids
         self.undesired_course_ids: list[tuple[str] | tuple[str, int]] = undesired_course_ids
@@ -531,7 +532,7 @@ class CourseSATSolver:
             raw_courses = json.load(file)
 
         for raw_course in raw_courses:
-            self.course_manager.add_course(Course(**raw_course, course_manager=self.course_manager, starts_as_fall=self.starts_as_fall, start_year=self.start_year))
+            self.course_manager.add_course(Course(**raw_course, course_manager=self.course_manager, ref_manager=self.ref_manager, starts_as_fall=self.starts_as_fall, start_year=self.start_year))
 
     def _load_degrees(self, file_name: str) -> None:
         with open(file_name, "r") as file:
@@ -544,6 +545,7 @@ class CourseSATSolver:
                     id=name,
                     requirements=requirements,
                     course_manager=self.course_manager,
+                    ref_manager=self.ref_manager,
                 )
             )
 
@@ -674,6 +676,7 @@ class CourseSATSolver:
         # for k, v in RefManager.store.items():
         #    logging.debug(f"{k}: {v}")
 
+        logging.debug("Attempting to solve")
         if self.solver.check() == sat:
             logging.info("SAT")
             model: ModelRef = self.solver.model()
@@ -683,7 +686,7 @@ class CourseSATSolver:
                 if not isinstance(boolRef, BoolRef):
                     raise TypeError(f"Expected model to only consist of BoolRefs, instead got '{funcDeclRef}'")
 
-                reference_result: Any = RefManager.get(boolRef)
+                reference_result: Any = self.ref_manager.get(boolRef)
                 if isinstance(reference_result, Course):
                     # logging.debug(f"{boolRef} != {model[boolRef]}")
                     negation_of_current_solution.append(boolRef != model[boolRef])
@@ -719,7 +722,7 @@ class CourseSATSolver:
 
     def display(self) -> None:
         if self.plan is None or len(self.possible_plans) == 0:
-            logging.warning("CourseSATSolver needs to be solver before a plan can be displayed")
+            logging.warning("CourseSATSolver needs to be solved before a plan can be displayed")
             return
 
         for plan_id, plan in enumerate(self.possible_plans):
@@ -753,14 +756,16 @@ if __name__ == "__main__":
     # These will all be taken as input from the user
 
     with open(os.path.join(DATA_DIR, "degree-names"), "r") as infile:
-        degree_names = [l.strip() for l in infile.readlines()]
+        degree_names = [line.strip() for line in infile.readlines()]
+
+    degree_names = ["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"]
 
     for degree in degree_names:
         logging.info(f"Running for {degree}...")
         c: CourseSATSolver = CourseSATSolver(
             semester_count=8,  # Number of semester to calculate for
             min_credit_per_semester=12,  # Minimum credits (inclusive)
-            max_credits_per_semester=12,  # Maximum credits (inclusive)
+            max_credits_per_semester=18,  # Maximum credits (inclusive)
             starts_as_fall=True,
             start_year=2025,
             transferred_course_ids=[],  # ["CS1410", "CS1510"],
@@ -790,10 +795,13 @@ if __name__ == "__main__":
         # c.minimize()
         # logging.info("Added minimization")
 
-        if c.solve():
-            c.display()
-        else:
-            logging.error(f"No valid schedule for '{degree}'")
+        try:
+            if c.solve():
+                c.display()
+            else:
+                logging.error(f"No valid schedule for '{degree}'")
+        except Exception as e:
+            logging.error(f"Received error {e} when trying to schedule {degree}")
 
         # while c.solve():
         #    pass
