@@ -1,4 +1,3 @@
-// src/App.jsx
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { DragDropContext }              from 'react-beautiful-dnd';
@@ -11,41 +10,39 @@ import ScheduleGenerator                from './components/ScheduleGenerator';
 import DegreeBrowser                    from './components/DegreeBrowser';
 import './App.css';
 
-function AppContent() {
+export default function App() {
   const { courses, schedule, onDragEnd } = useCourses();
 
   const masterLayout = rightPanel => (
     <div className="app-layout">
       <CourseList courses={courses} />
       <ScheduleViewer schedule={schedule} />
-      {rightPanel}
+      <div className="right-panel">{rightPanel}</div>
     </div>
   );
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <BrowserRouter>
       <Layout>
         <Routes>
-          <Route
-            path="/"
-            element={masterLayout(<div className="right-panel"><h3>Select a course…</h3></div>)}
-          />
-          <Route
-            path="/courses/:id"
-            element={masterLayout(<CourseDetails />)}
-          />
+          {/* Stand‐alone generate page (no CourseList/ScheduleViewer) */}
           <Route path="/schedule/generate" element={<ScheduleGenerator />} />
-          <Route path="/degrees"             element={<DegreeBrowser   />} />
+
+          {/* All the rest live inside a DragDropContext */}
+          <Route
+            path="/*"
+            element={
+              <DragDropContext onDragEnd={onDragEnd}>
+                <Routes>
+                  <Route index element={masterLayout(<h3>Select a course…</h3>)} />
+                  <Route path="courses/:id" element={masterLayout(<CourseDetails />)} />
+                  <Route path="degrees"     element={masterLayout(<DegreeBrowser />)} />
+                </Routes>
+              </DragDropContext>
+            }
+          />
         </Routes>
       </Layout>
-    </DragDropContext>
-  );
-}
-
-export default function App() {
-  return (
-    <BrowserRouter>
-      <AppContent />
     </BrowserRouter>
   );
 }

@@ -1,44 +1,37 @@
 // src/components/ScheduleGenerator.jsx
 import React, { useState, useEffect } from 'react';
-import ScheduleViewer from './ScheduleViewer';
-import { get_degrees, get_courses } from '../api';
+import ScheduleViewer                 from './ScheduleViewer';
+import { get_degrees, get_courses, generate_schedule } from '../api';
 import './ScheduleGenerator.css';
 
-const BASE_URL = 'http://134.161.80.115:8000';
-
 export default function ScheduleGenerator() {
-  // fetched options
-  const [degrees, setDegrees] = useState([]);
+  const [degrees,    setDegrees]    = useState([]);
   const [allCourses, setAllCourses] = useState([]);
 
-  // form state
   const [form, setForm] = useState({
-    degree_id: '',
-    semester_count: 8,
-    start_term: 'Fall',
-    start_year: new Date().getFullYear(),
-    min_credit_per_semester: 12,
-    max_credit_per_semester: 18,
-    transfer_ids: [],
-    block_ids: [],
-    soph_semester: 3,
-    jr_semester: 5,
-    sr_semester: 7,
-    desired_ids: []
+    desired_degree_ids_str:   '',
+    semester_count:           8,
+    start_term:               'Fall',
+    start_year:               new Date().getFullYear(),
+    min_credit_per_semester:  12,
+    max_credit_per_semester:  18,
+    transfer_ids:             [],
+    block_ids:                [],
+    soph_semester:            3,
+    jr_semester:              5,
+    sr_semester:              7,
+    desired_ids:              []
   });
 
-  // post-submit state
   const [schedule, setSchedule] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState('');
 
-  // load degrees + courses for selects
   useEffect(() => {
     get_degrees().then(setDegrees).catch(console.error);
     get_courses().then(setAllCourses).catch(console.error);
   }, []);
 
-  // helpers
   const handleChange = key => e => {
     const val = e.target.type === 'number'
       ? +e.target.value
@@ -54,49 +47,43 @@ export default function ScheduleGenerator() {
     e.preventDefault();
     setLoading(true);
     setError('');
-
-    // build query params (comma-sep arrays)
-    const params = new URLSearchParams();
-    Object.entries(form).forEach(([k, v]) => {
-      if (Array.isArray(v)) {
-        if (v.length) params.set(k, v.join(','));
-      } else if (v !== '' && v != null) {
-        params.set(k, String(v));
-      }
-    });
-
     try {
-      const res = await fetch(
-        `${BASE_URL}/schedules/generate?${params.toString()}`
-      );
-      if (!res.ok) throw new Error(`Status ${res.status}`);
-      const data = await res.json();
-      setSchedule(data.schedule);
+      const sched = await generate_schedule(form);
+      setSchedule(sched);
     } catch (err) {
       console.error(err);
-      setError('Failed to generate schedule');
+      setError('Failed to generate schedule: ' + err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // if we have a schedule, show it
-  if (schedule) {
-    return <ScheduleViewer schedule={schedule} />;
+  // once we have a schedule array, hand off to the viewer
+  if (Array.isArray(schedule)) {
+    return (
+      <ScheduleViewer
+        schedule={schedule}
+        allCourses={allCourses}
+      />
+    );
   }
 
-  // otherwise render the setup form
+  // —————————————————
+  // FORM LAYOUT UNCHANGED
+  // —————————————————
   return (
     <div className="schedule-generator">
       <h2>Schedule Configuration</h2>
       {error && <div className="error">{error}</div>}
       <form onSubmit={handleSubmit}>
+        {/* … all of my labels / selects / fieldsets exactly as before … */}
+
         <label>
           Degree:
           <select
             required
-            value={form.degree_id}
-            onChange={handleChange('degree_id')}
+            value={form.desired_degree_ids_str}
+            onChange={handleChange('desired_degree_ids_str')}
           >
             <option value="">— select degree —</option>
             {degrees.map(d => (

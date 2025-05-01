@@ -1,4 +1,3 @@
-// src/components/CourseList.jsx
 import React, { useState, useMemo } from 'react';
 import { Droppable, Draggable }      from 'react-beautiful-dnd';
 import { Link }                      from 'react-router-dom';
@@ -28,7 +27,9 @@ export default function CourseList({ courses }) {
 
       <Droppable
         droppableId="courses"
-        isDropDisabled={true}     // only prop we need here
+        isDropDisabled={true}
+        isCombineEnabled={false}
+        ignoreContainerClipping={false}
       >
         {provided => (
           <div
@@ -41,6 +42,8 @@ export default function CourseList({ courses }) {
                 key={c.id}
                 draggableId={c.id}
                 index={idx}
+                isDragDisabled={false}
+                isCombineEnabled={false}
               >
                 {prov => (
                   <div
