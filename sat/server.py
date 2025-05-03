@@ -131,11 +131,15 @@ def generate_schedule(configuration: Annotated[ScheduleConfiguration, Query()]):
     )
 
     c.setup()
-    c.minimize()
-    c.solve()
-    c.display()
-    logging.debug(configuration)
-    return {
-        "status": "success",
-        "schedule": c.get_plan_with_ids(),
-    }
+    # c.minimize()
+    if c.solve():
+        c.display()
+        logging.debug(configuration)
+        return {
+            "status": "success",
+            "schedule": c.get_plan_with_ids(),
+        }
+    else:
+        return {
+            "status": "failure",
+        }

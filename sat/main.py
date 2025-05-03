@@ -1,3 +1,4 @@
+from collections import Counter
 from enum import StrEnum
 import json
 from typing import Any, Generator, TypeVar, override
@@ -16,7 +17,7 @@ import logging
 # Alternated format for date - datefmt='%Y-%m-%d:%H:%M:%S',
 logging.basicConfig(
     filename="log.out",
-    level=logging.INFO,
+    level=logging.DEBUG,
     format="%(asctime)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s",
     datefmt="%H:%M:%S",
 )
@@ -99,6 +100,7 @@ class DegreeManager:
         if degree.get_id() in self.degrees:
             raise KeyError(f"Key {degree.get_id()} already exists in degree list")
 
+        logging.debug(f"Loading degree {degree.get_id()}")
         self.degrees[degree.get_id()] = degree
 
     def by_id(self, id: Any) -> "Degree":
@@ -191,27 +193,13 @@ class CourseManager:
         if course.get_id() in self._courses:
             raise KeyError(f"Key {course.get_id()} already exists in course list")
 
+        logging.debug(f"Loading course {course.get_id()}")
         self._courses[course.get_id()] = course
 
     def __iter__(self) -> Generator["Course", Any, None]:
         yield from self._courses.values()
 
     def by_id(self, id: Any) -> "Course":
-        if any(
-            [
-                id.startswith(x)
-                for x in [
-                    "business",
-                    "univ",
-                    "ph",
-                    "rtnl",
-                    "fam serv",
-                    "cap",
-                    "gero",
-                ]
-            ]
-        ):
-            return self._courses["stat 1772"]
         if id not in self._courses:
             raise IndexError(f"Unable to find id '{id}' in courses")
         return self._courses[id]
@@ -294,8 +282,6 @@ class Course:
 
         # Cannot take for credit multiple places
         requirements.append(sum(self._taken_for_specific_rg) <= 1)
-
-        logging.debug(requirements)
 
         return And(requirements)
 
@@ -392,7 +378,7 @@ class Course:
 
     def generate_requisites(self, requirements: Any, semester: int, sophomore: Rank, junior: Rank, senior: Rank) -> BoolRef | None:
         def generate_requisites_helper(requirements: Any, mode: str) -> BoolRef | None:
-            logging.debug(f"{requirements}, {mode}")
+            # logging.debug(f"{requirements}, {mode}")
             # if len(requirements) == 0:
             #    return
 
@@ -514,7 +500,9 @@ class CourseSATSolver:
         self.plan: list[list[Course]] | None = None
         self.possible_plans: list[list[list[Course]]] = []
 
-        self._load_courses(courses_file_name)
+        relevant_course_list = self._determine_relevant_courses(degrees_file_name, courses_file_name)
+
+        self._load_courses(courses_file_name, relevant_course_list)
         self._load_degrees(degrees_file_name)
 
         self.degree_manager.setup(
@@ -527,27 +515,141 @@ class CourseSATSolver:
             if not self.course_manager.by_id(course_id):
                 raise Exception(f"Attempting to transfer an invalid course id '{course_id}'.")
 
-    def _load_courses(self, file_name: str) -> None:
+    def _extract_known_courses(self, degrees: list[dict[Any, Any]]) -> dict[str, bool]:
+        logging.debug("Extracting known course")
+
+        def extract_degree_course(req: dict[Any, Any]):
+            while req["type"] == "tag":
+                req = req["node"]
+            type = req["type"]
+            if type == "course":
+                return [f"{req['dept']} {req['number']}"]
+            elif type == "all":
+                return [course for opt in req["req"] for course in extract_degree_course(opt)]
+            else:
+                return [course for opt in req["options"] for course in extract_degree_course(opt)]
+
+        logging.debug("Adding courses from desired degrees")
+        courses = {}
+        for degree in degrees:
+            for course in extract_degree_course(degree):
+                courses[course] = True
+
+        logging.debug("Adding courses from other user preference")
+        for course in self.undesired_course_ids:
+            courses[course[0]] = True
+
+        for course in self.desired_course_ids:
+            courses[course[0]] = True
+
+        for course in self.transferred_course_ids:
+            courses[course] = True
+
+        return courses
+
+    def _determine_relevant_courses(self, degrees_file_name: str, courses_file_name: str) -> set[str]:
+        # self.transferred_course_ids: list[str] = transferred_course_ids
+        # self.desired_course_ids: list[tuple[str] | tuple[str, int]] = desired_course_ids
+        # self.undesired_course_ids: list[tuple[str] | tuple[str, int]] = undesired_course_ids
+        # self.desired_degree_ids: list[str] = desired_degree_ids
+        logging.debug("Determine relevant courses...")
+
+        with open(degrees_file_name, "r") as file:
+            logging.debug("Reading degree list")
+            raw_degrees = json.load(file)
+
+        degrees = []
+        for id, degree in raw_degrees.items():
+            if id in self.desired_degree_ids:
+                degrees.append(degree)
+
+        logging.debug("Extracted desired degrees")
+
+        known_courses = self._extract_known_courses(degrees)
+
+        departments = []
+        for course_id in known_courses:
+            if isinstance(course_id, tuple):
+                course_id = course_id[0]
+            departments.append(course_id.split(" ")[0])
+        department_counts = Counter(departments)
+        most_common_dept = department_counts.most_common()[0][0]
+        logging.debug(f"Calculated most common department: {most_common_dept}")
+
+        logging.debug("Creating course requisite dictionary and adding courses from most common dept")
+        course_requirement_map = {}
+        with open(courses_file_name, "r") as file:
+            raw_courses = json.load(file)
+            for course in raw_courses:
+                course_requirement_map[course["id"]] = self._extract_course_reqs(course)
+                # Add in all courses from most important dept
+                if course["dept"] == most_common_dept:
+                    # logging.warning(f"Adding new course from dept: {course['id']}")
+                    known_courses[course["id"]] = True
+
+        previous_known_course_count = len(known_courses)
+        # Add in all requisites of relevant courses
+        i = 0
+        while i < len(known_courses):
+            course = list(known_courses.keys())[i]
+            if course not in course_requirement_map:
+                i += 1
+                continue
+            reqs = course_requirement_map[course]
+            for req in reqs:
+                known_courses[req] = True
+            i += 1
+        after_known_course_count = len(known_courses)
+        increase_in_known_course_count = after_known_course_count - previous_known_course_count
+        logging.info(f"Increase course count by {increase_in_known_course_count} when adding reqs")
+
+        return set(known_courses.keys())
+
+    def _extract_course_reqs(self, course: dict[Any, Any]) -> list[str]:
+        # logging.debug(f"Extracting course reqs for {course['dept']} {course['number']} {course['name']}")
+
+        def extract_course_reqs_helper(items: dict[Any, Any]):
+            type = items["type"]
+            if type == "all" or type == "some":
+                # logging.debug(f"Determined type all/some for {items}")
+                return [id for value in items["req"] for id in extract_course_reqs_helper(value)]
+            elif type == "course":
+                # logging.debug(f"Determined type course for {items}")
+                return [f"{items['dept']} {items['number']}"]
+            elif type == "true" or type == "standing":
+                return []
+            raise ValueError(f"Failed to extract course reqs for {items}. Unexpected type: '{type}'")
+
+        full_requirement_list = []
+        for requirement_type in ["prereq", "preorco", "coreq"]:
+            requirements = extract_course_reqs_helper(course[requirement_type])
+            full_requirement_list.extend(requirements)
+            # logging.info(f"{course['dept']} {course['number']} {course[requirement_type]} --> {requirements}")
+        return full_requirement_list
+
+    def _load_courses(self, file_name: str, relevant_course_list: set[str]) -> None:
         with open(file_name, "r") as file:
             raw_courses = json.load(file)
 
         for raw_course in raw_courses:
-            self.course_manager.add_course(Course(**raw_course, course_manager=self.course_manager, ref_manager=self.ref_manager, starts_as_fall=self.starts_as_fall, start_year=self.start_year))
+            if raw_course["id"] in relevant_course_list:
+                self.course_manager.add_course(Course(**raw_course, course_manager=self.course_manager, ref_manager=self.ref_manager, starts_as_fall=self.starts_as_fall, start_year=self.start_year))
 
     def _load_degrees(self, file_name: str) -> None:
         with open(file_name, "r") as file:
             raw_degrees = json.load(file)
 
         for name, requirements in raw_degrees.items():
-            self.degree_manager.add_degree(
-                Degree(
-                    name=name,
-                    id=name,
-                    requirements=requirements,
-                    course_manager=self.course_manager,
-                    ref_manager=self.ref_manager,
+            if name in self.desired_degree_ids:
+                self.degree_manager.add_degree(
+                    Degree(
+                        name=name,
+                        id=name,
+                        requirements=requirements,
+                        course_manager=self.course_manager,
+                        ref_manager=self.ref_manager,
+                    )
                 )
-            )
 
         # for degree in self.degree_manager:
         #    logging.debug(degree)
@@ -560,7 +662,7 @@ class CourseSATSolver:
         non_credit_courses = []
 
         for course in self.course_manager:
-            logging.debug(f"Applying cnf for {course.get_name()}...")
+            logging.debug(f"Applying cnf for {course.get_id()} {course.get_name()}...")
             course.apply_cnf(self.solver, self.sophomore, self.junior, self.senior)
 
             if course.get_credits() == 0:
@@ -758,7 +860,8 @@ if __name__ == "__main__":
     with open(os.path.join(DATA_DIR, "degree-names"), "r") as infile:
         degree_names = [line.strip() for line in infile.readlines()]
 
-    degree_names = ["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"]
+    # degree_names = ["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"]
+    degree_names = ["COMPUTER SCIENCE BS MAJOR (2016-2025) 81SBS"]
 
     for degree in degree_names:
         logging.info(f"Running for {degree}...")
