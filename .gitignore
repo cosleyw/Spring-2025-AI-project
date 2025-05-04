@@ -8,5 +8,6 @@ data/raw_data.json
 .vscode/
 
 # Python specific ignores
+sat/log.*
 venv/
 __pycache__/
