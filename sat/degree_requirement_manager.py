@@ -244,7 +244,7 @@ class ReqCourse(DegreeRequirement):
     def eval(self) -> z3.BoolRef:
         return self._ref
 
-    def get_credits(self) -> int:
+    def get_credits(self) -> int | z3.z3.ArithRef:
         return self._course.get_credits()
 
 

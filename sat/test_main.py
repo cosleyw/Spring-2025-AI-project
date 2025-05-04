@@ -425,6 +425,33 @@ class TestCourseSATSolver(unittest.TestCase):
             "Contains minimum number of courses within course range",
         )
 
+    def test_flat_credit_range_low(self):
+        c: CourseSATSolver = self.create_with_defaults(
+            desired_degree_ids=["CS:BA"],
+            courses_file_name=test_path("credit-range-cs2100.json"),
+            degrees_file_name=test_path("flat-degree-range-low.json"),
+        )
+
+        self.assertTrue(c.solve(), "Course can be at lower end of credit range")
+
+    def test_flat_credit_range_high(self):
+        c: CourseSATSolver = self.create_with_defaults(
+            desired_degree_ids=["CS:BA"],
+            courses_file_name=test_path("credit-range-cs2100.json"),
+            degrees_file_name=test_path("flat-degree-range-high.json"),
+        )
+
+        self.assertTrue(c.solve(), "Course can be at higher end of credit range")
+
+    def test_flat_credit_range_impossible(self):
+        c: CourseSATSolver = self.create_with_defaults(
+            desired_degree_ids=["CS:BA"],
+            courses_file_name=test_path("credit-range-cs2100.json"),
+            degrees_file_name=test_path("flat-degree-range-impossible.json"),
+        )
+
+        self.assertFalse(c.solve(), "Course can be at impossible end of credit range")
+
     def test_split_course_range(self):
         c: CourseSATSolver = self.create_with_defaults(
             semester_count=2,

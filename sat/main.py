@@ -6,7 +6,7 @@ import os
 
 from typeguard import typechecked
 from z3 import Implies
-from z3.z3 import And, Bool, BoolRef, BoolVal, ModelRef, Not, Optimize, Or, sat  # type: ignore[import-untyped]
+from z3.z3 import And, ArithRef, Bool, BoolRef, BoolVal, Int, IntNumRef, ModelRef, Not, Optimize, Or, sat  # type: ignore[import-untyped]
 
 from config import COURSES_FILE_NAME, DATA_DIR, DEGREES_FILE_NAME
 
@@ -21,6 +21,9 @@ logging.basicConfig(
     format="%(asctime)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s",
     datefmt="%H:%M:%S",
 )
+
+# Log to both terminal and stdout (technically might be stderr)
+logging.getLogger().addHandler(logging.StreamHandler())
 
 
 @typechecked
@@ -57,6 +60,10 @@ class RefManager:
     def __init__(self):
         self.count: int = 0
         self.store: dict[BoolRef, Any] = {}
+
+    def allocate_int(self, value: Any) -> ArithRef:
+        self.count += 1
+        return Int(self.count)
 
     def allocate(self, value: Any) -> BoolRef:
         # Update the count
@@ -240,7 +247,14 @@ class Course:
         self._dept: str = dept
         self._number: str = number
         # TODO: This is not the best solution, but works for now
-        self._credits: int = hours[0]
+        self._min_credits = hours[0]
+        self._max_credits = hours[-1]
+
+        if self._min_credits == self._max_credits:
+            self._credits = hours[0]
+        else:
+            self._credits = ref_manager.allocate_int(self)
+
         self._credits_repeatable_for: int | None = credits_repeatable_for
         self._starts_as_fall = starts_as_fall
         self._start_year = start_year
@@ -252,6 +266,9 @@ class Course:
         for _ in range(self._course_manager.get_semester_count() + 1):  # +1 because allows a slot for transfer credits
             self._refs.append(self._ref_manager.allocate(self))
 
+    def is_variable_credits(self):
+        return self._min_credits != self._max_credits
+
     def get_id(self) -> Any:
         return self._id
 
@@ -261,7 +278,7 @@ class Course:
     def get_refs(self) -> list[BoolRef]:
         return self._refs
 
-    def get_credits(self) -> int:
+    def get_credits(self) -> int | ArithRef:
         return self._credits
 
     # TODO: Make sure this is right
@@ -311,9 +328,15 @@ class Course:
         return formula
 
     def apply_cnf(self, solver: Optimize, sophomore: Rank, junior: Rank, senior: Rank) -> None:
+        self._add_variable_credit_requirement(solver)
         solver.add(self._generate_seasonal_requirements())
         solver.add(self._generate_requisite_cnf(sophomore, junior, senior))
         self._add_repeatable_requirement(solver)
+
+    def _add_variable_credit_requirement(self, solver: Optimize) -> None:
+        # if set number of credits, nothing needs to be added
+        if self.is_variable_credits():
+            solver.add(And(self._max_credits >= self.get_credits(), self.get_credits() >= self._min_credits))
 
     def _add_repeatable_requirement(self, solver: Optimize) -> None:
         if self._credits_repeatable_for is None:
@@ -526,6 +549,8 @@ class CourseSATSolver:
                 return [f"{req['dept']} {req['number']}"]
             elif type == "all":
                 return [course for opt in req["req"] for course in extract_degree_course(opt)]
+            elif type == "false":
+                return []
             else:
                 return [course for opt in req["options"] for course in extract_degree_course(opt)]
 
@@ -573,7 +598,11 @@ class CourseSATSolver:
                 course_id = course_id[0]
             departments.append(course_id.split(" ")[0])
         department_counts = Counter(departments)
-        most_common_dept = department_counts.most_common()[0][0]
+        logging.debug(f"Department counts: {department_counts}")
+        if len(department_counts) > 0:
+            most_common_dept = department_counts.most_common()[0][0]
+        else:
+            most_common_dept = ""
         logging.debug(f"Calculated most common department: {most_common_dept}")
 
         logging.debug("Creating course requisite dictionary and adding courses from most common dept")
@@ -665,7 +694,7 @@ class CourseSATSolver:
             logging.debug(f"Applying cnf for {course.get_id()} {course.get_name()}...")
             course.apply_cnf(self.solver, self.sophomore, self.junior, self.senior)
 
-            if course.get_credits() == 0:
+            if course.is_variable_credits() and course.get_credits() == 0:
                 non_credit_courses.extend(course.get_refs()[1:])
 
         # We always want to avoid adding tons of 0 credit courses
@@ -733,7 +762,7 @@ class CourseSATSolver:
     def _add_semester_credit_requirements(self) -> None:
         for semester in range(1, self.course_manager.get_semester_count() + 1):
             refs: list[BoolRef] = [course.at(semester) for course in self.course_manager]
-            weights: list[int] = [course.get_credits() for course in self.course_manager]
+            weights: list[int | ArithRef] = [course.get_credits() for course in self.course_manager]
 
             # Upper bound
             self.solver.add(sum([weight * ref for weight, ref in zip(weights, refs)]) <= self.max_credits_per_semester)
@@ -784,7 +813,13 @@ class CourseSATSolver:
             model: ModelRef = self.solver.model()
 
             for funcDeclRef in model.decls():
-                boolRef: BoolRef = funcDeclRef()
+                ref: BoolRef | ArithRef = funcDeclRef()
+                if isinstance(ref, ArithRef):
+                    # Ignore specific values of credit counts for variable credit courses
+                    continue
+
+                boolRef: BoolRef = ref
+
                 if not isinstance(boolRef, BoolRef):
                     raise TypeError(f"Expected model to only consist of BoolRefs, instead got '{funcDeclRef}'")
 
@@ -860,10 +895,25 @@ if __name__ == "__main__":
     with open(os.path.join(DATA_DIR, "degree-names"), "r") as infile:
         degree_names = [line.strip() for line in infile.readlines()]
 
-    # degree_names = ["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"]
     degree_names = ["COMPUTER SCIENCE BS MAJOR (2016-2025) 81SBS"]
 
+    # degree_names = ["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"]
+    degrees = []
     for degree in degree_names:
+        if degree in [
+            "POLITICAL SCIENCE BA (2008-present)   940BA",
+            "HISTORY: GLOBAL STUDIES BA  (2024-2025) 963BA",
+            "SOCIAL WORK BSW (2024-2025)  450BSW",
+            "MATERIALS SCIENCE AND ENGINEERING BS (2024-PRESENT) 35BBS",
+            "MATERIALS SCIENCE ENGINEERING TECHNOLOGY BS (2024-PRESENT) 35CBS",  # Huh, this is different
+            "THEATRE: THEATRE FOR YOUTH AND COMMUNITIES BA MAJOR (2024-PRESENT) 49FBA",
+            "RELIGIOUS STUDIES BA MAJOR (2024-PRESENT) 641BA",
+            "PHILOSOPHY BA MAJOR (2024-PRESENT) 650BA",
+        ]:
+            continue
+        degrees.append(degree)
+
+    for degree in degrees:
         logging.info(f"Running for {degree}...")
         c: CourseSATSolver = CourseSATSolver(
             semester_count=8,  # Number of semester to calculate for
