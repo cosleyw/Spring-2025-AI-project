@@ -562,6 +562,34 @@ class TestCourseSATSolver(unittest.TestCase):
 
         logging.info(c.get_plan_with_ids())
 
+    def test_disjoint_degrees(self):
+        c: CourseSATSolver = self.create_with_defaults(
+            semester_count=1,
+            courses_file_name=test_path("cs-courses-noreqs.json"),
+            degrees_file_name=test_path("disjoint-degrees.json"),
+            desired_degree_ids=["a", "b"],
+        )
+
+        c.minimize()
+        self.assertTrue(c.solve(), "Disjoint degrees should be solvable")
+        flat_plan = self.flatten(c.get_plan_with_ids())
+
+        self.assertEqual(set(flat_plan), set(["cs 1410", "cs 1510"]), "Disjoint degrees should require all 2 courses")
+
+    def test_overlapping_degrees_simple(self):
+        c: CourseSATSolver = self.create_with_defaults(
+            semester_count=1,
+            courses_file_name=test_path("cs-courses-noreqs.json"),
+            degrees_file_name=test_path("overlapping-degrees-simple.json"),
+            desired_degree_ids=["a", "b"],
+        )
+
+        c.minimize()
+        self.assertTrue(c.solve(), "Overlapping degrees should be solvable")
+        flat_plan = self.flatten(c.get_plan_with_ids())
+
+        self.assertEqual(set(flat_plan), set(["cs 1410"]), "Overlapping degrees should only take 1 required course")
+
 
 if __name__ == "__main__":
     unittest.main()

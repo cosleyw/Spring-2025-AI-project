@@ -227,10 +227,10 @@ class ReqFalse(DegreeRequirement):
 
 @typechecked
 class ReqCourse(DegreeRequirement):
-    def __init__(self, course):
+    def __init__(self, course, degree_id):
         super().__init__()
         self._course = course
-        self._ref = course.add_as_degree_req()
+        self._ref = course.add_as_degree_req(degree_id)
 
     @override
     def get_courses(self) -> list[Any]:
@@ -254,34 +254,22 @@ class DegreeRequirementManager:
     def __init__(
         self,
         course_manager,
+        degree_id: str,
         requirements: dict[Any, Any],
     ):
         self._raw_requirements = requirements
+        self._degree_id: str = degree_id
         self._requirements: DegreeRequirement
         self._course_manager = course_manager
 
-    def setup(
-        self,
-        course,
-        degree,
-        sophomore,
-        junior,
-        senior,
-    ) -> None:
-        self._requirements = self._parse_recursive(
-            self._raw_requirements,
-            course,
-            degree,
-            sophomore,
-            junior,
-            senior,
-        )
+    def setup(self) -> None:
+        self._requirements = self._parse_recursive(self._raw_requirements)
 
     # TODO: Delete this method, it was only here for testing
     def get_courses(self):
         return self._requirements.get_courses()
 
-    def _parse_recursive(self, requirements: Any, course, degree, sophomore, junior, senior) -> DegreeRequirement:
+    def _parse_recursive(self, requirements: Any) -> DegreeRequirement:
         def parse_recursive_helper(requirements: Any, required=False):
             type = requirements.get("type")
             # TODO: Can change this back to recrusive call with req.get(node) as requirements
@@ -294,7 +282,7 @@ class DegreeRequirementManager:
                 number = requirements.get("number")
                 course_id = f"{dept} {number}"
                 course = self._course_manager.by_id(course_id)
-                return ReqCourse(course)
+                return ReqCourse(course, self._degree_id)
             elif type.endswith("-range"):
                 minimum = requirements.get("n")
                 maximum = requirements.get("m")

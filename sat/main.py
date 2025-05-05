@@ -98,7 +98,7 @@ class DegreeManager:
         senior: "Rank",
     ) -> None:
         for degree in self:
-            degree.get_requirements().setup(Course, Degree, sophomore, junior, senior)
+            degree.get_requirements().setup()
             logging.debug("Printing degree requirement classes:")
             for course in degree.get_requirements().get_courses():
                 logging.debug(f"\t{course._name}")
@@ -132,7 +132,7 @@ class Degree:
         self._id: Any = id
         self._name: str = name
         self._ref = ref_manager.allocate(self)
-        self._requirements: DegreeRequirementManager = DegreeRequirementManager(course_manager, requirements)
+        self._requirements: DegreeRequirementManager = DegreeRequirementManager(course_manager, id, requirements)
 
     def get_requirements(self) -> DegreeRequirementManager:
         return self._requirements
@@ -260,7 +260,7 @@ class Course:
         self._start_year = start_year
         self._season: Offering = Offering(semester.upper())
         self._refs: list[BoolRef] = []
-        self._taken_for_specific_rg: list[BoolRef] = []
+        self._taken_for_specific_rg: dict[str, list[BoolRef]] = {}
         self._course_manager: CourseManager = course_manager
         self._ref_manager: RefManager = ref_manager
         for _ in range(self._course_manager.get_semester_count() + 1):  # +1 because allows a slot for transfer credits
@@ -281,24 +281,28 @@ class Course:
     def get_credits(self) -> int | ArithRef:
         return self._credits
 
-    # TODO: Make sure this is right
-    def add_as_degree_req(self) -> BoolRef:
+    def add_as_degree_req(self, degree_id: str) -> BoolRef:
         ref = self._ref_manager.allocate(None)
-        self._taken_for_specific_rg.append(ref)
+        if degree_id not in self._taken_for_specific_rg:
+            self._taken_for_specific_rg[degree_id] = []
+        self._taken_for_specific_rg[degree_id].append(ref)
         return ref
 
-    def get_taken_as_degree_req(self) -> list[BoolRef]:
-        return self._taken_for_specific_rg
+    def get_taken_as_degree_req(self, degree_id: str) -> list[BoolRef]:
+        return self._taken_for_specific_rg[degree_id]
 
     def generate_taken_requirement_cnf(self) -> BoolRef:
         requirements: list[BoolRef] = []
 
         # If taken for credit, it has to be taken!
-        for taken_for_specific_rg in self._taken_for_specific_rg:
-            requirements.append(Implies(taken_for_specific_rg, Or(self.at())))
+        for taken_for_degree in self._taken_for_specific_rg.values():
+            for taken_for_specific_rg in taken_for_degree:
+                requirements.append(Implies(taken_for_specific_rg, Or(self.at())))
 
-        # Cannot take for credit multiple places
-        requirements.append(sum(self._taken_for_specific_rg) <= 1)
+        # Cannot take for credit multiple places for a single degree
+        # but can take across multiple degrees
+        for taken_for_degree in self._taken_for_specific_rg.values():
+            requirements.append(sum(taken_for_degree) <= 1)
 
         return And(requirements)
 
@@ -632,6 +636,9 @@ class CourseSATSolver:
         increase_in_known_course_count = after_known_course_count - previous_known_course_count
         logging.info(f"Increase course count by {increase_in_known_course_count} when adding reqs")
 
+        if after_known_course_count > 100:
+            logging.warning(f"Relevant course count is {after_known_course_count} for {', '.join(self.desired_degree_ids)}")
+
         return set(known_courses.keys())
 
     def _extract_course_reqs(self, course: dict[Any, Any]) -> list[str]:
@@ -809,7 +816,7 @@ class CourseSATSolver:
 
         logging.debug("Attempting to solve")
         if self.solver.check() == sat:
-            logging.info("SAT")
+            logging.info(f"SAT - {', '.join(self.desired_degree_ids)}")
             model: ModelRef = self.solver.model()
 
             for funcDeclRef in model.decls():
@@ -838,7 +845,7 @@ class CourseSATSolver:
             return True
 
         else:
-            logging.info("UNSAT")
+            logging.info(f"UNSAT - {', '.join(self.desired_degree_ids)}")
             return False
 
     def get_plans_with_ids(self) -> list[list[Any]]:
@@ -895,9 +902,6 @@ if __name__ == "__main__":
     with open(os.path.join(DATA_DIR, "degree-names"), "r") as infile:
         degree_names = [line.strip() for line in infile.readlines()]
 
-    degree_names = ["COMPUTER SCIENCE BS MAJOR (2016-2025) 81SBS"]
-
-    # degree_names = ["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"]
     degrees = []
     for degree in degree_names:
         if degree in [
@@ -906,12 +910,75 @@ if __name__ == "__main__":
             "SOCIAL WORK BSW (2024-2025)  450BSW",
             "MATERIALS SCIENCE AND ENGINEERING BS (2024-PRESENT) 35BBS",
             "MATERIALS SCIENCE ENGINEERING TECHNOLOGY BS (2024-PRESENT) 35CBS",  # Huh, this is different
+            "SOCIAL SCIENCE TEACHING - PLAN B - All Social Science  (2024-2025)  90BBAT",  # Solvable but a little bit slower
             "THEATRE: THEATRE FOR YOUTH AND COMMUNITIES BA MAJOR (2024-PRESENT) 49FBA",
             "RELIGIOUS STUDIES BA MAJOR (2024-PRESENT) 641BA",
             "PHILOSOPHY BA MAJOR (2024-PRESENT) 650BA",
+            "EARLY CHILDHOOD EDUCATION TEACHING BA (2022-2025) 210BAT",
+            "ECONOMICS: APPLIED ECONOMIC ANALYSIS  (2023-present)  926BA",
+            "GEOGRAPHY BA  (2022-present)   97RBA",
+            "PSYCHOLOGY BA MAJOR  (2023-2025) 400BA",
+            "GERONTOLOGY: SOCIAL SCIENCE TRACK MAJOR (2023-2025) 31SBA",
+            "FAMILY SERVICES BA MAJOR (2024-2025) 31FBA",
+            "ENVIRONMENTAL RESOURCE MANAGEMENT- ENV. COMPLIANCE (2024-present) 97PBA",
+            "HISTORY TEACHING BA (2024-2025) 960BAT",
+            "COMMUNICATION DISORDERS BA MAJOR (2023-PRESENT) 512BA",
+            "HISTORY BA (2024-present) 960BA",
+            "PUBLIC HEALTH (2024-2025) 41BBA",
+            "PHYSICAL EDUCATION TEACHING MAJOR  (2022-2025)  420BAT",
+            "PUBLIC ADMINISTRATION BA MAJOR (2023-present) 94XBA",
+            "SOCIOLOGY BA MAJOR (2023-2025)   980BA",
+            "AUTOMATION ENGINEERING TECHNOLOGY BS (2024-present) - 35ABS",
+            "MECHANICAL ENGINEERING TECHNOLOGY BS (2024-PRESENT) 35DBS",
+            "THEATRE: DESIGN AND PRODUCTION BA MAJOR (2024-PRESENT) 49PBA",
+            "THEATRE: PERFORMANCE BA MAJOR (2024-PRESENT) 49CBA",
+            "PERFORMANCE BM: VOCAL TRACK (2020-PRESENT)    52LBM",
+            "PERFORMANCE BM: JAZZ STUDIES TRACK (2024-PRESENT)  52KBM",
+            "COMPOSITION BM (2024-PRESENT)  52UBM",
+            "MUSIC: GENERAL STUDIES IN MUSIC BA  (2017-present)   5T1BA",
+            "MUSIC: JAZZ STUDIES BA MAJOR (2017-present)   5T2BA",
+            "MUSIC: STRING PEDAGOGY BA MAJOR (2017-present)   5T3BA",
+            "MUSIC: PERFORMING ARTS MANAGEMENT BA MAJOR (2023-present)  5T4BA",
+            "MUSIC: MUSIC TECHNOLOGY BA MAJOR (2020-2025)  5T5BA",
+            "MUSIC: MUSIC HISTORY BA MAJOR (2020-present)   5T6BA",
+            "STATISTICS AND ACTUARIAL SCIENCE BA MAJOR (2024-present) 80RBA",
+            "BIOLOGY BS MAJOR (2024-present) 84ABS",
+            "BIOLOGY:ECOLOGY/EVOLUTION&ORGANISMAL HONORS RESEARCH BA MAJOR(2024-2025)84JBA",
+            "BIOLOGY BA MAJOR (2024-present) 84KBA",
+            "BIOLOGY 3+1 JOINT BA MAJOR (2024-present) 84NBA",
+            "PHYSICS: CUSTOM EMPHASIS BA MAJOR (2024-present) 88BBA",
+            "KINESIOLOGY MAJOR: EXERCISE SCIENCE EMPHASIS (2024-present) 42UBA",
+            "COMPREHENSIVE SECONDARY SCIENCE TEACHING (2020-2025) 82ABAT",
+            "BIOLOGY TEACHING BA MAJOR (2024-2025) 844BAT",
+            "EARTH SCIENCE TEACHING BA MAJOR (2020-2025) 870BAT",
+            "PHYSICS BA TEACHING MAJOR (2020-2025) 880BAT",
+            "MARKETING: MARKETING MANAGEMENT BA (2023-2025) 13KBA",
+            "MANAGEMENT INFORMATION SYSTEMS BA (2024-2025) 14DBA",
+            "HUMAN RESOURCE MANAGEMENT BA (2023-2025) 15TBA",
+            "MANAGEMENT: BUSINESS ADMINISTRATION BA (2023-2025)  15DBA",
+            "SUPPLY CHAIN MANAGEMENT BA (2023-2025)  15SBA",
+            "ACCOUNTING BA (2023-2025)  152BA",
+            "FINANCE: FINANCIAL MANAGEMENT BA (2023-2025)  16FBA",
+            "REAL ESTATE BA (2023-2025) 166BA",
+            "INTERNATIONAL BUSINESS MINOR (2024-present)  101MIN",
+            "ENTREPRENEURSHIP MINOR (2024-2025) 131MIN",
+            "MARKETING MINOR (2024-present)  15NMIN",
+            "REAL ESTATE - BUSINESS MINOR (2022-2025)  16BMIN",
+            "FINANCE MINOR - For Business Majors (2023-2025) 16CMIN",
+            "CYBERSECURITY AND SYSTEM ADMINISTRATION BS MAJOR (2024-present) 81MBS",
+            "COMPUTER SCIENCE BS MAJOR (2016-2025) 81SBS",
+            "UNI BACHELOR OF SCIENCE NURSING (2024-2025) 41RBSN",
+            "GERONTOLOGY: LONG TERM CARE ADMINISTRATION (2023-present) 31LBA",
+            "MENTAL HEALTH MINOR (2024-present)  406MIN",
+            "KINESIOLOGY MAJOR: PRE-HEALTH EMPHASIS (2024-present) 42VBA",
+            "PERFORMANCE BM: INSTRUMENTAL TRACK A (2021-PRESENT)   52HBM",
+            "GEOGRAPHIC INFORMATION SCIENCE BS  (2024-present)   97SBS",
         ]:
             continue
         degrees.append(degree)
+
+    # degrees = ["COMPUTER SCIENCE BS MAJOR (2016-2025) 81SBS"]
+    degrees = ["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"]
 
     for degree in degrees:
         logging.info(f"Running for {degree}...")
@@ -921,27 +988,14 @@ if __name__ == "__main__":
             max_credits_per_semester=18,  # Maximum credits (inclusive)
             starts_as_fall=True,
             start_year=2025,
-            transferred_course_ids=[],  # ["CS1410", "CS1510"],
-            desired_course_ids=[
-                # ("cs 1410", 1),
-                # ("cs 3470",),
-            ],
-            undesired_course_ids=[
-                # ("cs 3810",),
-                # ("cs 4410",),
-                # ("cs 5410",),
-                # ("cs 4550",),
-            ],
-            # desired_degree_ids=["CS:BA"],
-            # desired_degree_ids=["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"],
+            transferred_course_ids=[],
+            desired_course_ids=[],
+            undesired_course_ids=[],
             desired_degree_ids=[degree],
             first_semester_sophomore=3,  # NOTE: One-indexed!
             first_semester_junior=5,
             first_semester_senior=7,
         )
-        ########################
-        ### END CONFIG VARIABLES
-        ########################
 
         c.setup()
         logging.info("Finished setup")
@@ -955,18 +1009,3 @@ if __name__ == "__main__":
                 logging.error(f"No valid schedule for '{degree}'")
         except Exception as e:
             logging.error(f"Received error {e} when trying to schedule {degree}")
-
-        # while c.solve():
-        #    pass
-
-        # plan_ids = []
-        # for plan in c.possible_plans:
-        #    semester_ids = []
-        #    for semester in plan:
-        #        courses = [c.get_id() for c in semester]
-        #        semester_ids.append(courses)
-        #    plan_ids.append(semester_ids)
-        # logging.debug(plan_ids)
-        #
-        # logging.debug(c.possible_plans)
-        # c.display()
