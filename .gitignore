@@ -9,5 +9,6 @@ data/raw_data.json
 
 # Python specific ignores
 sat/log.*
+sat/access.log
 venv/
 __pycache__/

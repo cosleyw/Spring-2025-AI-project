@@ -11,7 +11,7 @@ serve:
 	source venv/bin/activate && fastapi dev --host 0.0.0.0 server.py
 
 serve-prod:
-	source venv/bin/activate && uvicorn server:app --host 0.0.0.0 --timeout-keep-alive 600
+	source venv/bin/activate && uvicorn server:app --host 0.0.0.0 --timeout-keep-alive 600 --port 80 >> access.log
 
 run:
 	source venv/bin/activate && python main.py
