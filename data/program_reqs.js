@@ -39,7 +39,7 @@ let course_wildcard = (dept, wc) => {
 		console.error(set);
 	}
 
-	return AtleastNCourses(1,1)(...set.map(v => Course(dept, number.toString().trim())));
+	return AtleastNCourses(1,1)(...set.map(v => Course(dept, v)));
 }
 
 
@@ -321,12 +321,12 @@ let type_map = {
 }
 
 
-let rm_graduate_courses = (tree) => ({
-	course: (tr) => tr.number < 5000 ? tr : False(),
-	all: (tr) => All(...tr.req.map(rm_graduate_courses)),
-	"course-range": (tr) => AtleastNCourses(tr.n, tr.m)(...tr.options.map(rm_graduate_courses)),
-	"credit-range": (tr) => AtleastNCredits(tr.n, tr.m)(...tr.options.map(rm_graduate_courses)),
-	tag: (tr) => Tag(tr.info, rm_graduate_courses(tr.node)),
+let rm_course = (pred) => (tree) => ({
+	course: (tr) => pred(tr) ? tr : False(),
+	all: (tr) => All(...tr.req.map(rm_course(pred))),
+	"course-range": (tr) => AtleastNCourses(tr.n, tr.m)(...tr.options.map(rm_course(pred))),
+	"credit-range": (tr) => AtleastNCredits(tr.n, tr.m)(...tr.options.map(rm_course(pred))),
+	tag: (tr) => Tag(tr.info, rm_course(pred)(tr.node)),
 	true: (tr) => tr,
 	false: (tr) => tr
 })[tree.type](tree);
@@ -441,8 +441,9 @@ let fix_tree = (tr) => {
 			if(/#/.test(number))
 				return [course_wildcard(course_name[0], number.trim())];
 
-			return [Course(course_name[0], number.toString().trim())];
+			return [Course(course_name[0], number)];
 		}catch (e){
+			console.error(e, number);
 			return [];
 		}
 	}
@@ -471,7 +472,17 @@ let fix_tree = (tr) => {
 
 	delete tr["PROFESSIONAL EDUCATION REQUIREMENTS"];
 
-	return Object.fromEntries(Object.entries(tr).map(v => [v[0], simp_tree(rm_graduate_courses(fix_rg(v[1])))]));
+	return Object.fromEntries(Object.entries(tr).map(v => [v[0], 
+		simp_tree(rm_course(tr => {
+			if(tr.number >= 5000)
+				return false;
+
+			if(courses.every(v => v.dept != tr.dept || v.number != tr.number))
+				return false;
+
+			return true;
+		})(fix_rg(v[1])))
+	]));
 }
 
 
