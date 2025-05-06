@@ -167,6 +167,20 @@ class TestCourseSATSolver(unittest.TestCase):
             main_taken_sem = self.index_of("cs 2100", plan)
             self.assertEqual(req_taken_sem, main_taken_sem, "Co taken same semester as main course")
 
+    def test_mutual_coreq(self):
+        c: CourseSATSolver = self.create_with_defaults(
+            desired_degree_ids=["cs 2100"],
+            courses_file_name=test_path("mutual-coreq.json"),
+            degrees_file_name=test_path("single-course-degree.json"),
+            semester_count=1,
+        )
+
+        self.assertTrue(c.solve(), "Should be able to solve with mutual coreqs")
+        flat_plan = self.flatten(c.get_plan_with_ids())
+
+        self.assertEqual(len(flat_plan), 2, "Should take both mutual coreqs")
+        self.assertTrue(set(flat_plan), set(["cs 1100", "cs 2100"]))
+
     def test_preorcoreq(self):
         c: CourseSATSolver = self.create_with_defaults(
             desired_degree_ids=["cs 2100"],
