@@ -542,7 +542,7 @@ class CourseSATSolver:
             if not self.course_manager.by_id(course_id):
                 raise Exception(f"Attempting to transfer an invalid course id '{course_id}'.")
 
-    def _extract_known_courses(self, degrees: list[dict[Any, Any]]) -> dict[str, bool]:
+    def _extract_degree_courses(self, degrees: list[dict[Any, Any]]) -> dict[str, bool]:
         logging.debug("Extracting known course")
 
         def extract_degree_course(req: dict[Any, Any]):
@@ -564,16 +564,6 @@ class CourseSATSolver:
             for course in extract_degree_course(degree):
                 courses[course] = True
 
-        logging.debug("Adding courses from other user preference")
-        for course in self.undesired_course_ids:
-            courses[course[0]] = True
-
-        for course in self.desired_course_ids:
-            courses[course[0]] = True
-
-        for course in self.transferred_course_ids:
-            courses[course] = True
-
         return courses
 
     def _determine_relevant_courses(self, degrees_file_name: str, courses_file_name: str) -> set[str]:
@@ -594,7 +584,7 @@ class CourseSATSolver:
 
         logging.debug("Extracted desired degrees")
 
-        known_courses = self._extract_known_courses(degrees)
+        known_courses = self._extract_degree_courses(degrees)
 
         departments = []
         for course_id in known_courses:
@@ -607,7 +597,18 @@ class CourseSATSolver:
             most_common_dept = department_counts.most_common()[0][0]
         else:
             most_common_dept = ""
+            logging.warning("No most common department detected")
         logging.debug(f"Calculated most common department: {most_common_dept}")
+
+        logging.debug("Adding courses from other user preference")
+        for course in self.undesired_course_ids:
+            known_courses[course[0]] = True
+
+        for course in self.desired_course_ids:
+            known_courses[course[0]] = True
+
+        for course in self.transferred_course_ids:
+            known_courses[course] = True
 
         logging.debug("Creating course requisite dictionary and adding courses from most common dept")
         course_requirement_map = {}
@@ -979,6 +980,7 @@ if __name__ == "__main__":
 
     # degrees = ["COMPUTER SCIENCE BS MAJOR (2016-2025) 81SBS"]
     degrees = ["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"]
+    # degrees = ["MECHANICAL ENGINEERING TECHNOLOGY BS (2024-PRESENT) 35DBS"]
 
     for degree in degrees:
         logging.info(f"Running for {degree}...")
