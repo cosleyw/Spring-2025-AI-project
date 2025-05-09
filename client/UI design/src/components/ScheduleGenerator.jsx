@@ -86,15 +86,7 @@ export default function ScheduleGenerator() {
           term = termOrder[next];
         }
 
-        const courses = ids.map((id) => {
-          const meta = allCourses.find((c) => c.id === id) || {};
-          return {
-            id,
-            code: meta.code || id,
-            name: meta.name || '',
-            credits: meta.credits || 0,
-          };
-        });
+        const courses = ids.map((id) => allCourses.find((c) => c.id === id) || {});
 
         return {
           name: `Semester ${idx + 1}`,
