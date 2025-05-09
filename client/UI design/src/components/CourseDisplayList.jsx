@@ -5,8 +5,6 @@ import ConditionalButton from './ConditionalButton';
 
 function CourseDisplayList({ courses, page_size, onClick }) {
   const [page, setPage] = useState(0);
-  console.log(courses);
-  console.log(courses.length);
 
   const decrement = () => setPage((p) => p - 1);
   const increment = () => setPage((p) => p + 1);
