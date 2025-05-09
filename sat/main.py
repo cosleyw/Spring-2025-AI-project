@@ -452,15 +452,20 @@ class CourseSATSolver:
         desired_degree_ids: list[str],
         courses_file_name: str = COURSES_FILE_NAME,
         degrees_file_name: str = DEGREES_FILE_NAME,
+        plan_file_name: str = "placeholder_name.txt",
     ):
         self.course_manager: CourseManager = CourseManager(semester_count)
         self.degree_manager: DegreeManager = DegreeManager()
+        self.semester_count: int = semester_count
         self.min_credits_per_semester: int = min_credit_per_semester
         self.max_credits_per_semester: int = max_credits_per_semester
         self.starts_as_fall: bool = starts_as_fall
         self.start_year: int = start_year
+        self.first_semester_sophomore: int = first_semester_sophomore
         self.sophomore: Rank = Rank("sophomore", first_semester_sophomore, semester_count)
+        self.first_semester_junior: int = first_semester_junior
         self.junior: Rank = Rank("junior", first_semester_junior, semester_count)
+        self.first_semester_senior: int = first_semester_senior
         self.senior: Rank = Rank("senior", first_semester_senior, semester_count)
         self.transferred_course_ids: list[str] = transferred_course_ids
         self.desired_course_ids: list[tuple[str] | tuple[str, int]] = desired_course_ids
@@ -665,6 +670,52 @@ class CourseSATSolver:
                 for course in sorted(semester, key=lambda course: course.get_id()):
                     print(f"\t{course}")
 
+
+    
+    def savefile(self) -> None:
+        if self.plan is None:
+            raise ValueError("CourseSATSolver needs to be solver before a plan can be saved")
+        if len(self.possible_plans) == 0:
+            raise ValueError("CourseSATSolver needs at least 1 valid solution before a plan can be saved")
+        dateTimeNow = str(datetime.datetime.now())
+        dateTimeNow = dateTimeNow.replace(':','.')
+        path = "plans"
+        if not os.path.exists(path):
+            os.makedirs(path)
+        
+        for plan_id, plan in enumerate(self.possible_plans):
+            filename = "Plan" + str(plan_id + 1) + "-" + dateTimeNow + ".txt"
+            self.plan_file_name = filename
+            with open(os.path.join(path, filename),"w") as f:
+                f.write(f"{filename}")
+            with open(os.path.join(path, filename),"a") as f:
+                f.write(f"\nInput-")
+                f.write(f"\nSemester Count: {self.semester_count}")
+                f.write(f"\nMinimum Credits Per Semester: {self.min_credits_per_semester}")
+                f.write(f"\nMaximum Credits Per Semester: {self.max_credits_per_semester}")
+                f.write(f"\nStart as Fall: {self.starts_as_fall}")
+                f.write(f"\nStart Year: {self.start_year}")
+                f.write(f"\nTransferred Courses: {self.transferred_course_ids}")
+                f.write(f"\nDesired Courses: {self.desired_course_ids}")
+                f.write(f"\nUndesired Courses: {self.undesired_course_ids}")
+                f.write(f"\nDesired Degrees: {self.desired_degree_ids}")
+                f.write(f"\nFirst Semester Sophomore: {self.first_semester_sophomore}")
+                f.write(f"\nFirst Semester Junior: {self.first_semester_junior}")
+                f.write(f"\nFirst Semester Senior: {self.first_semester_senior}")
+                f.write(f"\n \nOutput-")
+            for i, semester in enumerate(plan):
+                semester_name: str
+                if i == 0:
+                    semester_name = "Transferred"
+                else:
+                    semester_name = self._get_semester_name(i)
+                with open(os.path.join(path, filename),"a") as f:
+                    f.write(f"\nSemester {i}: {semester_name}")
+                for course in sorted(semester, key=lambda course: course.get_id()):
+                    with open(os.path.join(path, filename),"a") as f:
+                        f.write(f"\n\t{course}")
+
+    
     def _get_semester_name(self, semester: int) -> str:
         season: str
         year: int
@@ -711,6 +762,7 @@ if __name__ == "__main__":
 
     c.solve()
     c.display()
+    c.safefile()
 
     # while c.solve():
     #    pass
