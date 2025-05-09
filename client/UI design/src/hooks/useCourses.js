@@ -53,5 +53,5 @@ export function useCourses() {
     });
   }
 
-  return { courses, schedule, onDragEnd };
+  return { courses, schedule };
 }
