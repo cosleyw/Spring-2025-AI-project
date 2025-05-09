@@ -1,9 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { Droppable, Draggable }      from 'react-beautiful-dnd';
-import { Link }                      from 'react-router-dom';
+import { Droppable, Draggable }     from '@hello-pangea/dnd';
 import './CourseList.css';
 
-export default function CourseList({ courses }) {
+export default function CourseList({
+  courses,
+  onRegenerate,     // ← new
+  onSelectCourse,
+}) {
   const [search, setSearch] = useState('');
 
   const filtered = useMemo(() => {
@@ -16,54 +19,58 @@ export default function CourseList({ courses }) {
   }, [search, courses]);
 
   return (
-    <div className="left-panel">
-      <input
-        className="course-search"
-        type="text"
-        placeholder="Search courses…"
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-      />
+    <div className="left-panel course-list-container">
+      {/* — fixed header — */}
+      <div className="course-list-header">
+        <button
+          className="regenerate-button"
+          onClick={onRegenerate}
+        >
+         Regenerate From Here
+        </button>
+        <input
+          className="course-search"
+          type="text"
+          placeholder="Search courses…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+      </div>
 
-      <Droppable
-        droppableId="courses"
-        isDropDisabled={true}
-        isCombineEnabled={false}
-        ignoreContainerClipping={false}
-      >
-        {provided => (
-          <div
-            className="course-list"
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-          >
-            {filtered.map((c, idx) => (
-              <Draggable
-                key={c.id}
-                draggableId={c.id}
-                index={idx}
-                isDragDisabled={false}
-                isCombineEnabled={false}
-              >
-                {prov => (
-                  <div
-                    className="course-card"
-                    ref={prov.innerRef}
-                    {...prov.draggableProps}
-                    {...prov.dragHandleProps}
-                  >
-                    <Link to={`/courses/${encodeURIComponent(c.id)}`} className="course-link">
+      {/* — only this area scrolls — */}
+      <div className="course-list-scroller">
+        <Droppable droppableId="courses" isDropDisabled={true}>
+          {provided => (
+            <div
+              className="course-list"
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+            >
+              {filtered.map((c, idx) => (
+                <Draggable
+                  key={c.id}
+                  draggableId={c.id}
+                  index={idx}
+                >
+                  {prov => (
+                    <div
+                      className="course-card"
+                      ref={prov.innerRef}
+                      {...prov.draggableProps}
+                      {...prov.dragHandleProps}
+                      onClick={() => onSelectCourse(c.id)}
+                    >
                       <h4>{c.code}: {c.name}</h4>
-                    </Link>
-                    <button>⭐</button>
-                  </div>
-                )}
-              </Draggable>
-            ))}
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
+                      <button>⭐</button>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </div>
     </div>
   );
 }

@@ -1,49 +1,74 @@
+// src/components/ScheduleViewer.jsx
 import React from 'react';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 import './ScheduleViewer.css';
 
 export default function ScheduleViewer({
   schedule,
-  allCourses,
+  setSchedule,
   onSelectCourse
 }) {
-  if (!Array.isArray(schedule)) {
-    return <div className="middle-panel">No schedule to display</div>;
-  }
+  // helper to remove one course
+  const removeCourse = (semIdx, courseId) => {
+    setSchedule(s =>
+      s.map((sem,i) =>
+        i === semIdx
+          ? { ...sem, courses: sem.courses.filter(c=>c.id!==courseId) }
+          : sem
+      )
+    );
+  };
 
   return (
     <div className="middle-panel">
       {schedule.map((sem, sIdx) => {
-        //  Semester title (I already set sem.name in the generator)
-        const title = sem.name;
-        //  Term + year
-        const term = sem.term;
-        const year = sem.year;
-        //  List of course objects (you built them in generator)
-        const courses = sem.courses || [];
-
-        // Sum up credits
-        const totalCredits = courses.reduce(
-          (sum, c) => sum + (c.credits || 0),
-          0
-        );
-
+        const totalCredits = sem.courses.reduce((sum,c)=>sum+(c.credits||0),0);
         return (
-          <div key={sIdx} className="semester-box">
-            <h4>
-              {term} {year} — {title}{' '}
-              <small className="credit-badge">({totalCredits} cr)</small>
-            </h4>
-
-            {courses.map(c => (
+          <Droppable key={sIdx} droppableId={`sem-${sIdx}`}>
+            {provided => (
               <div
-                key={c.id}
-                className="course-card"
-                onClick={() => onSelectCourse(c.id)}
+                className="semester-box"
+                ref={provided.innerRef}
+                {...provided.droppableProps}
               >
-                {c.code}: {c.name}
+                <h4>
+                  {sem.term} {sem.year} — {sem.name}
+                  <small className="credit-badge">
+                    ({totalCredits} cr)
+                  </small>
+                </h4>
+
+                {sem.courses.map((c, idx) => (
+                  <Draggable
+                    key={c.id}
+                    draggableId={c.id}
+                    index={idx}
+                  >
+                    {prov => (
+                      <div
+                        className="course-card"
+                        ref={prov.innerRef}
+                        {...prov.draggableProps}
+                        {...prov.dragHandleProps}
+                      >
+                        <span
+                          className="remove-btn"
+                          onClick={() => removeCourse(sIdx, c.id)}
+                        >×</span>
+                        <span
+                          className="course-link"
+                          onClick={() => onSelectCourse(c.id)}
+                        >
+                          {c.code}: {c.name}
+                        </span>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
               </div>
-            ))}
-          </div>
+            )}
+          </Droppable>
         );
       })}
     </div>

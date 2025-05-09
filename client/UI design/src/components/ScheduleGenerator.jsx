@@ -1,20 +1,29 @@
+// src/components/ScheduleGenerator.jsx
+
 import React, { useState, useEffect } from 'react';
-import ScheduleViewer       from './ScheduleViewer';
-import CourseDetailPanel    from './CourseDetailPanel';
-import { get_degrees,
-         get_courses,
-         generate_schedule } from '../api';
+import { useNavigate }                from 'react-router-dom';
+import { useSchedule }                from '../context/ScheduleContext';
+import DegreeAccordion               from './DegreeAccordion';
+import { get_degrees, get_courses, generate_schedule } from '../api';
 import './ScheduleGenerator.css';
 
 export default function ScheduleGenerator() {
+  // pull both the current schedule & setter from context
+  const { schedule, setSchedule } = useSchedule();
+  const navigate                  = useNavigate();
+
+  //  seed desired-ids from whatever the user has currently arranged
+  const preDesired = schedule.flatMap(s => s.courses.map(c => c.id));
+
   const [degrees,    setDegrees]    = useState([]);
   const [allCourses, setAllCourses] = useState([]);
-
+  const [loading,    setLoading]    = useState(false);
+  const [error,      setError]      = useState('');
   const [form, setForm] = useState({
     desired_degree_ids_str:   '',
-    semester_count:           8,
-    start_term:               'Fall',
-    start_year:               new Date().getFullYear(),
+    semester_count:           schedule.length,
+    start_term:               schedule[0]?.term  || 'Fall',
+    start_year:               schedule[0]?.year  || new Date().getFullYear(),
     min_credit_per_semester:  12,
     max_credit_per_semester:  18,
     transfer_ids:             [],
@@ -22,14 +31,10 @@ export default function ScheduleGenerator() {
     soph_semester:            3,
     jr_semester:              5,
     sr_semester:              7,
-    desired_ids:              []
+    desired_ids:              preDesired
   });
 
-  const [schedule,       setSchedule]       = useState(null);
-  const [loading,        setLoading]        = useState(false);
-  const [error,          setError]          = useState('');
-  const [selectedCourse, setSelectedCourse] = useState(null);
-
+  // load the dropdown data
   useEffect(() => {
     get_degrees().then(setDegrees).catch(console.error);
     get_courses().then(setAllCourses).catch(console.error);
@@ -49,31 +54,29 @@ export default function ScheduleGenerator() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setLoading(true);
 
     try {
-      // fetch raw array-of-id-arrays (with dummy[0])
-      const raw = await generate_schedule(form);
-
-      // drop dummy slot, take exactly N
+      //  raw schedule arrays (with dummy index 0)
+      const raw     = await generate_schedule(form);
       const onlyIds = raw.slice(1, 1 + form.semester_count);
 
-      // build term/year labels in sequence
+      //  enrich & label each semester
       const termOrder = ['Fall','Spring','Summer'];
       let term = form.start_term;
       let year = form.start_year;
 
-      // enrich into [{ name, term, year, courses:[{…}] }, …]
       const enriched = onlyIds.map((ids, idx) => {
         if (idx > 0) {
           let next = termOrder.indexOf(term) + 1;
           if (next >= termOrder.length) {
             next = 0;
-            year += 1;
+            year++;
           }
           term = termOrder[next];
         }
+
         const courses = ids.map(id => {
           const meta = allCourses.find(c => c.id === id) || {};
           return {
@@ -83,15 +86,18 @@ export default function ScheduleGenerator() {
             credits: meta.credits || 0
           };
         });
+
         return {
-          name:    `Semester ${idx + 1}`,
+          name:   `Semester ${idx + 1}`,
           term,
           year,
           courses
         };
       });
 
+      //  stash it & go back Home
       setSchedule(enriched);
+      navigate('/');
     } catch (err) {
       console.error(err);
       setError('Failed to generate schedule: ' + err.message);
@@ -100,36 +106,15 @@ export default function ScheduleGenerator() {
     }
   };
 
-  // show the grid + detail panel once generated
-  if (Array.isArray(schedule)) {
-    return (
-      <div className="schedule-viewer-container">
-        <ScheduleViewer
-          schedule={schedule}
-          allCourses={allCourses}
-          onSelectCourse={setSelectedCourse}
-        />
-        {selectedCourse && (
-          <CourseDetailPanel
-            courseId={selectedCourse}
-            onClose={() => setSelectedCourse(null)}
-          />
-        )}
-      </div>
-    );
-  }
-
-  // otherwise,the original form (unchanged)
   return (
     <div className="schedule-generator">
       <h2>Schedule Configuration</h2>
       {error && <div className="error">{error}</div>}
 
       <form onSubmit={handleSubmit}>
-        {/* … My full set of <label> / <select> / <input> fields is the same*/}
-
-        <label>
-          Degree:
+        {/*  Row 1  */}
+        <div className="form-group">
+          <label>Degree:</label>
           <select
             required
             value={form.desired_degree_ids_str}
@@ -140,95 +125,80 @@ export default function ScheduleGenerator() {
               <option key={d.id} value={d.id}>{d.name}</option>
             ))}
           </select>
-        </label>
+        </div>
 
-        <label>
-          # Semesters:
+        <div className="form-group requirements-group">
+          <label>Requirements:</label>
+          <div className="tree-wrapper">
+            <DegreeAccordion degreeId={form.desired_degree_ids_str} />
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label># Semesters:</label>
           <input
-            type="number"
-            min={1}
+            type="number" min={1}
             value={form.semester_count}
             onChange={handleChange('semester_count')}
           />
-        </label>
+        </div>
 
-        <label>
-          Start Term &amp; Year:
-          <select
-            value={form.start_term}
-            onChange={handleChange('start_term')}
-          >
-            {['Fall','Spring','Summer'].map(t => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-          <input
-            type="number"
-            min={2023}
-            value={form.start_year}
-            onChange={handleChange('start_year')}
-          />
-        </label>
-
-        <fieldset>
-          <legend>Credits per Semester</legend>
-          <label>
-            Min:
+        <div className="form-group">
+          <label>Start Term &amp; Year:</label>
+          <div className="inline-fields">
+            <select
+              value={form.start_term}
+              onChange={handleChange('start_term')}
+            >
+              {['Fall','Spring','Summer'].map(t=>(
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
             <input
-              type="number"
-              min={0}
-              value={form.min_credit_per_semester}
-              onChange={handleChange('min_credit_per_semester')}
+              type="number" min={2023}
+              value={form.start_year}
+              onChange={handleChange('start_year')}
             />
-          </label>
-          <label>
-            Max:
-            <input
-              type="number"
-              min={0}
-              value={form.max_credit_per_semester}
-              onChange={handleChange('max_credit_per_semester')}
-            />
-          </label>
-        </fieldset>
+          </div>
+        </div>
 
-        <label>
-          Transfer Courses:
+        {/*  Row 2 */}
+        <div className="form-group transfer-group">
+          <label>Transfer Courses:</label>
           <select
             multiple
             value={form.transfer_ids}
             onChange={handleMulti('transfer_ids')}
           >
-            {allCourses.map(c => (
+            {allCourses.map(c=>(
               <option key={c.id} value={c.id}>
                 {c.code} — {c.name}
               </option>
             ))}
           </select>
-        </label>
+        </div>
 
-        <label>
-          Blocked Courses:
+        <div className="form-group blocked-group">
+          <label>Blocked Courses:</label>
           <select
             multiple
             value={form.block_ids}
             onChange={handleMulti('block_ids')}
           >
-            {allCourses.map(c => (
+            {allCourses.map(c=>(
               <option key={c.id} value={c.id}>
                 {c.code} — {c.name}
               </option>
             ))}
           </select>
-        </label>
+        </div>
 
-        <fieldset>
+        <fieldset className="form-group standing-group">
           <legend>Standing Transitions</legend>
           <label>
             Sophomore from Sem#:
             <input
-              type="number"
-              min={1}
+              type="number" min={1}
               value={form.soph_semester}
               onChange={handleChange('soph_semester')}
             />
@@ -236,8 +206,7 @@ export default function ScheduleGenerator() {
           <label>
             Junior from Sem#:
             <input
-              type="number"
-              min={1}
+              type="number" min={1}
               value={form.jr_semester}
               onChange={handleChange('jr_semester')}
             />
@@ -245,30 +214,54 @@ export default function ScheduleGenerator() {
           <label>
             Senior from Sem#:
             <input
-              type="number"
-              min={1}
+              type="number" min={1}
               value={form.sr_semester}
               onChange={handleChange('sr_semester')}
             />
           </label>
         </fieldset>
 
-        <label>
-          Desired Courses (any term):
+        <fieldset className="form-group credit-group">
+          <legend>Credits per Semester</legend>
+          <label>
+            Min:
+            <input
+              type="number" min={0}
+              value={form.min_credit_per_semester}
+              onChange={handleChange('min_credit_per_semester')}
+            />
+          </label>
+          <label>
+            Max:
+            <input
+              type="number" min={0}
+              value={form.max_credit_per_semester}
+              onChange={handleChange('max_credit_per_semester')}
+            />
+          </label>
+        </fieldset>
+
+        {/* Row 3  */}
+        <div className="form-group desired-group">
+          <label>Desired Courses (any term):</label>
           <select
             multiple
             value={form.desired_ids}
             onChange={handleMulti('desired_ids')}
           >
-            {allCourses.map(c => (
+            {allCourses.map(c=>(
               <option key={c.id} value={c.id}>
                 {c.code} — {c.name}
               </option>
             ))}
           </select>
-        </label>
+        </div>
 
-        <button type="submit" disabled={loading}>
+        <button
+          type="submit"
+          className="generate-button"
+          disabled={loading}
+        >
           {loading ? 'Generating…' : 'Generate Schedule'}
         </button>
       </form>

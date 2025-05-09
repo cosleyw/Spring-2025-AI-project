@@ -1,0 +1,37 @@
+/* src/components/DegreeAccordion.css */
+.degree-accordion-container {
+    background: #721e1e;
+    padding: 8px;
+    overflow-y: auto;
+    max-height: 100%;        /* fill the wrapper */
+    font-family: sans-serif;
+    font-size: 14px;
+  }
+  
+  .degree-accordion-container summary {
+    cursor: pointer;
+    font-weight: 600;
+    list-style: none;
+    padding: 2px 0;
+  }
+  
+  .degree-accordion-container details > .children {
+    padding-left: 1em;
+    margin-bottom: 4px;
+    border-left: 1px dotted #d63434;
+  }
+  
+  .degree-accordion-container .leaf {
+    margin: 2px 0;
+    padding-left: 0.5em;
+  }
+  
+  .degree-accordion-container .error {
+    color: #c00;
+  }
+  
+  .degree-accordion-container .placeholder {
+    color: #666;
+    font-style: italic;
+  }
+  

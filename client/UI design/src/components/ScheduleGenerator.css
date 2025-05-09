@@ -1,6 +1,4 @@
-/* src/components/ScheduleGenerator.css */
-
-.schedule-generator {
+ .schedule-generator {
   max-width: 1000px;
   margin: 32px auto;
   padding: 32px;
@@ -8,96 +6,107 @@
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
-
+/* Heading spans entire grid */
 .schedule-generator h2 {
-  margin-top: 0;
-  margin-bottom: 24px;
+  grid-column: 1 / -1;
+  margin: 0 0 24px;
   font-size: 1.6rem;
   color: #222;
 }
 
+/* 4‐column, 3‐row layout */
 .schedule-generator form {
   display: grid;
-  grid-template-columns: 
-    minmax(150px, 1fr)   /* left column (labels + small inputs) */
-    2fr                  /* transfer courses list */
-    2fr                  /* blocked courses list */
-    auto;                /* button column */
+  grid-template-columns:
+    minmax(150px, 1fr)  /* col1 */
+    2fr                 /* col2 */
+    minmax(180px,1fr)   /* col3 */
+    minmax(180px,1fr);  /* col4 */
+  grid-template-rows:
+    auto  /* row1: degree, sem, term/year, credits */
+    auto  /* row2: requirements, transfer, blocked, standing */
+    auto; /* row3: desired, generate button */
   gap: 16px 24px;
   align-items: start;
 }
 
-.schedule-generator .form-group {
+/* Common field styling */
+.form-group {
   display: flex;
   flex-direction: column;
-  opacity: 0.8;
+  opacity: 0.9;
 }
-
-.schedule-generator .form-group label {
-  margin-bottom: 8px;
+.form-group label {
+  margin-bottom: 4px;
   font-weight: 600;
   color: #333;
 }
-
-.schedule-generator .form-group input[type="number"],
-.schedule-generator .form-group select {
+.form-group input,
+.form-group select {
   width: 100%;
-  padding: 8px;
+  padding: 4px;
   border: 1px solid #444;
   border-radius: 4px;
   background: #111;
   color: #fff;
 }
 
-.schedule-generator select[multiple] {
-  /* the multi-select lists */
-  width: 100%;
-  height: 160px;
-  padding: 8px;
-  border: 1px solid #444;
-  border-radius: 4px;
-  background: #111;
-  color: #fff;
+/* inline term+year fields */
+.inline-fields {
+  display: flex;
+  gap: 8px;
 }
 
-.schedule-generator .standing-group {
-  grid-column: 1 / span 1;
-  display: grid;
-  grid-template-rows: repeat(3, auto);
-  gap: 16px;
-}
+/* Row 1 assignments */
+.degree-group   { grid-column: 1; grid-row: 1; }
+.semester-group { grid-column: 2; grid-row: 1; }
+.term-group     { grid-column: 3; grid-row: 1; }
+.credit-group   { grid-column: 4; grid-row: 1; }
 
-.schedule-generator .desired-group {
-  grid-column: 2 / span 2;
-}
+/* Row 2 assignments */
+.requirements-group { grid-column: 1; grid-row: 2; }
+.transfer-group     { grid-column: 2; grid-row: 2; }
+.blocked-group      { grid-column: 3; grid-row: 2; }
+.standing-group     { grid-column: 4; grid-row: 2; }
 
-.schedule-generator .generate-button {
-  grid-column: 4;
-  align-self: center;
-  padding: 16px 24px;
-  background: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-size: 1.1rem;
-  cursor: pointer;
-}
+/* Tree box styling */
+.schedule-generator .tree-wrapper {
+     grid-column: 2;
+     height: 200px;
+     background: transparent;   
+     border: 1px solid #b45656;
+     overflow: auto;
+   }
 
-.schedule-generator .generate-button:disabled {
+/* Row 3 assignments */
+.desired-group   { grid-column: 1 / span 3; grid-row: 3; }
+.generate-button { grid-column: 4;             grid-row: 3;
+                   padding: 16px 24px;
+                   background: #007bff;
+                   color: #fff;
+                   border: none;
+                   border-radius: 4px;
+                   font-size: 1.1rem;
+                   cursor: pointer;
+                 }
+.generate-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.schedule-generator .error {
-  grid-column: 1 / span 4;
+/* error spans all columns */
+.error {
+  grid-column: 1 / -1;
   color: #c00;
-  margin-top: 16px;
-}
-.schedule-viewer-container {
-  display: flex;
-  position: relative;
+  margin-bottom: 16px;
 }
 
-.schedule-viewer-container > div:first-child {
-  flex: 1 1 auto;
+/* multi-select lists height */
+select[multiple] {
+  height: 160px;
+}
+.generate-button:hover {
+  background: #0056b3;      
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }

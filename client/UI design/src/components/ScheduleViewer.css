@@ -1,43 +1,71 @@
-/* src/components/ScheduleViewer.css */
-
 .middle-panel {
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 20px;
-    padding: 10px;
-    height: calc(100% - 20px);
-    box-sizing: border-box;
-  }
-  
-  .semester-box {
-    background-color: #f7f7f7;
-    border: 2px dashed #ccc;
-    border-radius: 8px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    min-height: 0; /* allow grid cells to scroll */
-  }
-  
-  .semester-box h4 {
-    margin: 0 0 10px;
-    font-size: 1rem;
-    color: #333;
-  }
-  
-  .semester-box .course-card {
-    margin-bottom: 8px;
-  }
-  .course-card {
-    cursor: pointer;    /* ← added this */
-  }
-  /* style for the credit total badge */
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: minmax(200px, auto);
+  gap: 1rem;
+  padding: 1rem;
+  height: calc(100% - 20px);
+  box-sizing: border-box;
+}
+
+.semester-box {
+  background-color: #f7f7f7;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-height: 0; /* allow each grid cell to scroll */
+}
+
+.semester-box h4 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: #333;
+}
+
+/*.course-card {
+  margin-bottom: 8px;
+  cursor: pointer;
+}*/
+
 .credit-badge {
   margin-left: 0.5rem;
   font-weight: 400;
   font-size: 0.85em;
   color: #666;
+}
+
+/* regenerate‐zone sticks under the 8 boxes and never overlaps left panel */
+.regenerate-zone {
+  grid-column: 1 / -1;
+  margin-top: 24px;
+  padding: 12px;
+  background: #007bff;
+  color: #fff;
+  text-align: center;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.regenerate-zone.over {
+  background: #0056b3;
+}
+.course-card {
+  position: relative;
+  padding-right: 1.5rem; /* room for the × */
+}
+
+.remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #c00;
 }
