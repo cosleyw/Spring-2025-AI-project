@@ -47,10 +47,15 @@ export default function ScheduleGenerator() {
     setForm(f => ({ ...f, [key]: val }));
   };
 
-  const handleMulti = key => e => {
-    const vals = Array.from(e.target.selectedOptions).map(o => o.value);
-    setForm(f => ({ ...f, [key]: vals }));
-  };
+  const handleSelect = key => e => {
+    e.preventDefault();
+    if(e.target.selected) { // If currently selected, we will remove it
+      setForm(f => ({ ...f, [key]: f[key].filter(t => t != e.target.value)}));
+    } else { // If not selected, we will add it
+      setForm(f => ({ ...f, [key]: [...f[key], e.target.value]}));
+    }
+    return false;
+  }
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -63,7 +68,7 @@ export default function ScheduleGenerator() {
       const onlyIds = raw.slice(1, 1 + form.semester_count);
 
       //  enrich & label each semester
-      const termOrder = ['Fall','Spring','Summer'];
+      const termOrder = ['Fall','Spring'];
       let term = form.start_term;
       let year = form.start_year;
 
@@ -150,7 +155,7 @@ export default function ScheduleGenerator() {
               value={form.start_term}
               onChange={handleChange('start_term')}
             >
-              {['Fall','Spring','Summer'].map(t=>(
+              {['Fall','Spring'].map(t=>(
                 <option key={t} value={t}>{t}</option>
               ))}
             </select>
@@ -168,10 +173,11 @@ export default function ScheduleGenerator() {
           <select
             multiple
             value={form.transfer_ids}
-            onChange={handleMulti('transfer_ids')}
           >
             {allCourses.map(c=>(
-              <option key={c.id} value={c.id}>
+              <option key={c.id} value={c.id}
+              onMouseDown={handleSelect('transfer_ids')}
+              >
                 {c.code} — {c.name}
               </option>
             ))}
@@ -183,10 +189,13 @@ export default function ScheduleGenerator() {
           <select
             multiple
             value={form.block_ids}
-            onChange={handleMulti('block_ids')}
           >
             {allCourses.map(c=>(
-              <option key={c.id} value={c.id}>
+              <option
+              key={c.id}
+              value={c.id}
+              onMouseDown={handleSelect('block_ids')}
+              >
                 {c.code} — {c.name}
               </option>
             ))}
@@ -247,10 +256,11 @@ export default function ScheduleGenerator() {
           <select
             multiple
             value={form.desired_ids}
-            onChange={handleMulti('desired_ids')}
           >
             {allCourses.map(c=>(
-              <option key={c.id} value={c.id}>
+              <option key={c.id} value={c.id}
+              onMouseDown={handleSelect('desired_ids')}
+              >
                 {c.code} — {c.name}
               </option>
             ))}
