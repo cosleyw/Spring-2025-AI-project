@@ -15,7 +15,9 @@ export default function Home() {
   const { schedule, setSchedule } = useSchedule();
   const [selectedCourse, setSelectedCourse] = useState(null);
 
-  const insertAtIndex = (lst, item, index) => lst.toSpliced(index, 0, item);
+  const insertAtIndex = (lst, item, index) => {
+    return lst.toSpliced(index, 0, item);
+  };
 
   const onDragEnd = (result) => {
     const { source, destination, draggableId } = result;
