@@ -1,5 +1,6 @@
 // src/components/CourseDetailPanel.jsx
 import { useCourses } from '../hooks/useCourses';
+import { displayCourseHours } from '../util/CourseHelper';
 import './CourseDetailPanel.css';
 
 export default function CourseDetailPanel({ courseId, onClose }) {
@@ -8,16 +9,6 @@ export default function CourseDetailPanel({ courseId, onClose }) {
 
   // if they clicked “×” or route changed
   if (!courseId || !course) return null;
-
-  const displayCourseHours = () => {
-    if (!course.hours || course.hours.length == 0) {
-      return '—';
-    } else if (course.hours.length == 1) {
-      return course.hours[0];
-    } else {
-      return `${course.hours[0]}-${course.hours[course.hours.length - 1]}`;
-    }
-  };
 
   return (
     <aside className="course-detail-panel">
@@ -29,7 +20,7 @@ export default function CourseDetailPanel({ courseId, onClose }) {
       </h2>
 
       <p>
-        <strong>Credits:</strong> {displayCourseHours()}
+        <strong>Credits:</strong> {displayCourseHours(course)}
       </p>
 
       <section>

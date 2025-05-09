@@ -17,7 +17,7 @@ export default function CourseList({
   useEffect(() => setPage(0), [search]);
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = search.toLowerCase();
     let unscheduledCourses = courses.filter(
       (c) =>
         !schedule
@@ -48,7 +48,7 @@ export default function CourseList({
 
       {/* — only this area scrolls — */}
       <div className="course-list-scroller">
-        <Droppable droppableId="courses" isDropDisabled={true}>
+        <Droppable droppableId="courses" isDropDisabled={false}>
           {(provided) => (
             <div className="course-list" ref={provided.innerRef} key={filtered} {...provided.droppableProps}>
               <CourseDisplayList
