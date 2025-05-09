@@ -1,0 +1,13 @@
+.course-multiselect-options {
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: center;
+
+}
+
+.course-multiselect-search {
+}
+
+.course-multiselect-toggle {
+   max-width: 30px;
+}
