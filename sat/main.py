@@ -8,7 +8,8 @@ from typeguard import typechecked
 from z3 import Implies
 from z3.z3 import And, ArithRef, Bool, BoolRef, BoolVal, Int, IntNumRef, ModelRef, Not, Optimize, Or, sat  # type: ignore[import-untyped]
 
-from config import COURSES_FILE_NAME, DATA_DIR, DEGREES_FILE_NAME
+from config import COURSES_FILE_NAME, DATA_DIR, DEGREES_FILE_NAME, UNSOLVABLE_DEGREES_FILE_NAME
+from util import load_solvable_degrees
 
 from degree_requirement_manager import DegreeRequirementManager
 
@@ -673,8 +674,7 @@ class CourseSATSolver:
                 self.course_manager.add_course(Course(**raw_course, course_manager=self.course_manager, ref_manager=self.ref_manager, starts_as_fall=self.starts_as_fall, start_year=self.start_year))
 
     def _load_degrees(self, file_name: str) -> None:
-        with open(file_name, "r") as file:
-            raw_degrees = json.load(file)
+        raw_degrees = load_solvable_degrees(file_name, UNSOLVABLE_DEGREES_FILE_NAME)
 
         for name, requirements in raw_degrees.items():
             if name in self.desired_degree_ids:

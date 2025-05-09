@@ -2,13 +2,14 @@ from typing import Annotated
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from models import ScheduleConfiguration
-from config import COURSES_FILE_NAME, DEGREES_FILE_NAME
+from config import COURSES_FILE_NAME, DEGREES_FILE_NAME, UNSOLVABLE_DEGREES_FILE_NAME
 import math
 import json
 import logging
 
 
 from main import CourseSATSolver, Offering
+from util import load_solvable_degrees
 
 app = FastAPI(
     title="Schedule Generator API",
@@ -65,10 +66,11 @@ def filter_season(courses, season: Offering | None):
 
 
 def load_degrees():
+    raw_degrees = load_solvable_degrees(DEGREES_FILE_NAME, UNSOLVABLE_DEGREES_FILE_NAME)
+
     degrees = {}
-    with open(DEGREES_FILE_NAME, "r") as file:
-        for id, degree in json.load(file).items():
-            degrees[id] = {"id": id, **degree}
+    for id, degree in raw_degrees.items():
+        degrees[id] = {"id": id, **degree}
     return degrees
 
 
