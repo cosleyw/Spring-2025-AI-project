@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import './CourseList.css';
 import CourseDisplayList from './CourseDisplayList';
+import { useSchedule } from '../context/ScheduleContext';
 
 export default function CourseList({
   courses,
@@ -9,12 +10,25 @@ export default function CourseList({
   onSelectCourse,
 }) {
   const [search, setSearch] = useState('');
+  const { schedule } = useSchedule();
+  const [page, setPage] = useState(0);
+
+  // If search changes, reset page number
+  useEffect(() => setPage(0), [search]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return courses;
-    return courses.filter((c) => c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q));
-  }, [search, courses]);
+    let unscheduledCourses = courses.filter(
+      (c) =>
+        !schedule
+          .map((sem) => sem['courses'])
+          .flat()
+          .map((schedule_course) => schedule_course['id'])
+          .includes(c.id)
+    );
+    if (!q) return unscheduledCourses;
+    return unscheduledCourses.filter((c) => c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q));
+  }, [search, courses, schedule]);
 
   return (
     <div className="left-panel course-list-container">
@@ -37,7 +51,13 @@ export default function CourseList({
         <Droppable droppableId="courses" isDropDisabled={true}>
           {(provided) => (
             <div className="course-list" ref={provided.innerRef} key={filtered} {...provided.droppableProps}>
-              <CourseDisplayList courses={filtered} page_size={50} onClick={onSelectCourse} />
+              <CourseDisplayList
+                courses={filtered}
+                page_size={50}
+                onClick={onSelectCourse}
+                page={page}
+                setPage={setPage}
+              />
               {provided.placeholder}
             </div>
           )}
