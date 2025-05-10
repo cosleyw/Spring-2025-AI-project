@@ -1,14 +1,13 @@
 import { Draggable } from '@hello-pangea/dnd';
-import { useEffect, useState } from 'react';
-import './CourseDisplayList.css';
 import ConditionalButton from './ConditionalButton';
+import './CourseDisplayList.css';
 
 function CourseDisplayList({ courses, page_size, onClick, page, setPage }) {
   const decrement = () => setPage((p) => p - 1);
   const increment = () => setPage((p) => p + 1);
 
   return (
-    <div>
+    <>
       <div className="course-display-list">
         <ConditionalButton condition={page > 0} onClick={decrement}>
           Previous
@@ -44,7 +43,7 @@ function CourseDisplayList({ courses, page_size, onClick, page, setPage }) {
           Next
         </ConditionalButton>
       </div>
-    </div>
+    </>
   );
 }
 

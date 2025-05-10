@@ -1,24 +1,24 @@
 // src/context/GeneratorConfigContext.jsx
 import { createContext, useContext, useState } from 'react';
 
-const ConfigContext       = createContext();
-const SetConfigContext    = createContext();
+const ConfigContext = createContext();
 
 export function GeneratorConfigProvider({ children }) {
-  const [config, setConfig] = useState(null);
-  return (
-    <ConfigContext.Provider value={config}>
-      <SetConfigContext.Provider value={setConfig}>
-        {children}
-      </SetConfigContext.Provider>
-    </ConfigContext.Provider>
-  );
+  const [form, setForm] = useState({
+    desired_degree_ids_str: '',
+    semester_count: 8,
+    start_term: 'Fall',
+    start_year: new Date().getFullYear(),
+    min_credit_per_semester: 12,
+    max_credit_per_semester: 18,
+    transfer_ids: [],
+    block_ids: [],
+    soph_semester: 3,
+    jr_semester: 5,
+    sr_semester: 7,
+    desired_ids: [],
+  });
+  return <ConfigContext.Provider value={{ form, setForm }}>{children}</ConfigContext.Provider>;
 }
 
-export function useGeneratorConfig() {
-  return useContext(ConfigContext);
-}
-
-export function useSetGeneratorConfig() {
-  return useContext(SetConfigContext);
-}
+export const useConfig = () => useContext(ConfigContext);

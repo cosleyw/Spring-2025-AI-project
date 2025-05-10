@@ -96,6 +96,7 @@ export async function generate_schedule(form) {
   qp.set('first_semester_senior',    sr_semester);
 
   const data = await fetchJson(`/schedules/generate?${qp}`);
+  if(data.status == "failure") throw new Error(data.message);
   const arr  = Array.isArray(data) ? data : data.schedule;
   if (!Array.isArray(arr)) throw new Error('Unexpected schedule response');
   return arr;

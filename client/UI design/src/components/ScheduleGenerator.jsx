@@ -1,39 +1,24 @@
 // src/components/ScheduleGenerator.jsx
 
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { generate_schedule, get_courses, get_degrees } from '../api';
+import { useConfig } from '../context/GeneratorConfigContext';
 import { useSchedule } from '../context/ScheduleContext';
-import DegreeAccordion from './DegreeAccordion';
-import { get_degrees, get_courses, generate_schedule } from '../api';
-import './ScheduleGenerator.css';
 import CourseMultiselect from './CourseMutliselect';
+import DegreeAccordion from './DegreeAccordion';
+import './ScheduleGenerator.css';
 
 export default function ScheduleGenerator() {
   // pull both the current schedule & setter from context
-  const { schedule, setSchedule } = useSchedule();
   const navigate = useNavigate();
-
-  //  seed desired-ids from whatever the user has currently arranged
-  const preDesired = schedule.flatMap((s) => s.courses.map((c) => c.id));
+  const { setSchedule } = useSchedule();
 
   const [degrees, setDegrees] = useState([]);
   const [allCourses, setAllCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [form, setForm] = useState({
-    desired_degree_ids_str: '',
-    semester_count: schedule.length,
-    start_term: schedule[0]?.term || 'Fall',
-    start_year: schedule[0]?.year || new Date().getFullYear(),
-    min_credit_per_semester: 12,
-    max_credit_per_semester: 18,
-    transfer_ids: [],
-    block_ids: [],
-    soph_semester: 3,
-    jr_semester: 5,
-    sr_semester: 7,
-    desired_ids: preDesired,
-  });
+  const { form, setForm } = useConfig();
 
   // load the dropdown data
   useEffect(() => {
@@ -110,6 +95,7 @@ export default function ScheduleGenerator() {
   return (
     <div className="schedule-generator">
       <h2>Schedule Configuration</h2>
+      {/* form.desired_degree_ids_str && <DegreeTree degreeId={form.desired_degree_ids_str} /> */}
       {error && <div className="error">{error}</div>}
 
       <form onSubmit={handleSubmit}>
@@ -217,7 +203,7 @@ export default function ScheduleGenerator() {
         />
 
         <button type="submit" className="generate-button" disabled={loading}>
-          {loading ? 'Generating…' : 'Generate Schedule'}
+          {loading ? 'Generating…' : 'Save and Generate Schedule'}
         </button>
       </form>
     </div>

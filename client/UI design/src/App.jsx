@@ -1,11 +1,11 @@
 // src/App.jsx
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ScheduleProvider } from './context/ScheduleContext';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import './App.css';
+import Home from './components/Home';
 import Layout from './components/Layout';
 import ScheduleGenerator from './components/ScheduleGenerator';
-import Home from './components/Home';
-import './App.css';
+import { GeneratorConfigProvider } from './context/GeneratorConfigContext';
+import { ScheduleProvider } from './context/ScheduleContext';
 
 function AppRoutes() {
   return (
@@ -19,11 +19,13 @@ function AppRoutes() {
 export default function App() {
   return (
     <ScheduleProvider>
-      <BrowserRouter>
-        <Layout>
-          <AppRoutes />
-        </Layout>
-      </BrowserRouter>
+      <GeneratorConfigProvider>
+        <BrowserRouter>
+          <Layout>
+            <AppRoutes />
+          </Layout>
+        </BrowserRouter>
+      </GeneratorConfigProvider>
     </ScheduleProvider>
   );
 }

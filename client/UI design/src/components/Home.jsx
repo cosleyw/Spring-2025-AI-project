@@ -1,13 +1,13 @@
 // src/components/Home.jsx
-import React, { useState } from 'react';
 import { DragDropContext } from '@hello-pangea/dnd';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCourses } from '../hooks/useCourses';
 import { useSchedule } from '../context/ScheduleContext';
-import CourseList from './CourseList';
-import ScheduleViewer from './ScheduleViewer';
+import { useCourses } from '../hooks/useCourses';
 import CourseDetailPanel from './CourseDetailPanel';
+import CourseList from './CourseList';
 import './Home.css';
+import ScheduleViewer from './ScheduleViewer';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -73,16 +73,11 @@ export default function Home() {
     }
   };
 
-  // Regenerate From Here
-  const handleRegenerate = () => {
-    navigate('/schedule/generate');
-  };
-
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="home-layout">
         {/* — Left Panel — */}
-        <CourseList courses={courses} onRegenerate={handleRegenerate} onSelectCourse={setSelectedCourse} />
+        <CourseList courses={courses} onSelectCourse={setSelectedCourse} />
 
         {/* — Middle Panel — */}
         <ScheduleViewer schedule={schedule} setSchedule={setSchedule} onSelectCourse={setSelectedCourse} />

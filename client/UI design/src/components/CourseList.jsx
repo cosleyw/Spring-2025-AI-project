@@ -1,17 +1,39 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Droppable, Draggable } from '@hello-pangea/dnd';
-import './CourseList.css';
-import CourseDisplayList from './CourseDisplayList';
+import { Droppable } from '@hello-pangea/dnd';
+import { useEffect, useMemo, useState } from 'react';
+import { generate_schedule } from '../api';
+import { useConfig } from '../context/GeneratorConfigContext';
 import { useSchedule } from '../context/ScheduleContext';
+import CourseDisplayList from './CourseDisplayList';
+import './CourseList.css';
 
-export default function CourseList({
-  courses,
-  onRegenerate, // ← new
-  onSelectCourse,
-}) {
+export default function CourseList({ courses, onSelectCourse }) {
   const [search, setSearch] = useState('');
-  const { schedule } = useSchedule();
+  const { schedule, handleSetSchedule } = useSchedule();
   const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const { form } = useConfig();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      //  raw schedule arrays (with dummy index 0)
+      let first_courses = schedule[0]['courses'].map((course) => `${course['id']}@1}`).join(',');
+      console.log(first_courses);
+      let full_courses = schedule
+        .map((semester, i) => semester['courses'].map((course) => `${course['id']}@${i + 1}`))
+        .flat();
+      console.log(full_courses);
+      const raw = await generate_schedule({ ...form, desired_ids: full_courses });
+      handleSetSchedule(raw, form.start_year, form.start_term, courses);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to generate schedule: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // If search changes, reset page number
   useEffect(() => setPage(0), [search]);
@@ -34,8 +56,8 @@ export default function CourseList({
     <div className="left-panel course-list-container">
       {/* — fixed header — */}
       <div className="course-list-header">
-        <button className="regenerate-button" onClick={onRegenerate}>
-          Regenerate From Here
+        <button className="regenerate-button" disabled={loading} onClick={handleSubmit}>
+          {loading ? 'Regenerating…' : 'Regenerate From Here'}
         </button>
         <input
           className="course-search"
