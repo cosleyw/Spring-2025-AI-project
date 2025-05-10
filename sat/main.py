@@ -17,7 +17,6 @@ import logging
 
 # Alternated format for date - datefmt='%Y-%m-%d:%H:%M:%S',
 logging.basicConfig(
-    filename="log.out",
     level=logging.DEBUG,
     format="%(asctime)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s",
     datefmt="%H:%M:%S",
@@ -574,9 +573,8 @@ class CourseSATSolver:
         # self.desired_degree_ids: list[str] = desired_degree_ids
         logging.debug("Determine relevant courses...")
 
-        with open(degrees_file_name, "r") as file:
-            logging.debug("Reading degree list")
-            raw_degrees = json.load(file)
+        raw_degrees = load_solvable_degrees(degrees_file_name, UNSOLVABLE_DEGREES_FILE_NAME)
+        logging.debug("Reading degree list")
 
         degrees = []
         for id, degree in raw_degrees.items():
@@ -979,7 +977,8 @@ if __name__ == "__main__":
         degrees.append(degree)
 
     # degrees = ["COMPUTER SCIENCE BS MAJOR (2016-2025) 81SBS"]
-    degrees = ["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"]
+    # degrees = ["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"]
+    degrees = ["BIOLOGY:  ECOLOGY, EVOLUTION, & ORGANISMAL BIO BA MAJOR (2024-2025) 84GBA"]
     # degrees = ["MECHANICAL ENGINEERING TECHNOLOGY BS (2024-PRESENT) 35DBS"]
 
     for degree in degrees:

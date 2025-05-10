@@ -29,7 +29,7 @@ def parse_transferred_course_ids(coures_ids_str: str | None) -> list[str]:
 
 
 def parse_degree_ids(degree_id_str: str) -> list[str]:
-    return degree_id_str.split(",")
+    return degree_id_str.split(";")
 
 
 class ScheduleConfiguration(BaseModel):
