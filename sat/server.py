@@ -117,31 +117,38 @@ async def get_degree_by_id(id):
 
 @app.get("/schedules/generate", summary="Generate a user schedule", tags=["schedules"])
 def generate_schedule(configuration: Annotated[ScheduleConfiguration, Query()]):
-    c: CourseSATSolver = CourseSATSolver(
-        semester_count=configuration.semester_count,
-        min_credit_per_semester=configuration.min_credit_per_semester,
-        max_credits_per_semester=configuration.max_credit_per_semester,
-        first_semester_sophomore=configuration.first_semester_sophomore,
-        first_semester_junior=configuration.first_semester_junior,
-        first_semester_senior=configuration.first_semester_senior,
-        starts_as_fall=configuration.starts_as_fall,
-        start_year=configuration.start_year,
-        transferred_course_ids=configuration.transferred_course_ids,
-        desired_course_ids=configuration.desired_course_ids,
-        undesired_course_ids=configuration.undesired_course_ids,
-        desired_degree_ids=configuration.desired_degree_ids,
-    )
+    try:
+        c: CourseSATSolver = CourseSATSolver(
+            semester_count=configuration.semester_count,
+            min_credit_per_semester=configuration.min_credit_per_semester,
+            max_credits_per_semester=configuration.max_credit_per_semester,
+            first_semester_sophomore=configuration.first_semester_sophomore,
+            first_semester_junior=configuration.first_semester_junior,
+            first_semester_senior=configuration.first_semester_senior,
+            starts_as_fall=configuration.starts_as_fall,
+            start_year=configuration.start_year,
+            transferred_course_ids=configuration.transferred_course_ids,
+            desired_course_ids=configuration.desired_course_ids,
+            undesired_course_ids=configuration.undesired_course_ids,
+            desired_degree_ids=configuration.desired_degree_ids,
+        )
 
-    c.setup()
-    # c.minimize()
-    if c.solve():
-        c.display()
-        logging.debug(configuration)
-        return {
-            "status": "success",
-            "schedule": c.get_plan_with_ids(),
-        }
-    else:
+        c.setup()
+        # c.minimize()
+        if c.solve():
+            c.display()
+            logging.debug(configuration)
+            return {
+                "status": "success",
+                "schedule": c.get_plan_with_ids(),
+            }
+        else:
+            return {
+                "status": "failure",
+                "message": "Unable to generate a valid schedule",
+            }
+    except Exception as e:
         return {
             "status": "failure",
+            "message": str(e),
         }
