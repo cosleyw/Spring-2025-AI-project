@@ -18,15 +18,20 @@ export default function CourseList({ courses, onSelectCourse }) {
     setLoading(true);
 
     try {
-      let full_courses = schedule
-        .map((semester, i) =>
-          semester['courses']
-            .filter((course) => course.hasOwnProperty('desired'))
-            .map((course) => `${course['id']}@${i + 1}`)
-        )
-        .flat();
-      console.log(full_courses);
-      const raw = await generate_schedule({ ...form, desired_ids: full_courses });
+      let desired_courses = {};
+      // Load the new, session-specific desired courses
+      schedule.map((semester, i) =>
+        semester['courses']
+          .filter((course) => course.hasOwnProperty('desired'))
+          .forEach((course) => (desired_courses[course['id']] = `${course['id']}@${i + 1}`))
+      );
+      // Load the settings desired courses
+      form.desired_ids.forEach((id) => {
+        if (!(id in desired_courses)) {
+          desired_courses[id] = id;
+        }
+      });
+      const raw = await generate_schedule({ ...form, desired_ids: Object.values(desired_courses) });
       setNewSchedule(raw, form.start_year, form.start_term, courses);
     } catch (err) {
       console.error(err);
@@ -43,6 +48,8 @@ export default function CourseList({ courses, onSelectCourse }) {
     const q = search.toLowerCase();
     let unscheduledCourses = courses.filter(
       (c) =>
+        !form.transfer_ids.includes(c.id) &&
+        !form.block_ids.includes(c.id) &&
         !schedule
           .map((sem) => sem['courses'])
           .flat()
@@ -51,7 +58,7 @@ export default function CourseList({ courses, onSelectCourse }) {
     );
     if (!q) return unscheduledCourses;
     return unscheduledCourses.filter((c) => c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q));
-  }, [search, courses, schedule]);
+  }, [search, courses, schedule, form]);
 
   return (
     <div className="left-panel course-list-container">

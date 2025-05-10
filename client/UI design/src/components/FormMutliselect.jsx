@@ -17,6 +17,17 @@ function FormMultiselect({ ids, data, handleMouseDown, classes, title, required 
     [ids, data, searchTerm, onlyActive]
   );
 
+  const options = useMemo(
+    () =>
+      filtered_data.map((c) => (
+        <option key={c.id} value={c.id} onMouseDown={handleMouseDown}>
+          {c.hasOwnProperty('code') && `${c.code} — `}
+          {c.name}
+        </option>
+      )),
+    [filtered_data]
+  );
+
   return (
     <div className={classes}>
       <label>{title}</label>
@@ -35,12 +46,7 @@ function FormMultiselect({ ids, data, handleMouseDown, classes, title, required 
         ></input>
       </div>
       <select multiple value={ids} ref={selectionBox} required={required}>
-        {filtered_data.map((c) => (
-          <option key={c.id} value={c.id} onMouseDown={handleMouseDown}>
-            {c.hasOwnProperty('code') && `${c.code} — `}
-            {c.name}
-          </option>
-        ))}
+        {options}
       </select>
     </div>
   );

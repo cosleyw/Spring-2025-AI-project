@@ -4,8 +4,8 @@ import { displayCourseHours } from '../util/CourseHelper';
 import './CourseDetailPanel.css';
 
 export default function CourseDetailPanel({ courseId, onClose }) {
-  const { courses } = useCourses();
-  const course = courses.find((c) => c.id === courseId);
+  const { courses_dict } = useCourses();
+  const course = courses_dict[courseId];
 
   // if they clicked “×” or route changed
   if (!courseId || !course) return null;
