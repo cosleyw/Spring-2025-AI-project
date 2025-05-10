@@ -33,7 +33,7 @@ export function ScheduleProvider({ children }) {
     );
   };
 
-  const setNewSchedule = (raw, start_year, start_term, courses) => {
+  const setNewSchedule = (raw, start_year, start_term, courses, respectDesired = true) => {
     setSchedule((previousSchedule) => {
       const previouslyDesiredCourses = previousSchedule
         .map((sem) => sem.courses)
@@ -59,7 +59,7 @@ export function ScheduleProvider({ children }) {
 
         const semesterCourses = ids.map((id) => {
           const foundCourse = courses.find((c) => c.id === id) || {};
-          if (previouslyDesiredCourses.includes(id)) {
+          if (respectDesired && previouslyDesiredCourses.includes(id)) {
             return { ...foundCourse, desired: true };
           }
           return foundCourse;

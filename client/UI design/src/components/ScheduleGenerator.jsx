@@ -53,7 +53,7 @@ export default function ScheduleGenerator() {
 
     try {
       const raw = await generate_schedule(form);
-      setNewSchedule(raw, form.start_year, form.start_term, allCourses);
+      setNewSchedule(raw, form.start_year, form.start_term, allCourses, false);
       navigate('/');
     } catch (err) {
       console.error(err);
