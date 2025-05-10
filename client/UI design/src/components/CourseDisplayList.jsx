@@ -29,7 +29,6 @@ function CourseDisplayList({ courses, page_size, onClick, page, setPage }) {
               <h4>
                 {c.code}: {c.name}
               </h4>
-              <button>⭐</button>
             </div>
           )}
         </Draggable>

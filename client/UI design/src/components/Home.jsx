@@ -33,7 +33,7 @@ export default function Home() {
                 ...sem,
                 courses: insertAtIndex(
                   sem.courses,
-                  courses.find((c) => c.id === draggableId),
+                  { ...courses.find((c) => c.id === draggableId), desired: true },
                   destination.index
                 ),
               }
@@ -62,7 +62,7 @@ export default function Home() {
                   ...sem,
                   courses: insertAtIndex(
                     sem.courses,
-                    courses.find((c) => c.id === draggableId),
+                    { ...courses.find((c) => c.id === draggableId), desired: true },
                     destination.index
                   ),
                 }

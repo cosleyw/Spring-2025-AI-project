@@ -69,3 +69,15 @@
   cursor: pointer;
   color: #c00;
 }
+
+.toggle-desired-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  color: rgb(0, 139, 204);
+}

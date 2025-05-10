@@ -1,8 +1,8 @@
 // src/components/ScheduleViewer.jsx
-import React from 'react';
-import { Droppable, Draggable } from '@hello-pangea/dnd';
-import './ScheduleViewer.css';
+import { Draggable, Droppable } from '@hello-pangea/dnd';
 import { displayCourseHours } from '../util/CourseHelper';
+import CourseCard from './CourseCard';
+import './ScheduleViewer.css';
 
 export default function ScheduleViewer({ schedule, setSchedule, onSelectCourse }) {
   // helper to remove one course
@@ -28,19 +28,12 @@ export default function ScheduleViewer({ schedule, setSchedule, onSelectCourse }
                 {sem.courses.map((c, idx) => (
                   <Draggable key={c.id} draggableId={c.id} index={idx}>
                     {(prov) => (
-                      <div
-                        className="course-card"
-                        ref={prov.innerRef}
-                        {...prov.draggableProps}
-                        {...prov.dragHandleProps}
-                      >
-                        <span className="remove-btn" onClick={() => removeCourse(sIdx, c.id)}>
-                          ×
-                        </span>
-                        <span className="course-link" onClick={() => onSelectCourse(c.id)}>
-                          {c.code}: {c.name}
-                        </span>
-                      </div>
+                      <CourseCard
+                        provided={prov}
+                        course={c}
+                        removeCourse={() => removeCourse(sIdx, c.id)}
+                        onSelectCourse={() => onSelectCourse(c.id)}
+                      />
                     )}
                   </Draggable>
                 ))}

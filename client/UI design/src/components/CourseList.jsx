@@ -8,7 +8,7 @@ import './CourseList.css';
 
 export default function CourseList({ courses, onSelectCourse }) {
   const [search, setSearch] = useState('');
-  const { schedule, handleSetSchedule } = useSchedule();
+  const { schedule, setNewSchedule } = useSchedule();
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const { form } = useConfig();
@@ -18,15 +18,16 @@ export default function CourseList({ courses, onSelectCourse }) {
     setLoading(true);
 
     try {
-      //  raw schedule arrays (with dummy index 0)
-      let first_courses = schedule[0]['courses'].map((course) => `${course['id']}@1}`).join(',');
-      console.log(first_courses);
       let full_courses = schedule
-        .map((semester, i) => semester['courses'].map((course) => `${course['id']}@${i + 1}`))
+        .map((semester, i) =>
+          semester['courses']
+            .filter((course) => course.hasOwnProperty('desired'))
+            .map((course) => `${course['id']}@${i + 1}`)
+        )
         .flat();
       console.log(full_courses);
       const raw = await generate_schedule({ ...form, desired_ids: full_courses });
-      handleSetSchedule(raw, form.start_year, form.start_term, courses);
+      setNewSchedule(raw, form.start_year, form.start_term, courses);
     } catch (err) {
       console.error(err);
       alert('Failed to generate schedule: ' + err.message);

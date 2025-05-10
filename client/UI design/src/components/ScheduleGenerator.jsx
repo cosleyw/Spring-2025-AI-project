@@ -12,7 +12,7 @@ import './ScheduleGenerator.css';
 export default function ScheduleGenerator() {
   // pull both the current schedule & setter from context
   const navigate = useNavigate();
-  const { setSchedule } = useSchedule();
+  const { setNewSchedule } = useSchedule();
 
   const [degrees, setDegrees] = useState([]);
   const [allCourses, setAllCourses] = useState([]);
@@ -52,37 +52,8 @@ export default function ScheduleGenerator() {
     setLoading(true);
 
     try {
-      //  raw schedule arrays (with dummy index 0)
       const raw = await generate_schedule(form);
-      const onlyIds = raw.slice(1, 1 + form.semester_count);
-
-      //  enrich & label each semester
-      const termOrder = ['Fall', 'Spring'];
-      let term = form.start_term;
-      let year = form.start_year;
-
-      const enriched = onlyIds.map((ids, idx) => {
-        if (idx > 0) {
-          let next = termOrder.indexOf(term) + 1;
-          if (next >= termOrder.length) {
-            next = 0;
-            year++;
-          }
-          term = termOrder[next];
-        }
-
-        const courses = ids.map((id) => allCourses.find((c) => c.id === id) || {});
-
-        return {
-          name: `Semester ${idx + 1}`,
-          term,
-          year,
-          courses,
-        };
-      });
-
-      //  stash it & go back Home
-      setSchedule(enriched);
+      setNewSchedule(raw, form.start_year, form.start_term, allCourses);
       navigate('/');
     } catch (err) {
       console.error(err);

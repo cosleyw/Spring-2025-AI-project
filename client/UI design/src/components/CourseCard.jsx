@@ -1,17 +1,23 @@
-function CourseCard({ provided, course, onClick, children }) {
+import { useSchedule } from '../context/ScheduleContext';
+
+function CourseCard({ provided, course, removeCourse, onSelectCourse }) {
+  const { toggleDesiredCourse } = useSchedule();
   return (
     <div
-      className="course-card"
+      className={'course-card ' + (course.hasOwnProperty('desired') ? 'course-card-desired' : '')}
       ref={provided.innerRef}
       {...provided.draggableProps}
       {...provided.dragHandleProps}
-      onClick={onClick}
-      style={{ height: '200px' }}
     >
-      <h4>
-        {course.code}: {course.name} {children}
-      </h4>
-      <button>⭐</button>
+      <span className="remove-btn" onClick={removeCourse}>
+        ×
+      </span>
+      <span className="toggle-desired-btn" onClick={() => toggleDesiredCourse(course.id)}>
+        =
+      </span>
+      <span className="course-link" onClick={onSelectCourse}>
+        {course.code}: {course.name}
+      </span>
     </div>
   );
 }

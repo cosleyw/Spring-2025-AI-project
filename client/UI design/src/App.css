@@ -99,6 +99,10 @@ body {
   border: 1px solid #ddd;
 }
 
+.course-card.course-card-desired {
+  background-color: #cbeaf1;
+}
+
 .course-card h4 {
   font-size: 1rem;
   color: #222;

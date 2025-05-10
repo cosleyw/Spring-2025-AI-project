@@ -15,53 +15,73 @@ const makeEmptySchedule = () =>
 export function ScheduleProvider({ children }) {
   const [schedule, setSchedule] = useState(makeEmptySchedule());
 
-  const handleSetSchedule = (raw, start_year, start_term, courses) => {
-    const onlyIds = raw.slice(1, raw.length);
+  const toggleDesired = (course) => {
+    if (course.hasOwnProperty('desired')) {
+      const { desired: _, ...rest } = course;
+      return rest;
+    } else {
+      return { ...course, desired: true };
+    }
+  };
 
-    //  enrich & label each semester
-    const termOrder = ['Fall', 'Spring'];
-    let term = start_term;
-    let year = start_year;
+  const toggleDesiredCourse = (id) => {
+    setSchedule((sch) =>
+      sch.map((sem) => ({
+        ...sem,
+        courses: sem['courses'].map((c) => (c.id === id ? toggleDesired(c) : c)),
+      }))
+    );
+  };
 
-    const enriched = onlyIds.map((ids, idx) => {
-      if (idx > 0) {
-        let next = termOrder.indexOf(term) + 1;
-        if (next >= termOrder.length) {
-          next = 0;
-          year++;
+  const setNewSchedule = (raw, start_year, start_term, courses) => {
+    setSchedule((previousSchedule) => {
+      const previouslyDesiredCourses = previousSchedule
+        .map((sem) => sem.courses)
+        .flat()
+        .filter((course) => course.hasOwnProperty('desired'))
+        .map((course) => course.id);
+      const onlyIds = raw.slice(1, raw.length);
+
+      //  enrich & label each semester
+      const termOrder = ['Fall', 'Spring'];
+      let term = start_term;
+      let year = start_year;
+
+      return onlyIds.map((ids, idx) => {
+        if (idx > 0) {
+          let next = termOrder.indexOf(term) + 1;
+          if (next >= termOrder.length) {
+            next = 0;
+            year++;
+          }
+          term = termOrder[next];
         }
-        term = termOrder[next];
-      }
 
-      console.log('Courses');
-      console.log(courses);
-      console.log('Ids');
-      console.log(ids);
+        const semesterCourses = ids.map((id) => {
+          const foundCourse = courses.find((c) => c.id === id) || {};
+          if (previouslyDesiredCourses.includes(id)) {
+            return { ...foundCourse, desired: true };
+          }
+          return foundCourse;
+        });
 
-      const semesterCourses = ids.map((id) => {
-        console.log('Id: ' + id);
-        let found = courses.find((c) => c.id === id);
-        console.log(found);
-        return found || {};
+        console.debug('Semster couses');
+        console.debug(semesterCourses);
+
+        return {
+          name: `Semester ${idx + 1}`,
+          term,
+          year,
+          courses: semesterCourses,
+        };
       });
-
-      console.log('Semester courses');
-      console.log(semesterCourses);
-
-      return {
-        name: `Semester ${idx + 1}`,
-        term,
-        year,
-        courses: semesterCourses,
-      };
     });
-
-    //  stash it & go back Home
-    setSchedule(enriched);
   };
 
   return (
-    <ScheduleContext.Provider value={{ schedule, handleSetSchedule, setSchedule }}>{children}</ScheduleContext.Provider>
+    <ScheduleContext.Provider value={{ schedule, setNewSchedule, setSchedule, toggleDesiredCourse }}>
+      {children}
+    </ScheduleContext.Provider>
   );
 }
 
