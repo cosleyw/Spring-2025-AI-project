@@ -89,7 +89,7 @@ async def get_courses(
 
 
 @app.get("/courses/{id}", summary="Get a specific course by its id", tags=["courses"])
-async def get_course_by_id(id):
+async def get_course_by_id(id: str):
     courses = load_courses()
     for course in courses:
         if course["id"] == id:
@@ -106,8 +106,8 @@ async def get_degrees(
     return {"status": "success", "degrees": degrees}
 
 
-@app.get("/degrees/{id}", summary="Get a specific degree by its id", tags=["degrees"])
-async def get_degree_by_id(id):
+@app.get("/degrees/{id:path}", summary="Get a specific degree by its id", tags=["degrees"])
+async def get_degree_by_id(id: str):
     degrees = load_degrees()
     for current_id, degree in degrees.items():
         if id == current_id:
