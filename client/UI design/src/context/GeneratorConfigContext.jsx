@@ -5,7 +5,7 @@ const ConfigContext = createContext();
 
 export function GeneratorConfigProvider({ children }) {
   const [form, setForm] = useState({
-    desired_degree_ids_str: '',
+    desired_degree_ids: [],
     semester_count: 8,
     start_term: 'Fall',
     start_year: new Date().getFullYear(),

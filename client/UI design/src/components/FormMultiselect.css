@@ -1,13 +1,13 @@
-.course-multiselect-options {
+.form-multiselect-options {
     margin-bottom: 8px;
     display: flex;
     justify-content: center;
 
 }
 
-.course-multiselect-search {
+.form-multiselect-search {
 }
 
-.course-multiselect-toggle {
+.form-multiselect-toggle {
    max-width: 30px;
 }

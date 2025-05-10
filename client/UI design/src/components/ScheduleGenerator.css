@@ -58,8 +58,8 @@
 }
 
 /* Row 1 assignments */
-.degree-group   { grid-column: 1; grid-row: 1; }
-.semester-group { grid-column: 2; grid-row: 1; }
+.semester-group { grid-column: 1; grid-row: 1; }
+.degree-group   { grid-column: 2; grid-row: 1; }
 .term-group     { grid-column: 3; grid-row: 1; }
 .credit-group   { grid-column: 4; grid-row: 1; }
 

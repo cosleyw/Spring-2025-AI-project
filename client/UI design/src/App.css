@@ -99,6 +99,11 @@ body {
   border: 1px solid #ddd;
 }
 
+.course-card .course-semester {
+  font-size: 0.85rem;
+  opacity: 65%;
+}
+
 .course-card.course-card-desired {
   background-color: #cbeaf1;
 }

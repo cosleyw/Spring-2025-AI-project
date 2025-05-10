@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { generate_schedule, get_courses, get_degrees } from '../api';
 import { useConfig } from '../context/GeneratorConfigContext';
 import { useSchedule } from '../context/ScheduleContext';
-import CourseMultiselect from './CourseMutliselect';
 import DegreeAccordion from './DegreeAccordion';
+import FormMultiselect from './FormMutliselect';
 import './ScheduleGenerator.css';
 
 export default function ScheduleGenerator() {
@@ -72,28 +72,30 @@ export default function ScheduleGenerator() {
       <form onSubmit={handleSubmit}>
         {/*  Row 1  */}
         <div className="form-group">
-          <label>Degree:</label>
-          <select required value={form.desired_degree_ids_str} onChange={handleChange('desired_degree_ids_str')}>
-            <option value="">— select degree —</option>
-            {degrees.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name}
-              </option>
-            ))}
-          </select>
+          <label># Semesters:</label>
+          <input type="number" min={1} value={form.semester_count} onChange={handleChange('semester_count')} />
         </div>
 
         <div className="form-group requirements-group">
           <label>Requirements:</label>
           <div className="tree-wrapper">
-            <DegreeAccordion degreeId={form.desired_degree_ids_str} />
+            <DegreeAccordion degreeIds={form.desired_degree_ids} />
           </div>
         </div>
 
-        <div className="form-group">
-          <label># Semesters:</label>
-          <input type="number" min={1} value={form.semester_count} onChange={handleChange('semester_count')} />
-        </div>
+        {/* Degree multiselect that pulls desired degrees to the top */}
+        <FormMultiselect
+          ids={form.desired_degree_ids}
+          data={degrees.sort(
+            (a, b) =>
+              +form.desired_degree_ids.includes(b.id) - +form.desired_degree_ids.includes(a.id) ||
+              a.id.localeCompare(b.id)
+          )}
+          handleMouseDown={handleSelect('desired_degree_ids')}
+          classes="form-group degree-group"
+          title="Desired Degree:"
+          required
+        />
 
         <div className="form-group">
           <label>Start Term &amp; Year:</label>
@@ -110,17 +112,17 @@ export default function ScheduleGenerator() {
         </div>
 
         {/*  Row 2 */}
-        <CourseMultiselect
+        <FormMultiselect
           ids={form.transfer_ids}
-          courses={allCourses}
+          data={allCourses}
           handleMouseDown={handleSelect('transfer_ids')}
           classes="form-group transfer-group"
           title="Transfer Courses:"
         />
 
-        <CourseMultiselect
+        <FormMultiselect
           ids={form.block_ids}
-          courses={allCourses}
+          data={allCourses}
           handleMouseDown={handleSelect('block_ids')}
           classes="form-group blocked-group"
           title="Blocked Courses:"
@@ -165,9 +167,9 @@ export default function ScheduleGenerator() {
         </fieldset>
 
         {/* Row 3  */}
-        <CourseMultiselect
+        <FormMultiselect
           ids={form.desired_ids}
-          courses={allCourses}
+          data={allCourses}
           handleMouseDown={handleSelect('desired_ids')}
           classes="form-group desired-group"
           title="Desired Courses (any term):"

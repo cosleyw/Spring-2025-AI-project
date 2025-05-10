@@ -27,7 +27,7 @@ function CourseDisplayList({ courses, page_size, onClick, page, setPage }) {
               onClick={() => onClick(c.id)}
             >
               <h4>
-                {c.code}: {c.name}
+                {c.code}: {c.name} <span className="course-semester">({c.semester})</span>
               </h4>
             </div>
           )}

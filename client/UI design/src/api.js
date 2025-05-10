@@ -64,7 +64,7 @@ export async function get_degree(id) {
  */
 export async function generate_schedule(form) {
   const {
-    desired_degree_ids_str,
+    desired_degree_ids,
     semester_count,
     min_credit_per_semester,
     max_credit_per_semester,
@@ -79,7 +79,6 @@ export async function generate_schedule(form) {
   } = form;
 
   const qp = new URLSearchParams({
-    desired_degree_ids_str,
     semester_count,
     min_credit_per_semester,
     max_credit_per_semester,
@@ -87,9 +86,10 @@ export async function generate_schedule(form) {
     start_year
   });
 
-  if (transfer_ids.length) qp.set('transferred_course_ids_str', transfer_ids.join(','));
-  if (block_ids.length)    qp.set('undesired_course_ids_str',    block_ids.join(','));
-  if (desired_ids.length)  qp.set('desired_course_ids_str',      desired_ids.join(','));
+  if (desired_degree_ids.length) qp.set('desired_degree_ids_str', desired_degree_ids.join(';'));
+  if (transfer_ids.length) qp.set('transferred_course_ids_str',   transfer_ids.join(','));
+  if (block_ids.length)    qp.set('undesired_course_ids_str',     block_ids.join(','));
+  if (desired_ids.length)  qp.set('desired_course_ids_str',       desired_ids.join(','));
 
   qp.set('first_semester_sophomore', soph_semester);
   qp.set('first_semester_junior',    jr_semester);

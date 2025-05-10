@@ -16,7 +16,7 @@ function CourseCard({ provided, course, removeCourse, onSelectCourse }) {
         =
       </span>
       <span className="course-link" onClick={onSelectCourse}>
-        {course.code}: {course.name}
+        {course.code}: {course.name} <span className="course-semester">({course.semester})</span>
       </span>
     </div>
   );
