@@ -108,6 +108,7 @@ async def get_degrees(
 
 @app.get("/degrees/{id:path}", summary="Get a specific degree by its id", tags=["degrees"])
 async def get_degree_by_id(id: str):
+    print(f"BY '{id}'")
     degrees = load_degrees()
     for current_id, degree in degrees.items():
         if id == current_id:
