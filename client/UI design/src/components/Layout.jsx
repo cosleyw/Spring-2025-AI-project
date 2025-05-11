@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import './Layout.css';
 
@@ -8,9 +7,8 @@ export default function Layout({ children }) {
       <header className="layout-header">
         <h1 className="logo">Course Scheduler</h1>
         <nav className="layout-nav">
-          <Link to="/">Home</Link>
-          <Link to="/schedule/generate">Generate</Link>
-          <Link to="/degrees">Degrees</Link>
+          <Link to="/editor">Home</Link>
+          <Link to="/generate">Generate</Link>
           <Link to="https://cosleyw.github.io/Spring-2025-AI-project/client/tree_view/tree_view.html" target="_blank">
             Dependency Visualizer
           </Link>

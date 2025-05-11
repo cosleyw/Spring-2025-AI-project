@@ -54,7 +54,7 @@ export default function ScheduleGenerator() {
     try {
       const raw = await generate_schedule(form);
       setNewSchedule(raw, form.start_year, form.start_term, allCourses, false);
-      navigate('/');
+      navigate('/editor');
     } catch (err) {
       console.error(err);
       setError('Failed to generate schedule: ' + err.message);

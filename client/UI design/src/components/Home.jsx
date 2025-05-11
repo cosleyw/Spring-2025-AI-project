@@ -1,7 +1,6 @@
 // src/components/Home.jsx
 import { DragDropContext } from '@hello-pangea/dnd';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useSchedule } from '../context/ScheduleContext';
 import { useCourses } from '../hooks/useCourses';
 import CourseDetailPanel from './CourseDetailPanel';
@@ -10,7 +9,6 @@ import './Home.css';
 import ScheduleViewer from './ScheduleViewer';
 
 export default function Home() {
-  const navigate = useNavigate();
   const { courses } = useCourses();
   const { schedule, setSchedule } = useSchedule();
   const [selectedCourse, setSelectedCourse] = useState(null);

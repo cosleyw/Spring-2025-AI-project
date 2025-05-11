@@ -1,5 +1,5 @@
 // src/App.jsx
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import './App.css';
 import Home from './components/Home';
 import Layout from './components/Layout';
@@ -10,8 +10,9 @@ import { ScheduleProvider } from './context/ScheduleContext';
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/schedule/generate" element={<ScheduleGenerator />} />
-      <Route path="/*" element={<Home />} />
+      <Route path="/" element={<Navigate to="/generate" replace />} />
+      <Route path="/generate" element={<ScheduleGenerator />} />
+      <Route path="/editor" element={<Home />} />
     </Routes>
   );
 }
