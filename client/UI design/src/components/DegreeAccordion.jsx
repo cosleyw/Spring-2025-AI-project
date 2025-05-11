@@ -1,26 +1,32 @@
 // src/components/DegreeAccordion.jsx
 import { useEffect, useState } from 'react';
-import { get_degree } from '../api';
+import { get_degrees_full } from '../api';
 import './DegreeAccordion.css';
 
 export default function DegreeAccordion({ degreeIds }) {
   const [treeData, setTreeData] = useState([]);
   const [error, setError] = useState();
+  const [degrees, setDegrees] = useState([]);
 
   useEffect(() => {
-    if (!degreeIds || degreeIds.length === 0) return;
-    setTreeData([]);
-    setError(null);
-
-    degreeIds.forEach((degreeId) => {
-      get_degree(degreeId)
-        .then((raw) => setTreeData((prev) => [...prev, raw.degree ?? raw.node ?? raw]))
+    async function get_data() {
+      get_degrees_full()
+        .then((response) => setDegrees(Object.values(response)))
         .catch((err) => {
           console.error(err);
           setError('Failed to load requirements');
         });
+    }
+    get_data();
+  }, []);
+
+  useEffect(() => {
+    setError(null);
+
+    setTreeData(() => {
+      return degrees.filter((degree) => degreeIds.includes(degree.id)).sort((a, b) => a.id.localeCompare(b.id));
     });
-  }, [degreeIds]);
+  }, [degrees, degreeIds]);
 
   // recursive rendering
   const renderNode = (node) => {

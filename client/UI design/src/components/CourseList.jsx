@@ -5,6 +5,7 @@ import { useConfig } from '../context/GeneratorConfigContext';
 import { useSchedule } from '../context/ScheduleContext';
 import CourseDisplayList from './CourseDisplayList';
 import './CourseList.css';
+import TrashCan from './TrashCan';
 
 export default function CourseList({ courses, onSelectCourse }) {
   const [search, setSearch] = useState('');
@@ -63,6 +64,7 @@ export default function CourseList({ courses, onSelectCourse }) {
   return (
     <div className="left-panel course-list-container">
       {/* — fixed header — */}
+      <TrashCan />
       <div className="course-list-header">
         <button className="regenerate-button" disabled={loading} onClick={handleSubmit}>
           {loading ? 'Regenerating…' : 'Regenerate From Here'}

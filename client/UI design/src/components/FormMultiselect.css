@@ -1,8 +1,14 @@
-.form-multiselect-options {
+.form-multiselect-config {
     margin-bottom: 8px;
     display: flex;
     justify-content: center;
+}
 
+.form-multiselect-options {
+}
+
+.form-multiselect-options:checked {
+  background-color: #89c4d1;
 }
 
 .form-multiselect-search {

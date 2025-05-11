@@ -1,6 +1,7 @@
 // src/components/Home.jsx
 import { DragDropContext } from '@hello-pangea/dnd';
 import { useState } from 'react';
+import { useConfig } from '../context/GeneratorConfigContext';
 import { useSchedule } from '../context/ScheduleContext';
 import { useCourses } from '../hooks/useCourses';
 import CourseDetailPanel from './CourseDetailPanel';
@@ -12,6 +13,7 @@ export default function Home() {
   const { courses } = useCourses();
   const { schedule, setSchedule } = useSchedule();
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const { setForm } = useConfig();
 
   const insertAtIndex = (lst, item, index) => {
     return lst.toSpliced(index, 0, item);
@@ -67,6 +69,12 @@ export default function Home() {
               : sem
           )
         );
+      }
+
+      if (destination.droppableId === 'trash') {
+        setForm((prev) => {
+          return { ...prev, block_ids: [...prev['block_ids'], draggableId] };
+        });
       }
     }
   };
