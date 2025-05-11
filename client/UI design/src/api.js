@@ -52,6 +52,13 @@ export async function get_degrees() {
     }));
 }
 
+/** GET /degrees → [ { id, ... } ] */
+export async function get_degrees_full() {
+  const data = await fetchJson('/degrees');
+  const raw = data.degrees ?? data;
+  return Object.values(raw);
+}
+
 /** GET /degrees/:id → full degree tree node */
 export async function get_degree(id) {
   const data = await fetchJson(`/degrees/${encodeURIComponent(id)}`);
