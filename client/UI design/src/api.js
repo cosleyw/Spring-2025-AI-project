@@ -1,8 +1,30 @@
 // src/api.js
 const PROXY = import.meta.env.VITE_API_PROXY ?? '/api';
+//const PROXY = import.meta.env.MODE === 'development' ? (import.meta.env.VITE_API_PROXY ?? `api`) : "http://152.67.227.147"
+
+async function post(path, body) {
+  console.log("psoting with the body")
+  console.log(body)
+  const res = await fetch(`${PROXY}${path}`, {
+    method:"POST",
+    headers: new Headers({'content-type': 'application/json'}),
+    body: body,
+  });
+  if (!res.ok) {
+    let text = '';
+    try { text = await res.text() } catch {}
+    throw new Error(
+      `API ${path} failed: ${res.status} ${res.statusText}` +
+      (text ? ` – ${text}` : '')
+    );
+  }
+  return res.json();
+}
 
 async function fetchJson(path, options = {}) {
-  const res = await fetch(`${PROXY}${path}`, options);
+  const res = await fetch(`${PROXY}${path}`, {
+    mode:"no-cors",
+  });
   if (!res.ok) {
     let text = '';
     try { text = await res.text() } catch {}
@@ -107,4 +129,11 @@ export async function generate_schedule(form) {
   const arr  = Array.isArray(data) ? data : data.schedule;
   if (!Array.isArray(arr)) throw new Error('Unexpected schedule response');
   return arr;
+}
+
+export async function post_schedule(schedule) {
+  const filtered_schedule = schedule.map(semester => {
+    return semester["courses"].map(course => ({'id': course['id'], 'name': course['name']}))
+  })
+  await post(`/schedules/save`, JSON.stringify({"schedule": filtered_schedule}));
 }

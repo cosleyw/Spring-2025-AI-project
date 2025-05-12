@@ -2,17 +2,24 @@ import { Draggable } from '@hello-pangea/dnd';
 import ConditionalButton from './ConditionalButton';
 import './CourseDisplayList.css';
 
-function CourseDisplayList({ courses, page_size, onClick, page, setPage }) {
+function CourseDisplayList({ courses, page_size, onClick, page, setPage, saveSchedule }) {
   const decrement = () => setPage((p) => p - 1);
   const increment = () => setPage((p) => p + 1);
 
   return (
     <>
       <div className="course-display-list">
-        <ConditionalButton condition={page > 0} onClick={decrement}>
+        <ConditionalButton condition={page > 0} onClick={decrement} className="previous-button">
           Previous
         </ConditionalButton>
-        <ConditionalButton condition={courses.length > (page + 1) * page_size - 1} onClick={increment}>
+        <button onClick={saveSchedule} className="save-button">
+          Save
+        </button>
+        <ConditionalButton
+          condition={courses.length > (page + 1) * page_size - 1}
+          onClick={increment}
+          className="next-button"
+        >
           Next
         </ConditionalButton>
       </div>
@@ -35,10 +42,14 @@ function CourseDisplayList({ courses, page_size, onClick, page, setPage }) {
       ))}
 
       <div className="course-display-list">
-        <ConditionalButton condition={page > 0} onClick={decrement}>
+        <ConditionalButton condition={page > 0} onClick={decrement} className="previous-button">
           Previous
         </ConditionalButton>
-        <ConditionalButton condition={courses.length > (page + 1) * page_size - 1} onClick={increment}>
+        <ConditionalButton
+          condition={courses.length > (page + 1) * page_size - 1}
+          onClick={increment}
+          className="next-button"
+        >
           Next
         </ConditionalButton>
       </div>

@@ -1,6 +1,6 @@
 import { Droppable } from '@hello-pangea/dnd';
 import { useEffect, useMemo, useState } from 'react';
-import { generate_schedule } from '../api';
+import { generate_schedule, post_schedule } from '../api';
 import { useConfig } from '../context/GeneratorConfigContext';
 import { useSchedule } from '../context/ScheduleContext';
 import CourseDisplayList from './CourseDisplayList';
@@ -40,6 +40,10 @@ export default function CourseList({ courses, onSelectCourse }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSaveSchedule = (e) => {
+    post_schedule(schedule);
   };
 
   // If search changes, reset page number
@@ -89,6 +93,7 @@ export default function CourseList({ courses, onSelectCourse }) {
                 onClick={onSelectCourse}
                 page={page}
                 setPage={setPage}
+                saveSchedule={handleSaveSchedule}
               />
               {provided.placeholder}
             </div>
