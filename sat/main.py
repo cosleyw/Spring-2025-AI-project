@@ -17,6 +17,7 @@ import logging
 
 # Alternated format for date - datefmt='%Y-%m-%d:%H:%M:%S',
 logging.basicConfig(
+    filename="log.out",
     level=logging.DEBUG,
     format="%(asctime)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s",
     datefmt="%H:%M:%S",
