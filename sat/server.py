@@ -1,9 +1,11 @@
 from typing import Annotated
 from fastapi import FastAPI, Query
-from models import ScheduleConfiguration
+from models import ScheduleConfiguration, UserSchedule
 from config import COURSES_FILE_NAME, DEGREES_FILE_NAME
 import math
 import json
+import datetime
+import os
 
 
 from main import CourseSATSolver, Offering
@@ -128,3 +130,45 @@ def generate_schedule(configuration: Annotated[ScheduleConfiguration, Query()]):
         "status": "success",
         "schedule": c.get_plan_with_ids(),
     }
+
+@app.post("/schedules/saveinput", summary ="Save user configs", tags = [schedules])
+def save_Input(configuration: Annotated[ScheduleConfiguration, Query()]):
+        path = "plans"
+        if not os.path.exists(path):
+            os.makedirs(path)
+        filename = "UnsavedPlan.txt"
+        with open(os.path.join(path, filename),"w") as f:
+                f.write(f"{filename}")
+        with open(os.path.join(path, filename),"a") as f:
+                f.write(f"\nInput-")
+                f.write(f"\nSemester Count: {configuration.semester_count}")
+                f.write(f"\nMinimum Credits Per Semester: {configuration.min_credits_per_semester}")
+                f.write(f"\nMaximum Credits Per Semester: {configuration.max_credits_per_semester}")
+                f.write(f"\nStart as Fall: {configuration.starts_as_fall}")
+                f.write(f"\nStart Year: {configuration.start_year}")
+                f.write(f"\nTransferred Courses: {configuration.transferred_course_ids}")
+                f.write(f"\nDesired Courses: {configuration.desired_course_ids}")
+                f.write(f"\nUndesired Courses: {configuration.undesired_course_ids}")
+                f.write(f"\nDesired Degrees: {configuration.desired_degree_ids}")
+                f.write(f"\nFirst Semester Sophomore: {configuration.first_semester_sophomore}")
+                f.write(f"\nFirst Semester Junior: {configuration.first_semester_junior}")
+                f.write(f"\nFirst Semester Senior: {configuration.first_semester_senior}")
+    return {"status": "success"}
+
+@app.post("schedules/save", summary = "Save Schedule", tags = [schedules])
+def save_schedule(user_schedule: UserSchedule):
+        schedule_array = user_schedule.schedule
+        dateTimeNow = str(datetime.datetime.now())
+        dateTimeNow = dateTimeNow.replace(':','.')
+        filename = "Plan-" + dateTimeNow + ".txt"
+        os.rename("plans/UnsavedPlan.txt","plans/" + filename)
+        with open(os.path.join(path, filename),"a") as f:
+                f.write(f"/n/nOutput")
+        for i, semester in enumerate(schedule_array):
+                with open(os.path.join(path, filename),"a") as f:
+                        f.write(f"\nSemester {i+1}")
+                for course in semester:
+                       with open(os.path.join(path, filename),"a") as f:
+                                f.write(f"\n\t" + course["id"] + "::" + course["name"])
+          
+        return {"status": "success"}
