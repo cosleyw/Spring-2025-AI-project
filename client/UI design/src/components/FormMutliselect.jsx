@@ -10,8 +10,8 @@ function FormMultiselect({ ids, data, handleMouseDown, classes, title, required 
     () =>
       data.filter(
         (data_piece) =>
-          (data_piece.id.toLowerCase().search(searchTerm.toLowerCase()) !== -1 ||
-            data_piece.name.toLowerCase().search(searchTerm.toLowerCase()) !== -1) &&
+          (data_piece.id.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1 ||
+            data_piece.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) &&
           (!onlyActive || ids.includes(data_piece.id))
       ),
     [ids, data, searchTerm, onlyActive]
