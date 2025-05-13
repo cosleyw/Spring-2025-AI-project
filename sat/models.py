@@ -77,3 +77,8 @@ class ScheduleConfiguration(BaseModel):
     @property
     def transferred_course_ids(self) -> list[str]:
         return parse_transferred_course_ids(self.transferred_course_ids_str)
+
+
+class UserSchedule(BaseModel):
+    schedule: list[list[dict[str, str]]]
+    
