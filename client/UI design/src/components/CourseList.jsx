@@ -21,11 +21,13 @@ export default function CourseList({ courses, onSelectCourse }) {
     try {
       let desired_courses = {};
       // Load the new, session-specific desired courses
-      schedule.map((semester, i) =>
-        semester['courses']
-          .filter((course) => course.hasOwnProperty('desired'))
-          .forEach((course) => (desired_courses[course['id']] = `${course['id']}@${i + 1}`))
-      );
+      schedule
+        .slice(0, form.semester_count) // Failsafe incase you change it in settings
+        .map((semester, i) =>
+          semester['courses']
+            .filter((course) => course.hasOwnProperty('desired'))
+            .forEach((course) => (desired_courses[course['id']] = `${course['id']}@${i + 1}`))
+        );
       // Load the settings desired courses
       form.desired_ids.forEach((id) => {
         if (!(id in desired_courses)) {

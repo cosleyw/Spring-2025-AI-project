@@ -1,0 +1,18 @@
+.modal-buffer {
+    position: absolute;
+    z-index: 50;
+    height:100%;
+    width:100%;
+    top: 0;
+    left: 0;
+    backdrop-filter: blur(2px);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-container>div {
+    margin: 0;
+}

@@ -9,7 +9,7 @@ import DegreeAccordion from './DegreeAccordion';
 import FormMultiselect from './FormMutliselect';
 import './ScheduleGenerator.css';
 
-export default function ScheduleGenerator() {
+export default function ScheduleGenerator({ title, showGenerate = true, handleClose }) {
   // pull both the current schedule & setter from context
   const navigate = useNavigate();
   const { setNewSchedule } = useSchedule();
@@ -65,7 +65,7 @@ export default function ScheduleGenerator() {
 
   return (
     <div className="schedule-generator">
-      <h2>Schedule Configuration</h2>
+      <h2>{title}</h2>
       {/* form.desired_degree_ids_str && <DegreeTree degreeId={form.desired_degree_ids_str} /> */}
       {error && <div className="error">{error}</div>}
 
@@ -175,9 +175,16 @@ export default function ScheduleGenerator() {
           title="Desired Courses (any term):"
         />
 
-        <button type="submit" className="generate-button" disabled={loading}>
-          {loading ? 'Generating…' : 'Save and Generate Schedule'}
-        </button>
+        {showGenerate && (
+          <button type="submit" className="generate-button" disabled={loading}>
+            {loading ? 'Generating…' : 'Save and Generate Schedule'}
+          </button>
+        )}
+        {!showGenerate && (
+          <button type="submit" className="close-button" onClick={handleClose}>
+            Close
+          </button>
+        )}
       </form>
     </div>
   );

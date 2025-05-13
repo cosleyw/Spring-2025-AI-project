@@ -11,7 +11,14 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/generate" replace />} />
-      <Route path="/generate" element={<ScheduleGenerator />} />
+      <Route
+        path="/generate"
+        element={
+          <Layout>
+            <ScheduleGenerator title="Initial Generation Settings" />
+          </Layout>
+        }
+      />
       <Route path="/editor" element={<Home />} />
     </Routes>
   );
@@ -22,9 +29,7 @@ export default function App() {
     <ScheduleProvider>
       <GeneratorConfigProvider>
         <BrowserRouter>
-          <Layout>
-            <AppRoutes />
-          </Layout>
+          <AppRoutes />
         </BrowserRouter>
       </GeneratorConfigProvider>
     </ScheduleProvider>
