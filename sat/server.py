@@ -170,5 +170,7 @@ def save_schedule(user_schedule: UserSchedule):
                 for course in semester:
                        with open(os.path.join(path, filename),"a") as f:
                                 f.write(f"\n\t" + course["id"] + "::" + course["name"])
+        with open(os.path.join(path, filename),"a") as f:
+                f.write(f"/n/nReviews-/n")
           
         return {"status": "success"}
