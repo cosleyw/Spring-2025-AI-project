@@ -1,7 +1,9 @@
-from typing import Any, override
-import unittest
-import os
 import logging
+import os
+import re
+import unittest
+from io import StringIO
+from typing import Any, override
 
 from main import CourseSATSolver
 
@@ -126,6 +128,81 @@ class TestCourseSATSolver(unittest.TestCase):
         for plan in plans:
             flat = self.flatten(plan)
             self.assertListEqual(flat, ["cs 2100"], "Correct courses in schedule for 1 course degree with no reqs")
+
+    def test_rank_sophomore(self):
+        c: CourseSATSolver = self.create_with_defaults(
+            desired_degree_ids=["cs 2100"],
+            courses_file_name=test_path("rank-sophomore-cs2100.json"),
+            degrees_file_name=test_path("single-course-degree.json"),
+            first_semester_sophomore=3,
+            first_semester_junior=None,
+            first_semester_senior=None,
+        )
+
+        c.solve_all()
+        plans = c.get_plans_with_ids()
+
+        self.assertEqual(len(plans), 2, "Number of schedules for degree with sophomore prereq")
+
+        for plan in plans:
+            self.assertEqual(len(plan[0]), 0, "No courses should be taken before sophomore")
+            self.assertEqual(len(plan[1]), 0, "No courses should be taken before sophomore")
+            flat = self.flatten(plan[2:])
+            self.assertListEqual(flat, ["cs 2100"], "Course should still be taken")
+
+    def test_rank_junior(self):
+        c: CourseSATSolver = self.create_with_defaults(
+            desired_degree_ids=["cs 2100"],
+            courses_file_name=test_path("rank-junior-cs2100.json"),
+            degrees_file_name=test_path("single-course-degree.json"),
+            first_semester_sophomore=1,
+            first_semester_junior=3,
+            first_semester_senior=None,
+        )
+
+        c.solve_all()
+        plans = c.get_plans_with_ids()
+
+        self.assertEqual(len(plans), 2, "Number of schedules for degree with junior prereq")
+
+        for plan in plans:
+            self.assertEqual(len(plan[0]), 0, "No courses should be taken before junior")
+            self.assertEqual(len(plan[1]), 0, "No courses should be taken before junior")
+            flat = self.flatten(plan[2:])
+            self.assertListEqual(flat, ["cs 2100"], "Course should still be taken")
+
+    def test_rank_senior(self):
+        c: CourseSATSolver = self.create_with_defaults(
+            desired_degree_ids=["cs 2100"],
+            courses_file_name=test_path("rank-senior-cs2100.json"),
+            degrees_file_name=test_path("single-course-degree.json"),
+            first_semester_sophomore=1,
+            first_semester_junior=1,
+            first_semester_senior=3,
+        )
+
+        c.solve_all()
+        plans = c.get_plans_with_ids()
+
+        self.assertEqual(len(plans), 2, "Number of schedules for degree with senior prereq")
+
+        for plan in plans:
+            self.assertEqual(len(plan[0]), 0, "No courses should be taken before senior")
+            self.assertEqual(len(plan[1]), 0, "No courses should be taken before senior")
+            flat = self.flatten(plan[2:])
+            self.assertListEqual(flat, ["cs 2100"], "Course should still be taken")
+
+    def test_rank_impossible(self):
+        c: CourseSATSolver = self.create_with_defaults(
+            desired_degree_ids=["cs 2100"],
+            courses_file_name=test_path("rank-sophomore-cs2100.json"),
+            degrees_file_name=test_path("single-course-degree.json"),
+            first_semester_sophomore=None,
+            first_semester_junior=None,
+            first_semester_senior=None,
+        )
+
+        self.assertFalse(c.solve(), "Should not be able to solve when never rank required by course")
 
     def test_prereq(self):
         c: CourseSATSolver = self.create_with_defaults(
@@ -603,6 +680,53 @@ class TestCourseSATSolver(unittest.TestCase):
         flat_plan = self.flatten(c.get_plan_with_ids())
 
         self.assertEqual(set(flat_plan), set(["cs 1410"]), "Overlapping degrees should only take 1 required course")
+
+    def test_season_names(self):
+        semesters_and_names = [
+            [
+                {"starts_as_fall": False, "start_year": 2025},
+                ["Spring 2025", "Fall 2025", "Spring 2026", "Fall 2026"],
+            ],
+            [
+                {"starts_as_fall": True, "start_year": 2025},
+                ["Fall 2025", "Spring 2026", "Fall 2026", "Spring 2027"],
+            ],
+            [
+                {"starts_as_fall": False, "start_year": 2026},
+                ["Spring 2026", "Fall 2026", "Spring 2027", "Fall 2027"],
+            ],
+            [
+                {"starts_as_fall": True, "start_year": 2026},
+                ["Fall 2026", "Spring 2027", "Fall 2027", "Spring 2028"],
+            ],
+        ]
+
+        for semester_name_pair in semesters_and_names:
+            season_info = semester_name_pair[0]
+            names = semester_name_pair[1]
+            c: CourseSATSolver = self.create_with_defaults(
+                desired_degree_ids=["cs 2100"],
+                courses_file_name=test_path("noreq-cs2100.json"),
+                degrees_file_name=test_path("single-course-degree.json"),
+                **season_info,
+            )
+            for i, name in enumerate(names):
+                self.assertEqual(c._get_semester_name(i + 1), name, "Semester name matches expected name")
+
+    def test_display_seasons_preorco(self):
+        c: CourseSATSolver = self.create_with_defaults(
+            desired_degree_ids=["cs 2100"],
+            courses_file_name=test_path("preorco-cs2100.json"),
+            degrees_file_name=test_path("single-course-degree.json"),
+        )
+
+        c.solve_all()
+
+        possible_line_pattern = re.compile("^INFO:root:(Plan \d+:|Semester \d+: (Transferred|Fall \d{4}|Spring \d{4})|\s+(cs 1100:Web Development: Client-Side Coding|cs 2100:Web Development: Server-side Coding):((k!\d{1,},?)+))$")
+        with self.assertLogs(logging.getLogger(), level="INFO") as lc:
+            c.display()
+            for line in lc.output:
+                self.assertTrue(re.match(possible_line_pattern, line))
 
 
 if __name__ == "__main__":

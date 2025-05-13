@@ -7,6 +7,9 @@ setup:
 test:
 	source venv/bin/activate && python -m unittest test_*.py
 
+mutate:
+	rm -f main.sqlite && source venv/bin/activate && cosmic-ray init main.toml main.sqlite && cosmic-ray --verbosity=INFO baseline main.toml && cosmic-ray exec main.toml main.sqlite && cr-html main.sqlite > report.html
+
 serve:
 	source venv/bin/activate && uvicorn server:app --reload --host 0.0.0.0 --timeout-keep-alive 30 --port 80 >> log.dev 2>&1
 

@@ -1,19 +1,17 @@
+import json
+import logging
+import os
 from collections import Counter
 from enum import StrEnum
-import json
 from typing import Any, Generator, TypeVar, override
-import os
 
 from typeguard import typechecked
 from z3 import Implies
 from z3.z3 import And, ArithRef, Bool, BoolRef, BoolVal, Int, IntNumRef, ModelRef, Not, Optimize, Or, sat  # type: ignore[import-untyped]
 
 from config import COURSES_FILE_NAME, DATA_DIR, DEGREES_FILE_NAME, UNSOLVABLE_DEGREES_FILE_NAME
-from util import load_solvable_degrees
-
 from degree_requirement_manager import DegreeRequirementManager
-
-import logging
+from util import load_solvable_degrees
 
 # Alternated format for date - datefmt='%Y-%m-%d:%H:%M:%S',
 logging.basicConfig(
@@ -491,6 +489,16 @@ class Course:
             return self.get_id() == other.get_id()
         return self.get_id() == other
 
+    def __ge__(self, other: Any) -> bool:
+        if isinstance(other, Course):
+            return self.get_id() >= other.get_id()
+        return self.get_id() >= other
+
+    def __lt__(self, other: Any) -> bool:
+        if isinstance(other, Course):
+            return self.get_id() < other.get_id()
+        return self.get_id() < other
+
 
 @typechecked
 class CourseSATSolver:
@@ -869,7 +877,7 @@ class CourseSATSolver:
             logging.warning("CourseSATSolver needs to be solved before a plan can be displayed")
             return
 
-        for plan_id, plan in enumerate(self.possible_plans):
+        for plan_id, plan in enumerate(sorted(self.possible_plans)):
             logging.info(f"Plan {plan_id + 1}:")
             for i, semester in enumerate(plan):
                 semester_name: str
@@ -979,14 +987,15 @@ if __name__ == "__main__":
 
     # degrees = ["COMPUTER SCIENCE BS MAJOR (2016-2025) 81SBS"]
     # degrees = ["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"]
-    degrees = ["BIOLOGY:  ECOLOGY, EVOLUTION, & ORGANISMAL BIO BA MAJOR (2024-2025) 84GBA"]
+    # degrees = ["BIOLOGY:  ECOLOGY, EVOLUTION, & ORGANISMAL BIO BA MAJOR (2024-2025) 84GBA"]
+    degrees = ["UNIFI"]
     # degrees = ["MECHANICAL ENGINEERING TECHNOLOGY BS (2024-PRESENT) 35DBS"]
 
     for degree in degrees:
         logging.info(f"Running for {degree}...")
         c: CourseSATSolver = CourseSATSolver(
-            semester_count=8,  # Number of semester to calculate for
-            min_credit_per_semester=12,  # Minimum credits (inclusive)
+            semester_count=4,  # Number of semester to calculate for
+            min_credit_per_semester=0,  # Minimum credits (inclusive)
             max_credits_per_semester=18,  # Maximum credits (inclusive)
             starts_as_fall=True,
             start_year=2025,
@@ -994,9 +1003,9 @@ if __name__ == "__main__":
             desired_course_ids=[],
             undesired_course_ids=[],
             desired_degree_ids=[degree],
-            first_semester_sophomore=3,  # NOTE: One-indexed!
-            first_semester_junior=5,
-            first_semester_senior=7,
+            first_semester_sophomore=1,  # NOTE: One-indexed!
+            first_semester_junior=1,
+            first_semester_senior=3,
         )
 
         c.setup()
