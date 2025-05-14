@@ -671,7 +671,7 @@ class CourseSATSolver:
                     print(f"\t{course}")
 
 
-    
+    ''' might delete, redundant 
     def savefile(self) -> None:
         if self.plan is None:
             raise ValueError("CourseSATSolver needs to be solver before a plan can be saved")
@@ -714,7 +714,7 @@ class CourseSATSolver:
                 for course in sorted(semester, key=lambda course: course.get_id()):
                     with open(os.path.join(path, filename),"a") as f:
                         f.write(f"\n\t{course}")
-
+    '''
     
     def _get_semester_name(self, semester: int) -> str:
         season: str
@@ -762,7 +762,7 @@ if __name__ == "__main__":
 
     c.solve()
     c.display()
-    c.safefile()
+    # c.safefile()
 
     # while c.solve():
     #    pass
