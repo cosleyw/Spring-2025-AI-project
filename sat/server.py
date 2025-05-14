@@ -176,7 +176,7 @@ def save_schedule(user_schedule: UserSchedule):
         return {"status": "success"}
 
 
-#app.post("schedules/addreview", summary = "Save Review", tags = [schedules])
+@app.post("schedules/addreview", summary = "Save Review", tags = [schedules])
 def addReview(filename,review):
         with open(os.path.join("plans", filename),"a") as f:         
                 f.write(f"/n"+ str(review) +"/n")
