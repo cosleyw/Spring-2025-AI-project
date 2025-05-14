@@ -1,0 +1,54 @@
+.suggested-schedules {
+    width: min(1200px, 90vw);
+    background-color: rgb(238, 238, 238);
+    max-height: 90vh;
+    border-radius: 8px;
+    color:black;
+    border:2px solid #007bff;
+}
+
+.suggested-feedback-form{
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+.suggested-feedback-input{
+    width: 500px;
+}
+
+.suggested-feedback-form-button {
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.suggested-feedback-form-button button {
+    width: 200px;
+    font-size: 0.8rem;
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+.suggested-schedules-bar {
+    padding: 20px 40px 10px 40px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+}
+
+.suggested-schedules-close-button {
+  background: #979797;
+  color: white;
+  font-weight: bold;
+}
+
+.suggested-schedules-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: row;
+}

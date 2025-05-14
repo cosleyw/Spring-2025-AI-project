@@ -13,7 +13,7 @@ function CourseDisplayList({ courses, page_size, onClick, page, setPage, saveSch
           Previous
         </ConditionalButton>
         <button onClick={saveSchedule} className="save-button">
-          Save
+          Submit
         </button>
         <ConditionalButton
           condition={courses.length > (page + 1) * page_size - 1}
