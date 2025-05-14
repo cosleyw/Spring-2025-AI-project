@@ -131,7 +131,7 @@ def generate_schedule(configuration: Annotated[ScheduleConfiguration, Query()]):
         "schedule": c.get_plan_with_ids(),
     }
 
-@app.post("/schedules/saveinput", summary ="Save user configs", tags = [schedules])
+@app.post("/schedules/saveinput", summary ="Save user configs", tags = ["schedules"])
 def save_Input(configuration: Annotated[ScheduleConfiguration, Query()]):
         path = "plans"
         if not os.path.exists(path):
@@ -155,7 +155,7 @@ def save_Input(configuration: Annotated[ScheduleConfiguration, Query()]):
                 f.write(f"\nFirst Semester Senior: {configuration.first_semester_senior}")
     return {"status": "success"}
 
-@app.post("schedules/save", summary = "Save Schedule", tags = [schedules])
+@app.post("schedules/save", summary = "Save Schedule", tags = ["schedules"])
 def save_schedule(user_schedule: UserSchedule):
         schedule_array = user_schedule.schedule
         dateTimeNow = str(datetime.datetime.now())
@@ -176,7 +176,7 @@ def save_schedule(user_schedule: UserSchedule):
         return {"status": "success"}
 
 
-@app.post("schedules/addreview", summary = "Save Review", tags = [schedules])
+@app.post("schedules/addreview", summary = "Save Review", tags = ["schedules"])
 def addReview(filename,review):
         with open(os.path.join("plans", filename),"a") as f:         
                 f.write(f"/n"+ str(review) +"/n")
