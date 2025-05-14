@@ -174,3 +174,10 @@ def save_schedule(user_schedule: UserSchedule):
                 f.write(f"/n/nReviews-/n")
           
         return {"status": "success"}
+
+
+#app.post("schedules/addreview", summary = "Save Review", tags = [schedules])
+def addReview(filename,review):
+        with open(os.path.join("plans", filename),"a") as f:         
+                f.write(f"/n"+ str(review) +"/n")
+        return {"status": "success"}
