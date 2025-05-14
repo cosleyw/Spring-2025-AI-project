@@ -1,0 +1,14 @@
+{
+    "cs 2100": {
+        "type": "course-range",
+        "n": 1,
+        "m": 1,
+        "options": [
+            {
+                "type": "course",
+                "dept": "cs",
+                "number": "2100"
+            }
+        ]
+    }
+}

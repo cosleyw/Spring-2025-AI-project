@@ -1,0 +1,33 @@
+{
+    "CS:BA": {
+        "type": "course-range",
+        "n": 1,
+        "m": 1,
+        "options": [
+            {
+                "type": "course-range",
+                "n": 1,
+                "m": 1,
+                "options": [
+                    {
+                        "type": "course",
+                        "dept": "cs",
+                        "number": "1410"
+                    }
+                ]
+            },
+            {
+                "type": "course-range",
+                "n": 1,
+                "m": 1,
+                "options": [
+                    {
+                        "type": "course",
+                        "dept": "cs",
+                        "number": "1410"
+                    }
+                ]
+            }
+        ]
+    }
+}

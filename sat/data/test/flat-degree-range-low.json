@@ -1,0 +1,14 @@
+{
+    "CS:BA": {
+        "type": "credit-range",
+        "n": 1,
+        "m": 1,
+        "options": [
+            {
+                "type": "course",
+                "dept": "cs",
+                "number": "2100"
+            }
+        ]
+    }
+}

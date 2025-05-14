@@ -8,7 +8,7 @@ with open("courses.json", "r") as infile:
 i = 0
 while i < len(courses):
     course = courses[i]
-    if course["dept"] != "CS":
+    if course["dept"] != "cs":
         print("Deleting", course)
         del courses[i]
         continue

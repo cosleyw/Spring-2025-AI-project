@@ -1,0 +1,58 @@
+{
+    "CS:BA": {
+        "type": "course-range",
+        "n": 1,
+        "m": 1,
+        "options": [
+            {
+                "type": "course-range",
+                "n": 0,
+                "m": 3,
+                "options": [
+                    {
+                        "type": "course",
+                        "dept": "cs",
+                        "number": "1410"
+                    },
+                    {
+                        "type": "course",
+                        "dept": "cs",
+                        "number": "1510"
+                    },
+                    {
+                        "type": "course",
+                        "dept": "cs",
+                        "number": "1520"
+                    }
+                ]
+            },
+            {
+                "type": "course-range",
+                "n": 0,
+                "m": 3,
+                "options": [
+                    {
+                        "type": "course",
+                        "dept": "cs",
+                        "number": "1800"
+                    },
+                    {
+                        "type": "course",
+                        "dept": "cs",
+                        "number": "2530"
+                    },
+                    {
+                        "type": "course",
+                        "dept": "cs",
+                        "number": "3730"
+                    },
+                    {
+                        "type": "course",
+                        "dept": "cs",
+                        "number": "3470"
+                    }
+                ]
+            }
+        ]
+    }
+}

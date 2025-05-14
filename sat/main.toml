@@ -1,0 +1,8 @@
+[cosmic-ray]
+module-path = "main.py"
+timeout = 60.0
+excluded-modules = []
+test-command = "python -m unittest test_main.py"
+
+[cosmic-ray.distributor]
+name = "local"

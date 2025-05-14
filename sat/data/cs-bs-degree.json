@@ -1,0 +1,372 @@
+{
+    "COMPUTER SCIENCE BS MAJOR (2016-2025) 81SBS": {
+        "type": "credit-range",
+        "n": 56,
+        "m": 56,
+        "options": [
+            {
+                "type": "tag",
+                "info": "REQUIRED COMPUTER SCIENCE COURSES",
+                "node": {
+                    "type": "credit-range",
+                    "n": 19,
+                    "m": 19,
+                    "options": [
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "1410"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "1510"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "1520"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "1800"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "2530"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "3730"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "4800"
+                        }
+                    ]
+                }
+            },
+            {
+                "type": "tag",
+                "info": "MATH REQUIRED COURSES",
+                "node": {
+                    "type": "course-range",
+                    "n": 4,
+                    "m": 4,
+                    "options": [
+                        {
+                            "type": "course",
+                            "dept": "math",
+                            "number": "1420"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "math",
+                            "number": "1421"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "math",
+                            "number": "2500"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "stat",
+                            "number": "1772"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "math",
+                            "number": "3440"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "math",
+                            "number": "3530"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "math",
+                            "number": "3752"
+                        }
+                    ]
+                }
+            },
+            {
+                "type": "tag",
+                "info": "FOUNDATIONS SPECIALTY AREA",
+                "node": {
+                    "type": "course-range",
+                    "n": 3,
+                    "m": 3,
+                    "options": [
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "3530"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "3540"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "3810"
+                        },
+                        {
+                            "type": "course",
+                            "dept": "cs",
+                            "number": "4550"
+                        }
+                    ]
+                }
+            },
+            {
+                "type": "tag",
+                "info": "SECOND SPECIALTY AREA",
+                "node": {
+                    "type": "course-range",
+                    "n": 3,
+                    "m": 3,
+                    "options": [
+                        {
+                            "type": "course-range",
+                            "n": 3,
+                            "m": 3,
+                            "options": [
+                                {
+                                    "type": "course-range",
+                                    "n": 2,
+                                    "m": 2,
+                                    "options": [
+                                        {
+                                            "type": "course",
+                                            "dept": "cs",
+                                            "number": "3140"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "dept": "cs",
+                                            "number": "3150"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "dept": "cs",
+                                            "number": "3610"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "dept": "cs",
+                                            "number": "3650"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "4620"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "course-range",
+                            "n": 3,
+                            "m": 3,
+                            "options": [
+                                {
+                                    "type": "course-range",
+                                    "n": 2,
+                                    "m": 2,
+                                    "options": [
+                                        {
+                                            "type": "course",
+                                            "dept": "cs",
+                                            "number": "2720"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "dept": "cs",
+                                            "number": "3120"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "dept": "cs",
+                                            "number": "3750"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "4740"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "all",
+                            "req": [
+                                {
+                                    "type": "course-range",
+                                    "n": 2,
+                                    "m": 2,
+                                    "options": [
+                                        {
+                                            "type": "course",
+                                            "dept": "cs",
+                                            "number": "2420"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "dept": "cs",
+                                            "number": "3430"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "dept": "cs",
+                                            "number": "3470"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "dept": "cs",
+                                            "number": "4400"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "course-range",
+                                    "n": 1,
+                                    "m": 1,
+                                    "options": [
+                                        {
+                                            "type": "course",
+                                            "dept": "cs",
+                                            "number": "4410"
+                                        },
+                                        {
+                                            "type": "course",
+                                            "dept": "cs",
+                                            "number": "4420"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                "type": "tag",
+                "info": "NON-SPECIALTY ELECTIVES",
+                "node": {
+                    "type": "course-range",
+                    "n": 2,
+                    "m": 2,
+                    "options": [
+                        {
+                            "type": "course-range",
+                            "n": 0,
+                            "m": 1,
+                            "options": [
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "3140"
+                                },
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "3150"
+                                },
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "3610"
+                                },
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "3650"
+                                },
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "4620"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "course-range",
+                            "n": 0,
+                            "m": 1,
+                            "options": [
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "2720"
+                                },
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "3120"
+                                },
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "3750"
+                                },
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "4740"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "course-range",
+                            "n": 0,
+                            "m": 1,
+                            "options": [
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "2420"
+                                },
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "3430"
+                                },
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "3470"
+                                },
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "4400"
+                                },
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "4410"
+                                },
+                                {
+                                    "type": "course",
+                                    "dept": "cs",
+                                    "number": "4420"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

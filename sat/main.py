@@ -1,28 +1,49 @@
-from enum import StrEnum
 import json
+import logging
+import os
+from collections import Counter
+from enum import StrEnum
 from typing import Any, Generator, TypeVar, override
 
 from typeguard import typechecked
 from z3 import Implies
-from z3.z3 import And, Bool, BoolRef, BoolVal, ModelRef, Not, Optimize, Or, sat  # type: ignore[import-untyped]
+from z3.z3 import And, ArithRef, Bool, BoolRef, BoolVal, Int, IntNumRef, ModelRef, Not, Optimize, Or, sat  # type: ignore[import-untyped]
 
-from config import COURSES_FILE_NAME, DEGREES_FILE_NAME
-
+from config import COURSES_FILE_NAME, DATA_DIR, DEGREES_FILE_NAME, UNSOLVABLE_DEGREES_FILE_NAME
 from degree_requirement_manager import DegreeRequirementManager
+from util import load_solvable_degrees
+
+# Alternated format for date - datefmt='%Y-%m-%d:%H:%M:%S',
+logging.basicConfig(
+    filename="log.out",
+    level=logging.DEBUG,
+    format="%(asctime)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s",
+    datefmt="%H:%M:%S",
+)
+
+# Log to both terminal and stdout (technically might be stderr)
+logging.getLogger().addHandler(logging.StreamHandler())
 
 
 @typechecked
 class Offering(StrEnum):
-    FALL = "FALL"
+    FALL_SPRING_SUMMER = "FALL, SPRING, SUMMER"
     SPRING = "SPRING"
+    FALL = "FALL"
     FALL_AND_SPRING = "FALL AND SPRING"
+    SUMMER = "SUMMER"
     VARIABLE = "VARIABLE"
-    EVEN_FALLS = "EVEN FALLS"
+    ODD_SPRINGS = "ODD SPRINGS"
     ODD_FALLS = "ODD FALLS"
     EVEN_SPRINGS = "EVEN SPRINGS"
-    ODD_SPRINGS = "ODD SPRINGS"
-    FALL_SPRING_SUMMER = "FALL, SPRING, SUMMER"
-    SUMMER = "SUMMER"
+    EVEN_FALLS = "EVEN FALLS"
+    ODD_SUMMERS = "ODD SUMMERS"
+    SPRING_AND_SUMMER = "SPRING AND SUMMER"
+    FALL_OR_SPRING = "FALL OR SPRING"
+    EVEN_SUMMERS = "EVEN SUMMERS"
+    FALL_AND_VARIABLE_SPRINGS = "FALL AND VARIABLE SPRINGS"
+    SPRING_AND_EVEN_FALLS = "SPRING AND EVEN FALLS"
+    SPRING_AND_VARIABLE_FALLS = "SPRING AND VARIABLE FALLS"
 
 
 T = TypeVar("T")
@@ -35,33 +56,33 @@ def rotate(lst: list[T], n: int) -> list[T]:
 
 @typechecked
 class RefManager:
-    count: int = 0
-    store: dict[BoolRef, Any] = {}
+    def __init__(self):
+        self.count: int = 0
+        self.store: dict[BoolRef, Any] = {}
 
-    @classmethod
-    def allocate(cls, value: Any) -> BoolRef:
+    def allocate_int(self, value: Any) -> ArithRef:
+        self.count += 1
+        return Int(self.count)
+
+    def allocate(self, value: Any) -> BoolRef:
         # Update the count
-        RefManager.count += 1
-
-        allocated_value: BoolRef = Bool(RefManager.count)
-
+        self.count += 1
         # Add new item to the store
-        RefManager.store[allocated_value] = value
+        allocated_value: BoolRef = Bool(self.count)
+        self.store[allocated_value] = value
         # Return items id
         return allocated_value
 
-    @classmethod
-    def get(cls, id: BoolRef) -> Any:
-        if id not in RefManager.store:
+    def get(self, id: BoolRef) -> Any:
+        if id not in self.store:
             raise KeyError(f"Cannot find id '{id}' in store")
-        return RefManager.store[id]
+        return self.store[id]
 
-    @classmethod
-    def find(cls, value: Any, default_return: Any = -1) -> Any | None:
-        for k, v in RefManager.store.items():
-            if v == value:
-                return k
-        return default_return
+    # def find(self, value: Any, default_return: Any = -1) -> Any | None:
+    #    for k, v in self.store.items():
+    #        if v == value:
+    #            return k
+    #    return default_return
 
 
 @typechecked
@@ -76,20 +97,21 @@ class DegreeManager:
         senior: "Rank",
     ) -> None:
         for degree in self:
-            degree.get_requirements().setup(Course, Degree, sophomore, junior, senior)
-            print("Printing degree requirement classes:")
+            degree.get_requirements().setup()
+            logging.debug("Printing degree requirement classes:")
             for course in degree.get_requirements().get_courses():
-                print(f"\t{course._name}")
+                logging.debug(f"\t{course._name}")
 
     def add_degree(self, degree: "Degree"):
         if degree.get_id() in self.degrees:
             raise KeyError(f"Key {degree.get_id()} already exists in degree list")
 
+        logging.debug(f"Loading degree {degree.get_id()}")
         self.degrees[degree.get_id()] = degree
 
     def by_id(self, id: Any) -> "Degree":
         if id not in self.degrees:
-            raise IndexError(f"Unable to find id '{id}' in courses")
+            raise IndexError(f"Unable to find id '{id}' in degrees")
         return self.degrees[id]
 
     def __iter__(self) -> Generator["Degree", Any, None]:
@@ -103,12 +125,13 @@ class Degree:
         id: Any,
         name: str,
         course_manager: "CourseManager",
+        ref_manager: "RefManager",
         requirements: dict[Any, Any] = {},
     ):
         self._id: Any = id
         self._name: str = name
-        self._ref = RefManager.allocate(self)
-        self._requirements: DegreeRequirementManager = DegreeRequirementManager(course_manager, requirements)
+        self._ref = ref_manager.allocate(self)
+        self._requirements: DegreeRequirementManager = DegreeRequirementManager(course_manager, id, requirements)
 
     def get_requirements(self) -> DegreeRequirementManager:
         return self._requirements
@@ -130,13 +153,13 @@ class Degree:
 class Rank:
     # first_semester_with_rank of None is intepreted as you never become the rank
     # first_semester_with_rank of 0 is intepreted as you start with the rank
-    def __init__(self, name: str, first_semester_with_rank: int | None, semester_count: int):
+    def __init__(self, name: str, first_semester_with_rank: int | None, semester_count: int, ref_manager: "RefManager"):
         self._name: str = name
         self._first_semester_with_rank: int | None = first_semester_with_rank
         self._refs: list[BoolRef] = []
         self._semester_count: int = semester_count
         for _ in range(semester_count):
-            self._refs.append(RefManager.allocate(self))
+            self._refs.append(ref_manager.allocate(self))
 
         if (first_semester_with_rank is not None) and (first_semester_with_rank < 1 or first_semester_with_rank > semester_count):
             raise ValueError(f"Cannot start semester with rank {name} cannot be before first semester or after last semester. Set as None if never reached, and 0 is instantly reached.")
@@ -176,6 +199,7 @@ class CourseManager:
         if course.get_id() in self._courses:
             raise KeyError(f"Key {course.get_id()} already exists in course list")
 
+        logging.debug(f"Loading course {course.get_id()}")
         self._courses[course.get_id()] = course
 
     def __iter__(self) -> Generator["Course", Any, None]:
@@ -183,7 +207,7 @@ class CourseManager:
 
     def by_id(self, id: Any) -> "Course":
         if id not in self._courses:
-            raise IndexError(f"Unable to find id '{id} in courses")
+            raise IndexError(f"Unable to find id '{id}' in courses")
         return self._courses[id]
 
     def get_semester_count(self) -> int:
@@ -201,6 +225,7 @@ class Course:
         hours: list[int],
         semester: Offering | str,
         course_manager: "CourseManager",
+        ref_manager: "RefManager",
         starts_as_fall: bool,
         start_year: int,
         dept: str,
@@ -212,25 +237,36 @@ class Course:
         desc: str | None = None,
     ):
         self._name: str = name
-        self._id: Any = id.upper()  # TODO: Ideally get rid of this
+        self._id: Any = id
         self._requirements: Any = {
             "prereq": prereq,
             "coreq": coreq,
             "preorco": preorco,
         }
-        self._dept: str = dept.upper()  # TODO: Ideally get rid of this
+        self._dept: str = dept
         self._number: str = number
         # TODO: This is not the best solution, but works for now
-        self._credits: int = hours[0]
+        self._min_credits = hours[0]
+        self._max_credits = hours[-1]
+
+        if self._min_credits == self._max_credits:
+            self._credits = hours[0]
+        else:
+            self._credits = ref_manager.allocate_int(self)
+
         self._credits_repeatable_for: int | None = credits_repeatable_for
         self._starts_as_fall = starts_as_fall
         self._start_year = start_year
         self._season: Offering = Offering(semester.upper())
         self._refs: list[BoolRef] = []
-        self._taken_for_specific_rg: list[BoolRef] = []
+        self._taken_for_specific_rg: dict[str, list[BoolRef]] = {}
         self._course_manager: CourseManager = course_manager
+        self._ref_manager: RefManager = ref_manager
         for _ in range(self._course_manager.get_semester_count() + 1):  # +1 because allows a slot for transfer credits
-            self._refs.append(RefManager.allocate(self))
+            self._refs.append(self._ref_manager.allocate(self))
+
+    def is_variable_credits(self):
+        return self._min_credits != self._max_credits
 
     def get_id(self) -> Any:
         return self._id
@@ -241,24 +277,31 @@ class Course:
     def get_refs(self) -> list[BoolRef]:
         return self._refs
 
-    def get_credits(self) -> int:
+    def get_credits(self) -> int | ArithRef:
         return self._credits
 
-    # TODO: Make sure this is right
-    def add_as_degree_req(self) -> BoolRef:
-        ref = RefManager.allocate(None)
-        self._taken_for_specific_rg.append(ref)
+    def add_as_degree_req(self, degree_id: str) -> BoolRef:
+        ref = self._ref_manager.allocate(None)
+        if degree_id not in self._taken_for_specific_rg:
+            self._taken_for_specific_rg[degree_id] = []
+        self._taken_for_specific_rg[degree_id].append(ref)
         return ref
+
+    def get_taken_as_degree_req(self, degree_id: str) -> list[BoolRef]:
+        return self._taken_for_specific_rg[degree_id]
 
     def generate_taken_requirement_cnf(self) -> BoolRef:
         requirements: list[BoolRef] = []
 
         # If taken for credit, it has to be taken!
-        for taken_for_specific_rg in self._taken_for_specific_rg:
-            requirements.append(Implies(taken_for_specific_rg, Or(self.at())))
+        for taken_for_degree in self._taken_for_specific_rg.values():
+            for taken_for_specific_rg in taken_for_degree:
+                requirements.append(Implies(taken_for_specific_rg, Or(self.at())))
 
-        # Cannot take for credit multiple places
-        requirements.append(sum(self._taken_for_specific_rg) <= 1)
+        # Cannot take for credit multiple places for a single degree
+        # but can take across multiple degrees
+        for taken_for_degree in self._taken_for_specific_rg.values():
+            requirements.append(sum(taken_for_degree) <= 1)
 
         return And(requirements)
 
@@ -288,9 +331,15 @@ class Course:
         return formula
 
     def apply_cnf(self, solver: Optimize, sophomore: Rank, junior: Rank, senior: Rank) -> None:
+        self._add_variable_credit_requirement(solver)
         solver.add(self._generate_seasonal_requirements())
         solver.add(self._generate_requisite_cnf(sophomore, junior, senior))
         self._add_repeatable_requirement(solver)
+
+    def _add_variable_credit_requirement(self, solver: Optimize) -> None:
+        # if set number of credits, nothing needs to be added
+        if self.is_variable_credits():
+            solver.add(And(self._max_credits >= self.get_credits(), self.get_credits() >= self._min_credits))
 
     def _add_repeatable_requirement(self, solver: Optimize) -> None:
         if self._credits_repeatable_for is None:
@@ -309,16 +358,22 @@ class Course:
                 offering_list = [True, False, True, False]
             case Offering.ODD_FALLS:
                 offering_list = [True, False, False, False]
+            case Offering.SPRING_AND_EVEN_FALLS:
+                offering_list = [False, True, True, True]
             case Offering.EVEN_FALLS:
                 offering_list = [False, False, True, False]
-            case Offering.SPRING:
+            case Offering.SPRING | Offering.SPRING_AND_SUMMER:
                 offering_list = [False, True, False, True]
             case Offering.ODD_SPRINGS:
                 offering_list = [False, False, False, True]
             case Offering.EVEN_SPRINGS:
                 offering_list = [False, True, False, False]
-            case Offering.FALL_AND_SPRING | Offering.VARIABLE:
+            case Offering.FALL_SPRING_SUMMER | Offering.FALL_AND_SPRING | Offering.VARIABLE | Offering.FALL_OR_SPRING | Offering.FALL_AND_VARIABLE_SPRINGS | Offering.SPRING_AND_VARIABLE_FALLS:
                 offering_list = [True, True, True, True]
+            case Offering.SUMMER | Offering.EVEN_SUMMERS | Offering.ODD_SUMMERS:
+                offering_list = [False, False, False, False]
+            case _:
+                raise NotImplementedError(f"Not yet implemented offering for {self._season}...")
 
         # Going from starting fall to starting spring = 1 rotation
         # Going from odd starting year to even = 2 rotation
@@ -349,9 +404,9 @@ class Course:
 
     def generate_requisites(self, requirements: Any, semester: int, sophomore: Rank, junior: Rank, senior: Rank) -> BoolRef | None:
         def generate_requisites_helper(requirements: Any, mode: str) -> BoolRef | None:
-            print(requirements, mode)
-            if len(requirements) == 0:
-                return
+            # logging.debug(f"{requirements}, {mode}")
+            # if len(requirements) == 0:
+            #    return
 
             type = requirements.get("type")
 
@@ -359,12 +414,11 @@ class Course:
 
             match type:
                 case "course":
-                    course_id = requirements.get("dept").upper() + " " + requirements.get("number")
+                    course_id = requirements.get("dept") + " " + requirements.get("number")
                     try:
                         course = self._course_manager.by_id(course_id)
                     except Exception as e:
-                        print(e)
-                        print("However, we keep moving...")
+                        logging.warning(e)
                         return BoolVal(False)
                     if mode == "prereq":
                         start_semester = 0
@@ -387,8 +441,10 @@ class Course:
                         return junior.at(semester)
                     elif standing == "senior":
                         return senior.at(semester)
+                    elif standing == "graduate":
+                        return BoolVal(False)
                     else:
-                        raise ValueError(f"Invalid rank {standing} detected while parsing requirements")
+                        raise ValueError(f"Invalid rank '{standing}' detected while parsing requirements")
                 case "all":
                     reqs: list[BoolRef] = []
                     for req in requirements.get("req"):
@@ -433,6 +489,16 @@ class Course:
             return self.get_id() == other.get_id()
         return self.get_id() == other
 
+    def __ge__(self, other: Any) -> bool:
+        if isinstance(other, Course):
+            return self.get_id() >= other.get_id()
+        return self.get_id() >= other
+
+    def __lt__(self, other: Any) -> bool:
+        if isinstance(other, Course):
+            return self.get_id() < other.get_id()
+        return self.get_id() < other
+
 
 @typechecked
 class CourseSATSolver:
@@ -454,6 +520,7 @@ class CourseSATSolver:
         degrees_file_name: str = DEGREES_FILE_NAME,
         plan_file_name: str = "placeholder_name.txt",
     ):
+        self.ref_manager = RefManager()
         self.course_manager: CourseManager = CourseManager(semester_count)
         self.degree_manager: DegreeManager = DegreeManager()
         self.semester_count: int = semester_count
@@ -462,11 +529,11 @@ class CourseSATSolver:
         self.starts_as_fall: bool = starts_as_fall
         self.start_year: int = start_year
         self.first_semester_sophomore: int = first_semester_sophomore
-        self.sophomore: Rank = Rank("sophomore", first_semester_sophomore, semester_count)
+        self.sophomore: Rank = Rank("sophomore", first_semester_sophomore, semester_count, self.ref_manager)
         self.first_semester_junior: int = first_semester_junior
-        self.junior: Rank = Rank("junior", first_semester_junior, semester_count)
+        self.junior: Rank = Rank("junior", first_semester_junior, semester_count, self.ref_manager)
         self.first_semester_senior: int = first_semester_senior
-        self.senior: Rank = Rank("senior", first_semester_senior, semester_count)
+        self.senior: Rank = Rank("senior", first_semester_senior, semester_count, self.ref_manager)
         self.transferred_course_ids: list[str] = transferred_course_ids
         self.desired_course_ids: list[tuple[str] | tuple[str, int]] = desired_course_ids
         self.undesired_course_ids: list[tuple[str] | tuple[str, int]] = undesired_course_ids
@@ -474,7 +541,9 @@ class CourseSATSolver:
         self.plan: list[list[Course]] | None = None
         self.possible_plans: list[list[list[Course]]] = []
 
-        self._load_courses(courses_file_name)
+        relevant_course_list = self._determine_relevant_courses(degrees_file_name, courses_file_name)
+
+        self._load_courses(courses_file_name, relevant_course_list)
         self._load_degrees(degrees_file_name)
 
         self.degree_manager.setup(
@@ -487,36 +556,177 @@ class CourseSATSolver:
             if not self.course_manager.by_id(course_id):
                 raise Exception(f"Attempting to transfer an invalid course id '{course_id}'.")
 
-    def _load_courses(self, file_name: str) -> None:
+    def _extract_degree_courses(self, degrees: list[dict[Any, Any]]) -> dict[str, bool]:
+        logging.debug("Extracting known course")
+
+        def extract_degree_course(req: dict[Any, Any]):
+            while req["type"] == "tag":
+                req = req["node"]
+            type = req["type"]
+            if type == "course":
+                return [f"{req['dept']} {req['number']}"]
+            elif type == "all":
+                return [course for opt in req["req"] for course in extract_degree_course(opt)]
+            elif type == "false":
+                return []
+            else:
+                return [course for opt in req["options"] for course in extract_degree_course(opt)]
+
+        logging.debug("Adding courses from desired degrees")
+        courses = {}
+        for degree in degrees:
+            for course in extract_degree_course(degree):
+                courses[course] = True
+
+        return courses
+
+    def _determine_relevant_courses(self, degrees_file_name: str, courses_file_name: str) -> set[str]:
+        # self.transferred_course_ids: list[str] = transferred_course_ids
+        # self.desired_course_ids: list[tuple[str] | tuple[str, int]] = desired_course_ids
+        # self.undesired_course_ids: list[tuple[str] | tuple[str, int]] = undesired_course_ids
+        # self.desired_degree_ids: list[str] = desired_degree_ids
+        logging.debug("Determine relevant courses...")
+
+        raw_degrees = load_solvable_degrees(degrees_file_name, UNSOLVABLE_DEGREES_FILE_NAME)
+        logging.debug("Reading degree list")
+
+        degrees = []
+        for id, degree in raw_degrees.items():
+            if id in self.desired_degree_ids:
+                degrees.append(degree)
+
+        logging.debug("Extracted desired degrees")
+
+        known_courses = self._extract_degree_courses(degrees)
+
+        departments = []
+        for course_id in known_courses:
+            if isinstance(course_id, tuple):
+                course_id = course_id[0]
+            departments.append(course_id.split(" ")[0])
+        department_counts = Counter(departments)
+        logging.debug(f"Department counts: {department_counts}")
+        if len(department_counts) > 0:
+            most_common_dept = department_counts.most_common()[0][0]
+        else:
+            most_common_dept = ""
+            logging.warning("No most common department detected")
+        logging.debug(f"Calculated most common department: {most_common_dept}")
+
+        logging.debug("Adding courses from other user preference")
+        for course in self.undesired_course_ids:
+            known_courses[course[0]] = True
+
+        for course in self.desired_course_ids:
+            known_courses[course[0]] = True
+
+        for course in self.transferred_course_ids:
+            known_courses[course] = True
+
+        logging.debug("Creating course requisite dictionary and adding courses from most common dept")
+        course_requirement_map = {}
+        with open(courses_file_name, "r") as file:
+            raw_courses = json.load(file)
+            for course in raw_courses:
+                course_requirement_map[course["id"]] = self._extract_course_reqs(course)
+                # Add in all courses from most important dept
+                if course["dept"] == most_common_dept:
+                    # logging.warning(f"Adding new course from dept: {course['id']}")
+                    known_courses[course["id"]] = True
+
+        previous_known_course_count = len(known_courses)
+        # Add in all requisites of relevant courses
+        i = 0
+        while i < len(known_courses):
+            course = list(known_courses.keys())[i]
+            if course not in course_requirement_map:
+                i += 1
+                continue
+            reqs = course_requirement_map[course]
+            for req in reqs:
+                known_courses[req] = True
+            i += 1
+        after_known_course_count = len(known_courses)
+        increase_in_known_course_count = after_known_course_count - previous_known_course_count
+        logging.info(f"Increase course count by {increase_in_known_course_count} when adding reqs")
+
+        if after_known_course_count > 100:
+            logging.warning(f"Relevant course count is {after_known_course_count} for {', '.join(self.desired_degree_ids)}")
+
+        return set(known_courses.keys())
+
+    def _extract_course_reqs(self, course: dict[Any, Any]) -> list[str]:
+        # logging.debug(f"Extracting course reqs for {course['dept']} {course['number']} {course['name']}")
+
+        def extract_course_reqs_helper(items: dict[Any, Any]):
+            type = items["type"]
+            if type == "all" or type == "some":
+                # logging.debug(f"Determined type all/some for {items}")
+                return [id for value in items["req"] for id in extract_course_reqs_helper(value)]
+            elif type == "course":
+                # logging.debug(f"Determined type course for {items}")
+                return [f"{items['dept']} {items['number']}"]
+            elif type == "true" or type == "standing":
+                return []
+            raise ValueError(f"Failed to extract course reqs for {items}. Unexpected type: '{type}'")
+
+        full_requirement_list = []
+        for requirement_type in ["prereq", "preorco", "coreq"]:
+            requirements = extract_course_reqs_helper(course[requirement_type])
+            full_requirement_list.extend(requirements)
+            # logging.info(f"{course['dept']} {course['number']} {course[requirement_type]} --> {requirements}")
+        return full_requirement_list
+
+    def _load_courses(self, file_name: str, relevant_course_list: set[str]) -> None:
         with open(file_name, "r") as file:
             raw_courses = json.load(file)
 
         for raw_course in raw_courses:
-            self.course_manager.add_course(Course(**raw_course, course_manager=self.course_manager, starts_as_fall=self.starts_as_fall, start_year=self.start_year))
+            if raw_course["id"] in relevant_course_list:
+                self.course_manager.add_course(Course(**raw_course, course_manager=self.course_manager, ref_manager=self.ref_manager, starts_as_fall=self.starts_as_fall, start_year=self.start_year))
 
     def _load_degrees(self, file_name: str) -> None:
-        with open(file_name, "r") as file:
-            raw_degrees = json.load(file)["degrees"]
+        raw_degrees = load_solvable_degrees(file_name, UNSOLVABLE_DEGREES_FILE_NAME)
 
-        for raw_degree in raw_degrees:
-            self.degree_manager.add_degree(Degree(**raw_degree, course_manager=self.course_manager))
+        for name, requirements in raw_degrees.items():
+            if name in self.desired_degree_ids:
+                self.degree_manager.add_degree(
+                    Degree(
+                        name=name,
+                        id=name,
+                        requirements=requirements,
+                        course_manager=self.course_manager,
+                        ref_manager=self.ref_manager,
+                    )
+                )
 
         # for degree in self.degree_manager:
-        #    print(degree)
+        #    logging.debug(degree)
 
     def setup(self) -> None:
         self.solver = Optimize()
 
         self._generate_bootstrap()
 
+        non_credit_courses = []
+
         for course in self.course_manager:
-            print(f"Applying cnf for {course.get_name()}...")
+            logging.debug(f"Applying cnf for {course.get_id()} {course.get_name()}...")
             course.apply_cnf(self.solver, self.sophomore, self.junior, self.senior)
+
+            if course.is_variable_credits() and course.get_credits() == 0:
+                non_credit_courses.extend(course.get_refs()[1:])
+
+        # We always want to avoid adding tons of 0 credit courses
+        if len(non_credit_courses) > 0:
+            self.solver.minimize(sum(non_credit_courses))
 
         self._add_desired_courses()
         self._add_undesired_courses()
 
         self._add_semester_credit_requirements()
+
+        self._add_degree_reqs()
 
     def _generate_bootstrap(self) -> None:
         self._generate_transfer_bootstrap()
@@ -572,7 +782,7 @@ class CourseSATSolver:
     def _add_semester_credit_requirements(self) -> None:
         for semester in range(1, self.course_manager.get_semester_count() + 1):
             refs: list[BoolRef] = [course.at(semester) for course in self.course_manager]
-            weights: list[int] = [course.get_credits() for course in self.course_manager]
+            weights: list[int | ArithRef] = [course.get_credits() for course in self.course_manager]
 
             # Upper bound
             self.solver.add(sum([weight * ref for weight, ref in zip(weights, refs)]) <= self.max_credits_per_semester)
@@ -582,7 +792,7 @@ class CourseSATSolver:
 
     # TODO: Implementation might be weird with courses requiring you have a specific
     # major, when not all majors have references.
-    def add_degree_reqs(self) -> None:
+    def _add_degree_reqs(self) -> None:
         for degree_id in self.desired_degree_ids:
             self.solver.add(self.degree_manager.by_id(degree_id).generate_cnf())
 
@@ -592,11 +802,19 @@ class CourseSATSolver:
     # WARNING: Be careful, somethings this makes things take forever, right now
     # it seems to be behaving itself though
     def minimize(self) -> None:
-        refs = []
+        refs = [[] for _ in range(self.course_manager.get_semester_count())]
         for course in self.course_manager:
-            refs.extend(course.get_refs())
+            for i, ref in enumerate(course.get_refs()[1:]):
+                refs[i].append(ref)
 
-        self.solver.minimize(sum(refs))
+        c = 0
+        for sem in reversed(refs):
+            self.solver.minimize(sum(sem))
+            c += 1
+
+    def solve_all(self) -> None:
+        while self.solve():
+            pass
 
     # TODO: Could implement a pseudo-minimization by after we solve it, going through
     # and setting each variable to false then seeing if you are still sat.
@@ -607,20 +825,27 @@ class CourseSATSolver:
         self.plan = [[] for _ in range(self.course_manager.get_semester_count() + 1)]  # TODO: Fix the semester count here
 
         # for k, v in RefManager.store.items():
-        #    print(f"{k}: {v}")
+        #    logging.debug(f"{k}: {v}")
 
+        logging.debug("Attempting to solve")
         if self.solver.check() == sat:
-            print("SAT")
+            logging.info(f"SAT - {', '.join(self.desired_degree_ids)}")
             model: ModelRef = self.solver.model()
 
             for funcDeclRef in model.decls():
-                boolRef: BoolRef = funcDeclRef()
+                ref: BoolRef | ArithRef = funcDeclRef()
+                if isinstance(ref, ArithRef):
+                    # Ignore specific values of credit counts for variable credit courses
+                    continue
+
+                boolRef: BoolRef = ref
+
                 if not isinstance(boolRef, BoolRef):
                     raise TypeError(f"Expected model to only consist of BoolRefs, instead got '{funcDeclRef}'")
 
-                reference_result: Any = RefManager.get(boolRef)
+                reference_result: Any = self.ref_manager.get(boolRef)
                 if isinstance(reference_result, Course):
-                    print(f"{boolRef} != {model[boolRef]}")
+                    # logging.debug(f"{boolRef} != {model[boolRef]}")
                     negation_of_current_solution.append(boolRef != model[boolRef])
                     course: Course = reference_result
                     semester: int = course.get_refs().index(boolRef)
@@ -633,7 +858,7 @@ class CourseSATSolver:
             return True
 
         else:
-            print("UNSAT")
+            logging.info(f"UNSAT - {', '.join(self.desired_degree_ids)}")
             return False
 
     def get_plans_with_ids(self) -> list[list[Any]]:
@@ -646,32 +871,30 @@ class CourseSATSolver:
         plan = plan or self.plan
         if plan is None:
             raise Exception("Cannot get plan ids for an empty plan")
-        plan = []
-        for semester in self.plan:
+        possible_plans = []
+        for semester in plan:
             courses = [course.get_id() for course in semester]
-            plan.append(courses)
-        return plan
+            possible_plans.append(courses)
+        return possible_plans
 
     def display(self) -> None:
-        if self.plan is None:
-            raise ValueError("CourseSATSolver needs to be solver before a plan can be displayed")
-        if len(self.possible_plans) == 0:
-            raise ValueError("CourseSATSolver needs at least 1 valid solution before a plan can be displayed")
+        if self.plan is None or len(self.possible_plans) == 0:
+            logging.warning("CourseSATSolver needs to be solved before a plan can be displayed")
+            return
 
-        for plan_id, plan in enumerate(self.possible_plans):
-            print(f"\nPlan {plan_id + 1}:")
+        for plan_id, plan in enumerate(sorted(self.possible_plans)):
+            logging.info(f"Plan {plan_id + 1}:")
             for i, semester in enumerate(plan):
                 semester_name: str
                 if i == 0:
                     semester_name = "Transferred"
                 else:
                     semester_name = self._get_semester_name(i)
-                print(f"Semester {i}: {semester_name}")
+                logging.info(f"Semester {i}: {semester_name}")
                 for course in sorted(semester, key=lambda course: course.get_id()):
-                    print(f"\t{course}")
+                    logging.info(f"\t{course}")
 
-
-    ''' might delete, redundant 
+    """ might delete, redundant 
     def savefile(self) -> None:
         if self.plan is None:
             raise ValueError("CourseSATSolver needs to be solver before a plan can be saved")
@@ -714,8 +937,8 @@ class CourseSATSolver:
                 for course in sorted(semester, key=lambda course: course.get_id()):
                     with open(os.path.join(path, filename),"a") as f:
                         f.write(f"\n\t{course}")
-    '''
-    
+    """
+
     def _get_semester_name(self, semester: int) -> str:
         season: str
         year: int
@@ -733,48 +956,117 @@ if __name__ == "__main__":
     ### START CONFIG VARIABLES
     ##########################
     # These will all be taken as input from the user
-    c: CourseSATSolver = CourseSATSolver(
-        semester_count=4,  # Number of semester to calculate for
-        min_credit_per_semester=3,  # Minimum credits (inclusive)
-        max_credits_per_semester=16,  # Maximum credits (inclusive)
-        starts_as_fall=True,
-        start_year=2025,
-        transferred_course_ids=[],  # ["CS1410", "CS1510"],
-        desired_course_ids=[
-            # ("CS3430/5430", 4),
-            # ("CS1160",),
-        ],
-        undesired_course_ids=[
-            # ("CS4410/5410",),
-        ],
-        desired_degree_ids=["CS:BA"],
-        first_semester_sophomore=1,  # NOTE: One-indexed!
-        first_semester_junior=1,
-        first_semester_senior=1,
-    )
-    ########################
-    ### END CONFIG VARIABLES
-    ########################
 
-    c.setup()
-    c.add_degree_reqs()
-    c.minimize()
+    with open(os.path.join(DATA_DIR, "degree-names"), "r") as infile:
+        degree_names = [line.strip() for line in infile.readlines()]
 
-    c.solve()
-    c.display()
-    # c.safefile()
+    degrees = []
+    for degree in degree_names:
+        if degree in [
+            "POLITICAL SCIENCE BA (2008-present)   940BA",
+            "HISTORY: GLOBAL STUDIES BA  (2024-2025) 963BA",
+            "SOCIAL WORK BSW (2024-2025)  450BSW",
+            "MATERIALS SCIENCE AND ENGINEERING BS (2024-PRESENT) 35BBS",
+            "MATERIALS SCIENCE ENGINEERING TECHNOLOGY BS (2024-PRESENT) 35CBS",  # Huh, this is different
+            "SOCIAL SCIENCE TEACHING - PLAN B - All Social Science  (2024-2025)  90BBAT",  # Solvable but a little bit slower
+            "THEATRE: THEATRE FOR YOUTH AND COMMUNITIES BA MAJOR (2024-PRESENT) 49FBA",
+            "RELIGIOUS STUDIES BA MAJOR (2024-PRESENT) 641BA",
+            "PHILOSOPHY BA MAJOR (2024-PRESENT) 650BA",
+            "EARLY CHILDHOOD EDUCATION TEACHING BA (2022-2025) 210BAT",
+            "ECONOMICS: APPLIED ECONOMIC ANALYSIS  (2023-present)  926BA",
+            "GEOGRAPHY BA  (2022-present)   97RBA",
+            "PSYCHOLOGY BA MAJOR  (2023-2025) 400BA",
+            "GERONTOLOGY: SOCIAL SCIENCE TRACK MAJOR (2023-2025) 31SBA",
+            "FAMILY SERVICES BA MAJOR (2024-2025) 31FBA",
+            "ENVIRONMENTAL RESOURCE MANAGEMENT- ENV. COMPLIANCE (2024-present) 97PBA",
+            "HISTORY TEACHING BA (2024-2025) 960BAT",
+            "COMMUNICATION DISORDERS BA MAJOR (2023-PRESENT) 512BA",
+            "HISTORY BA (2024-present) 960BA",
+            "PUBLIC HEALTH (2024-2025) 41BBA",
+            "PHYSICAL EDUCATION TEACHING MAJOR  (2022-2025)  420BAT",
+            "PUBLIC ADMINISTRATION BA MAJOR (2023-present) 94XBA",
+            "SOCIOLOGY BA MAJOR (2023-2025)   980BA",
+            "AUTOMATION ENGINEERING TECHNOLOGY BS (2024-present) - 35ABS",
+            "MECHANICAL ENGINEERING TECHNOLOGY BS (2024-PRESENT) 35DBS",
+            "THEATRE: DESIGN AND PRODUCTION BA MAJOR (2024-PRESENT) 49PBA",
+            "THEATRE: PERFORMANCE BA MAJOR (2024-PRESENT) 49CBA",
+            "PERFORMANCE BM: VOCAL TRACK (2020-PRESENT)    52LBM",
+            "PERFORMANCE BM: JAZZ STUDIES TRACK (2024-PRESENT)  52KBM",
+            "COMPOSITION BM (2024-PRESENT)  52UBM",
+            "MUSIC: GENERAL STUDIES IN MUSIC BA  (2017-present)   5T1BA",
+            "MUSIC: JAZZ STUDIES BA MAJOR (2017-present)   5T2BA",
+            "MUSIC: STRING PEDAGOGY BA MAJOR (2017-present)   5T3BA",
+            "MUSIC: PERFORMING ARTS MANAGEMENT BA MAJOR (2023-present)  5T4BA",
+            "MUSIC: MUSIC TECHNOLOGY BA MAJOR (2020-2025)  5T5BA",
+            "MUSIC: MUSIC HISTORY BA MAJOR (2020-present)   5T6BA",
+            "STATISTICS AND ACTUARIAL SCIENCE BA MAJOR (2024-present) 80RBA",
+            "BIOLOGY BS MAJOR (2024-present) 84ABS",
+            "BIOLOGY:ECOLOGY/EVOLUTION&ORGANISMAL HONORS RESEARCH BA MAJOR(2024-2025)84JBA",
+            "BIOLOGY BA MAJOR (2024-present) 84KBA",
+            "BIOLOGY 3+1 JOINT BA MAJOR (2024-present) 84NBA",
+            "PHYSICS: CUSTOM EMPHASIS BA MAJOR (2024-present) 88BBA",
+            "KINESIOLOGY MAJOR: EXERCISE SCIENCE EMPHASIS (2024-present) 42UBA",
+            "COMPREHENSIVE SECONDARY SCIENCE TEACHING (2020-2025) 82ABAT",
+            "BIOLOGY TEACHING BA MAJOR (2024-2025) 844BAT",
+            "EARTH SCIENCE TEACHING BA MAJOR (2020-2025) 870BAT",
+            "PHYSICS BA TEACHING MAJOR (2020-2025) 880BAT",
+            "MARKETING: MARKETING MANAGEMENT BA (2023-2025) 13KBA",
+            "MANAGEMENT INFORMATION SYSTEMS BA (2024-2025) 14DBA",
+            "HUMAN RESOURCE MANAGEMENT BA (2023-2025) 15TBA",
+            "MANAGEMENT: BUSINESS ADMINISTRATION BA (2023-2025)  15DBA",
+            "SUPPLY CHAIN MANAGEMENT BA (2023-2025)  15SBA",
+            "ACCOUNTING BA (2023-2025)  152BA",
+            "FINANCE: FINANCIAL MANAGEMENT BA (2023-2025)  16FBA",
+            "REAL ESTATE BA (2023-2025) 166BA",
+            "INTERNATIONAL BUSINESS MINOR (2024-present)  101MIN",
+            "ENTREPRENEURSHIP MINOR (2024-2025) 131MIN",
+            "MARKETING MINOR (2024-present)  15NMIN",
+            "REAL ESTATE - BUSINESS MINOR (2022-2025)  16BMIN",
+            "FINANCE MINOR - For Business Majors (2023-2025) 16CMIN",
+            "CYBERSECURITY AND SYSTEM ADMINISTRATION BS MAJOR (2024-present) 81MBS",
+            "COMPUTER SCIENCE BS MAJOR (2016-2025) 81SBS",
+            "UNI BACHELOR OF SCIENCE NURSING (2024-2025) 41RBSN",
+            "GERONTOLOGY: LONG TERM CARE ADMINISTRATION (2023-present) 31LBA",
+            "MENTAL HEALTH MINOR (2024-present)  406MIN",
+            "KINESIOLOGY MAJOR: PRE-HEALTH EMPHASIS (2024-present) 42VBA",
+            "PERFORMANCE BM: INSTRUMENTAL TRACK A (2021-PRESENT)   52HBM",
+            "GEOGRAPHIC INFORMATION SCIENCE BS  (2024-present)   97SBS",
+        ]:
+            continue
+        degrees.append(degree)
 
-    # while c.solve():
-    #    pass
+    # degrees = ["COMPUTER SCIENCE BS MAJOR (2016-2025) 81SBS"]
+    # degrees = ["COMPUTER SCIENCE BA MAJOR (2016-2025) 810BA"]
+    # degrees = ["BIOLOGY:  ECOLOGY, EVOLUTION, & ORGANISMAL BIO BA MAJOR (2024-2025) 84GBA"]
+    degrees = ["UNIFI"]
+    # degrees = ["MECHANICAL ENGINEERING TECHNOLOGY BS (2024-PRESENT) 35DBS"]
 
-    # plan_ids = []
-    # for plan in c.possible_plans:
-    #    semester_ids = []
-    #    for semester in plan:
-    #        courses = [c.get_id() for c in semester]
-    #        semester_ids.append(courses)
-    #    plan_ids.append(semester_ids)
-    # print(plan_ids)
-    #
-    # print(c.possible_plans)
-    # c.display()
+    for degree in degrees:
+        logging.info(f"Running for {degree}...")
+        c: CourseSATSolver = CourseSATSolver(
+            semester_count=4,  # Number of semester to calculate for
+            min_credit_per_semester=0,  # Minimum credits (inclusive)
+            max_credits_per_semester=18,  # Maximum credits (inclusive)
+            starts_as_fall=True,
+            start_year=2025,
+            transferred_course_ids=[],
+            desired_course_ids=[],
+            undesired_course_ids=[],
+            desired_degree_ids=[degree],
+            first_semester_sophomore=1,  # NOTE: One-indexed!
+            first_semester_junior=1,
+            first_semester_senior=3,
+        )
+
+        c.setup()
+        logging.info("Finished setup")
+        # c.minimize()
+        # logging.info("Added minimization")
+
+        try:
+            if c.solve():
+                c.display()
+            else:
+                logging.error(f"No valid schedule for '{degree}'")
+        except Exception as e:
+            logging.error(f"Received error {e} when trying to schedule {degree}")
