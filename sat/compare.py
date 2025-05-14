@@ -128,7 +128,8 @@ def compareFiles(plan):
             pass
     
     with open(os.path.join(path, "top3.txt"),"w") as f:
-        f.write("input\n")
+        f.write(f"{plan}")
+        f.write("\ninput\n")
         f.write(f"{inName1},{in1}\n")
         f.write(f"{inName2},{in2}\n")
         f.write(f"{inName3},{in3}\n")

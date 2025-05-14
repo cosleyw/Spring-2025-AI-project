@@ -211,11 +211,14 @@ def save_schedule(user_schedule: UserSchedule):
 
 
 @app.post("/schedules/addreview", summary="Save Review", tags=["schedules"])
-def addReview(filename, review):
+def addReview(review):
+    top3 = open(os.path.join("plans", "top3.txt"), "r")
+    filename = top3.readline()
+    filename = filename.replace("\n", "")
     path = "plans/" + filename
     if os.path.exists(path):
         with open(os.path.join("plans", filename), "a") as f:
             f.write(f"\n" + str(review) + "\n")
         return {"status": "success"}
     else:
-        return {"status": "file doesn't exist"}
+        return {"status": "file does not exist"}
