@@ -138,12 +138,12 @@ def save_Input(configuration: Annotated[ScheduleConfiguration, Query()]):
             os.makedirs(path)
         filename = "UnsavedPlan.txt"
         with open(os.path.join(path, filename),"w") as f:
-                f.write(f"{filename}")
+                f.write("")
         with open(os.path.join(path, filename),"a") as f:
                 f.write(f"\nInput-")
                 f.write(f"\nSemester Count: {configuration.semester_count}")
-                f.write(f"\nMinimum Credits Per Semester: {configuration.min_credits_per_semester}")
-                f.write(f"\nMaximum Credits Per Semester: {configuration.max_credits_per_semester}")
+                f.write(f"\nMinimum Credits Per Semester: {configuration.min_credit_per_semester}")
+                f.write(f"\nMaximum Credits Per Semester: {configuration.max_credit_per_semester}")
                 f.write(f"\nStart as Fall: {configuration.starts_as_fall}")
                 f.write(f"\nStart Year: {configuration.start_year}")
                 f.write(f"\nTransferred Courses: {configuration.transferred_course_ids}")
@@ -153,17 +153,24 @@ def save_Input(configuration: Annotated[ScheduleConfiguration, Query()]):
                 f.write(f"\nFirst Semester Sophomore: {configuration.first_semester_sophomore}")
                 f.write(f"\nFirst Semester Junior: {configuration.first_semester_junior}")
                 f.write(f"\nFirst Semester Senior: {configuration.first_semester_senior}")
-    return {"status": "success"}
+        return {"status": "success"}
+
 
 @app.post("/schedules/save", summary = "Save Schedule", tags = ["schedules"])
 def save_schedule(user_schedule: UserSchedule):
         schedule_array = user_schedule.schedule
         dateTimeNow = str(datetime.datetime.now())
         dateTimeNow = dateTimeNow.replace(':','.')
+        path = "plans"
+        if not os.path.exists(path):
+            os.makedirs(path)
+        if not os.path.exists("plans/UnsavedPlan.txt"):
+            with open(os.path.join(path,"UnsavedPlan.txt."),"w") as f:
+                f.write("")
         filename = "Plan-" + dateTimeNow + ".txt"
         os.rename("plans/UnsavedPlan.txt","plans/" + filename)
         with open(os.path.join(path, filename),"a") as f:
-                f.write(f"/n/nOutput")
+                f.write(f"\n\nOutput")
         for i, semester in enumerate(schedule_array):
                 with open(os.path.join(path, filename),"a") as f:
                         f.write(f"\nSemester {i+1}")
@@ -171,13 +178,18 @@ def save_schedule(user_schedule: UserSchedule):
                        with open(os.path.join(path, filename),"a") as f:
                                 f.write(f"\n\t" + course["id"] + "::" + course["name"])
         with open(os.path.join(path, filename),"a") as f:
-                f.write(f"/n/nReviews-/n")
-          
+                f.write(f"\n\nReviews-\n")
+
+        top3List = compareFiles(filename)
         return {"status": "success"}
 
 
 @app.post("/schedules/addreview", summary = "Save Review", tags = ["schedules"])
 def addReview(filename,review):
-        with open(os.path.join("plans", filename),"a") as f:         
-                f.write(f"/n"+ str(review) +"/n")
-        return {"status": "success"}
+        path = "plans/" + filename
+        if os.path.exists(path):
+            with open(os.path.join("plans", filename),"a") as f:         
+                    f.write(f"\n"+ str(review) +"\n")
+            return {"status": "success"}
+        else:
+            return {"status":"file doesn't exist"}
