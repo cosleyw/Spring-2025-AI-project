@@ -126,14 +126,19 @@ export async function generate_schedule(form) {
 
   const data = await fetchJson(`/schedules/generate?${qp}`);
   if(data.status == "failure") throw new Error(data.message);
+  await fetchJson(`/schedules/saveinput?${qp}`);
   const arr  = Array.isArray(data) ? data : data.schedule;
   if (!Array.isArray(arr)) throw new Error('Unexpected schedule response');
   return arr;
 }
 
-export async function post_schedule(schedule) {
+export function post_schedule(schedule) {
   const filtered_schedule = schedule.map(semester => {
     return semester["courses"].map(course => ({'id': course['id'], 'name': course['name']}))
   })
-  await post(`/schedules/save`, JSON.stringify({"schedule": filtered_schedule}));
+  return post(`/schedules/save`, JSON.stringify({"schedule": filtered_schedule}));
+}
+
+export async function post_review(review) {
+  await post(`/schedules/addreview`, JSON.stringify({"message": review}))
 }

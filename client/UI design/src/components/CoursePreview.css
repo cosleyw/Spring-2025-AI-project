@@ -1,0 +1,35 @@
+.unused-course-preview {
+    width: 400px;
+    background-color: tan;
+    height: fit-content;
+    padding: 8px;
+    margin: 8px;
+    border-radius: 8px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.course-preview {
+  background-color: #f9f9f9;
+  color: black;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+}
+
+.course-preview .course-semester {
+  font-size: 0.85rem;
+  opacity: 65%;
+}
+
+.course-preview h4 {
+  font-size: 1rem;
+  color: #222;
+}

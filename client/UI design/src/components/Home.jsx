@@ -2,6 +2,7 @@
 import { DragDropContext } from '@hello-pangea/dnd';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { post_schedule } from '../api';
 import { useConfig } from '../context/GeneratorConfigContext';
 import { useSchedule } from '../context/ScheduleContext';
 import { useCourses } from '../hooks/useCourses';
@@ -11,12 +12,15 @@ import './Home.css';
 import Layout from './Layout';
 import ScheduleViewer from './ScheduleViewer';
 import SettingsModal from './SettingsModal';
+import SuggestedSchedules from './SuggestedSchedules';
 
 export default function Home() {
   const { courses } = useCourses();
   const { schedule, setSchedule } = useSchedule();
   const [selectedCourse, setSelectedCourse] = useState(null);
   const { form, setForm } = useConfig();
+  const [suggestedSchedules, setSuggestedSchedules] = useState([]);
+  const [showSuggestedSchedules, setShowSuggestedSchedules] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const navigate = useNavigate();
 
@@ -100,6 +104,18 @@ export default function Home() {
     window.location.reload();
   };
 
+  const handleSaveSchedule = (e) => {
+    async function handleData() {
+      post_schedule(schedule)
+        .then((data) => {
+          setSuggestedSchedules(data['schedules']);
+          setShowSuggestedSchedules(true);
+        })
+        .catch((err) => window.alert(`Received error when getting suggested schedules: ${err}`));
+    }
+    handleData();
+  };
+
   return (
     <Layout
       links={
@@ -113,11 +129,16 @@ export default function Home() {
         </>
       }
     >
-      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(() => false)} />
+      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+      <SuggestedSchedules
+        schedules={suggestedSchedules}
+        isOpen={suggestedSchedules && showSuggestedSchedules}
+        onClose={() => setShowSuggestedSchedules(false)}
+      />
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="home-layout">
           {/* — Left Panel — */}
-          <CourseList courses={courses} onSelectCourse={setSelectedCourse} />
+          <CourseList courses={courses} onSelectCourse={setSelectedCourse} onSaveSchedule={handleSaveSchedule} />
 
           {/* — Middle Panel — */}
           <ScheduleViewer schedule={schedule} setSchedule={setSchedule} onSelectCourse={setSelectedCourse} />

@@ -1,0 +1,8 @@
+.semester-preview {
+    max-height: 90vh;
+    overflow: hidden;
+}
+
+.semester-preview h4 {
+    color: black;
+}
