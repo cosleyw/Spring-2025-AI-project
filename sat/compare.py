@@ -2,21 +2,20 @@ import os
 
 
 def compareFiles(plan):
-
     path = "plans"
     synopsis = "synopsis.txt"
     allInputList = []
     allOutputList = []
 
-    '''getting input data'''
+    """getting input data"""
     for filename in os.listdir(path):
         inputData = [filename]
-        inFile = open(os.path.join(path,filename),'r')
+        inFile = open(os.path.join(path, filename), "r")
         inFile.readline()
         inFile.readline()
         try:
             for line in inFile:
-                dataDescription,data = line.split(': ')
+                dataDescription, data = line.split(": ")
                 inputData.append(data)
         except:
             pass
@@ -26,16 +25,16 @@ def compareFiles(plan):
             pass
         else:
             allInputList.append(inputData)
-    #getting output data        
+    # getting output data
     for filename in os.listdir(path):
         outputData = [filename]
         outputCount = 0
-        inFile = open(os.path.join(path,filename),'r')
+        inFile = open(os.path.join(path, filename), "r")
         for line in range(16):
             inFile.readline()
         for line in inFile:
             try:
-                data,courseName = line.split('::')
+                data, courseName = line.split("::")
                 outputData.append(data)
                 outputCount = outputCount + 1
             except:
@@ -47,9 +46,9 @@ def compareFiles(plan):
             pass
         else:
             allOutputList.append(outputData)
-            
-    '''getting output data'''
-    with open(os.path.join(path, synopsis),"w") as f:
+
+    """getting output data"""
+    with open(os.path.join(path, synopsis), "w") as f:
         f.write("Synopsis-\nYour Input:\n")
         f.write(str(masterInputList))
         f.write("\nYour Output:\n")
@@ -59,7 +58,7 @@ def compareFiles(plan):
         matchList.append(dataList[0])
         inputMatchCount = 0
         for item in range(len(dataList)):
-            if dataList[item] == masterInputList[item]:
+            if item in masterInputList and dataList[item] == masterInputList[item]:
                 inputMatchCount = inputMatchCount + 1
             else:
                 pass
@@ -70,13 +69,13 @@ def compareFiles(plan):
             if dataList2[item2] in masterOutputList:
                 outputMatchCount = outputMatchCount + 1
         matchList.append(outputMatchCount)
-    jumpCount = int(len(matchList)/3)
+    jumpCount = int(len(matchList) / 3)
     for item in range(jumpCount):
-        with open(os.path.join(path, synopsis),"a") as f:
+        with open(os.path.join(path, synopsis), "a") as f:
             f.write(f"\n{matchList[0 + (2 * item)]},{matchList[1 + (2 * item)]},input,{matchList[(jumpCount * 2) + item]},output")
 
-    '''creating file with top 3 matches'''
-    synopsisOpen = open(os.path.join(path,synopsis),'r')
+    """creating file with top 3 matches"""
+    synopsisOpen = open(os.path.join(path, synopsis), "r")
     for j in range(5):
         synopsisOpen.readline()
 
@@ -93,7 +92,7 @@ def compareFiles(plan):
     out3 = 0
     outName3 = "none"
     for line in synopsisOpen:
-        name,inMatches,intext,outMatches,outtext = line.split(",")
+        name, inMatches, intext, outMatches, outtext = line.split(",")
         inMatches = int(inMatches)
         if inMatches >= in3:
             in3 = inMatches
@@ -126,8 +125,8 @@ def compareFiles(plan):
                     outName1 = name
         else:
             pass
-    
-    with open(os.path.join(path, "top3.txt"),"w") as f:
+
+    with open(os.path.join(path, "top3.txt"), "w") as f:
         f.write(f"{plan}")
         f.write("\ninput\n")
         f.write(f"{inName1},{in1}\n")
@@ -138,6 +137,29 @@ def compareFiles(plan):
         f.write(f"{outName2},{out2}\n")
         f.write(f"{outName3},{out3}\n")
 
-    top3List = [outName1,outName2,outName3]
-    
+    top3List = [outName1, outName2, outName3]
+
     return top3List
+
+
+def process_top3List(file_names):
+    out = []
+    for file_name in file_names:
+        try:
+            file_path = os.path.join("plans", file_name)
+            with open(file_path, "r") as file:
+                reached_output = False
+                out.append([])
+                for line in file:
+                    line = line.strip()
+                    if reached_output:
+                        if "Semester" in line:
+                            out[-1].append([])
+                        else:
+                            id, name = line.split("::")
+                            out[-1][-1].append({"id": id, "name": name})
+                    if line == "Output":
+                        reached_output = True
+        except Exception as e:
+            pass
+    return out

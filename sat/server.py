@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
-from models import ScheduleConfiguration, UserSchedule
+from models import ScheduleConfiguration, UserSchedule, Review
 from config import COURSES_FILE_NAME, DEGREES_FILE_NAME, UNSOLVABLE_DEGREES_FILE_NAME
 import math
 import json
@@ -10,7 +10,7 @@ import os
 import logging
 
 from main import CourseSATSolver, Offering
-from compare import compareFiles
+from compare import compareFiles, process_top3List
 from util import load_solvable_degrees
 
 app = FastAPI(
@@ -157,68 +157,81 @@ def generate_schedule(configuration: Annotated[ScheduleConfiguration, Query()]):
         }
 
 
-@app.post("/schedules/saveinput", summary="Save user configs", tags=["schedules"])
+@app.get("/schedules/saveinput", summary="Save user configs", tags=["schedules"])
 def save_Input(configuration: Annotated[ScheduleConfiguration, Query()]):
-    path = "plans"
-    if not os.path.exists(path):
-        os.makedirs(path)
-    filename = "UnsavedPlan.txt"
-    with open(os.path.join(path, filename), "w") as f:
-        f.write("")
-    with open(os.path.join(path, filename), "a") as f:
-        f.write(f"\nInput-")
-        f.write(f"\nSemester Count: {configuration.semester_count}")
-        f.write(f"\nMinimum Credits Per Semester: {configuration.min_credit_per_semester}")
-        f.write(f"\nMaximum Credits Per Semester: {configuration.max_credit_per_semester}")
-        f.write(f"\nStart as Fall: {configuration.starts_as_fall}")
-        f.write(f"\nStart Year: {configuration.start_year}")
-        f.write(f"\nTransferred Courses: {configuration.transferred_course_ids}")
-        f.write(f"\nDesired Courses: {configuration.desired_course_ids}")
-        f.write(f"\nUndesired Courses: {configuration.undesired_course_ids}")
-        f.write(f"\nDesired Degrees: {configuration.desired_degree_ids}")
-        f.write(f"\nFirst Semester Sophomore: {configuration.first_semester_sophomore}")
-        f.write(f"\nFirst Semester Junior: {configuration.first_semester_junior}")
-        f.write(f"\nFirst Semester Senior: {configuration.first_semester_senior}")
-    return {"status": "success"}
+    try:
+        path = "plans"
+        if not os.path.exists(path):
+            os.makedirs(path)
+        filename = "UnsavedPlan.txt"
+        with open(os.path.join(path, filename), "w") as f:
+            f.write("")
+        with open(os.path.join(path, filename), "a") as f:
+            f.write(f"\nInput-")
+            f.write(f"\nSemester Count: {configuration.semester_count}")
+            f.write(f"\nMinimum Credits Per Semester: {configuration.min_credit_per_semester}")
+            f.write(f"\nMaximum Credits Per Semester: {configuration.max_credit_per_semester}")
+            f.write(f"\nStart as Fall: {configuration.starts_as_fall}")
+            f.write(f"\nStart Year: {configuration.start_year}")
+            f.write(f"\nTransferred Courses: {configuration.transferred_course_ids}")
+            f.write(f"\nDesired Courses: {configuration.desired_course_ids}")
+            f.write(f"\nUndesired Courses: {configuration.undesired_course_ids}")
+            f.write(f"\nDesired Degrees: {configuration.desired_degree_ids}")
+            f.write(f"\nFirst Semester Sophomore: {configuration.first_semester_sophomore}")
+            f.write(f"\nFirst Semester Junior: {configuration.first_semester_junior}")
+            f.write(f"\nFirst Semester Senior: {configuration.first_semester_senior}")
+        return {"status": "success"}
+    except Exception as e:
+        return {"status": "failure", "message": str(e)}
 
 
 @app.post("/schedules/save", summary="Save Schedule", tags=["schedules"])
 def save_schedule(user_schedule: UserSchedule):
-    schedule_array = user_schedule.schedule
-    dateTimeNow = str(datetime.datetime.now())
-    dateTimeNow = dateTimeNow.replace(":", ".")
-    path = "plans"
-    if not os.path.exists(path):
-        os.makedirs(path)
-    if not os.path.exists("plans/UnsavedPlan.txt"):
-        with open(os.path.join(path, "UnsavedPlan.txt."), "w") as f:
-            f.write("")
-    filename = "Plan-" + dateTimeNow + ".txt"
-    os.rename("plans/UnsavedPlan.txt", "plans/" + filename)
-    with open(os.path.join(path, filename), "a") as f:
-        f.write(f"\n\nOutput")
-    for i, semester in enumerate(schedule_array):
+    try:
+        schedule_array = user_schedule.schedule
+        dateTimeNow = str(datetime.datetime.now())
+        dateTimeNow = dateTimeNow.replace(":", ".")
+        path = "plans"
+        if not os.path.exists(path):
+            os.makedirs(path)
+        if not os.path.exists(os.path.join("plans", "UnsavedPlan.txt")):
+            with open(os.path.join(path, "UnsavedPlan.txt"), "w") as f:
+                f.write("")
+        filename = "Plan-" + dateTimeNow + ".txt"
+        os.rename(os.path.join("plans", "UnsavedPlan.txt"), os.path.join("plans", filename))
         with open(os.path.join(path, filename), "a") as f:
-            f.write(f"\nSemester {i + 1}")
-        for course in semester:
+            f.write(f"\n\nOutput")
+        for i, semester in enumerate(schedule_array):
             with open(os.path.join(path, filename), "a") as f:
-                f.write(f"\n\t" + course["id"] + "::" + course["name"])
-    with open(os.path.join(path, filename), "a") as f:
-        f.write(f"\n\nReviews-\n")
+                f.write(f"\nSemester {i + 1}")
+            for course in semester:
+                with open(os.path.join(path, filename), "a") as f:
+                    f.write(f"\n\t" + course["id"] + "::" + course["name"])
+        with open(os.path.join(path, filename), "a") as f:
+            f.write(f"\n\nReviews-\n")
 
-    top3List = compareFiles(filename)
-    return {"status": "success"}
+        top3List = compareFiles(filename)
+        logging.debug("Printing top list")
+        logging.debug(top3List)
+        top3Schedules = process_top3List(top3List)
+        return {"status": "success", "schedules": top3Schedules}
+    except Exception as e:
+        return {"status": "failure", "message": str(e)}
 
 
 @app.post("/schedules/addreview", summary="Save Review", tags=["schedules"])
-def addReview(review):
-    top3 = open(os.path.join("plans", "top3.txt"), "r")
-    filename = top3.readline()
-    filename = filename.replace("\n", "")
-    path = "plans/" + filename
-    if os.path.exists(path):
-        with open(os.path.join("plans", filename), "a") as f:
-            f.write(f"\n" + str(review) + "\n")
-        return {"status": "success"}
-    else:
-        return {"status": "file does not exist"}
+def addReview(review: Review):
+    try:
+        review = review.message
+        top3 = open(os.path.join("plans", "top3.txt"), "r")
+        filename = top3.readline()
+        filename = filename.replace("\n", "")
+        path = os.path.join("plans", filename)
+        if os.path.exists(path):
+            with open(os.path.join("plans", filename), "a") as f:
+                f.write(f"\n" + str(review) + "\n")
+            return {"status": "success"}
+        else:
+            return {"status": "file does not exist"}
+    except Exception as e:
+        return {"status": "failure", "message": str(e)}

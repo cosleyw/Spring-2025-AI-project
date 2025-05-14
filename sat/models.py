@@ -81,4 +81,7 @@ class ScheduleConfiguration(BaseModel):
 
 class UserSchedule(BaseModel):
     schedule: list[list[dict[str, str]]]
-    
+
+
+class Review(BaseModel):
+    message: str
