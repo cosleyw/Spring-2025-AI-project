@@ -14,6 +14,11 @@
     list-style: none;
     padding: 2px 0;
   }
+
+  .degree-accordion-container details {
+    border: 3px solid #912525;
+    border-radius: 5px;
+  }
   
   .degree-accordion-container details > .children {
     padding-left: 1em;

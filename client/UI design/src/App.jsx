@@ -1,32 +1,25 @@
 // src/App.jsx
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { ScheduleProvider }             from './context/ScheduleContext';
-import { useCourses }                   from './hooks/useCourses';
-import Layout                           from './components/Layout';
-import ScheduleGenerator                from './components/ScheduleGenerator';
-import Home                             from './components/Home';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import './App.css';
+import Home from './components/Home';
+import Layout from './components/Layout';
+import ScheduleGenerator from './components/ScheduleGenerator';
+import { GeneratorConfigProvider } from './context/GeneratorConfigContext';
+import { ScheduleProvider } from './context/ScheduleContext';
 
 function AppRoutes() {
-  // keep your existing hook for courses + onDragEnd
-  const { onDragEnd } = useCourses();
-
   return (
     <Routes>
-      {/* standalone generator screen */}
-      <Route path="/schedule/generate" element={<ScheduleGenerator />} />
-
-      {/* every other route lives inside a DragDropContext + Home */}
+      <Route path="/" element={<Navigate to="/generate" replace />} />
       <Route
-        path="/*"
+        path="/generate"
         element={
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Home />
-          </DragDropContext>
+          <Layout>
+            <ScheduleGenerator title="Initial Generation Settings" />
+          </Layout>
         }
       />
+      <Route path="/editor" element={<Home />} />
     </Routes>
   );
 }
@@ -34,11 +27,11 @@ function AppRoutes() {
 export default function App() {
   return (
     <ScheduleProvider>
-      <BrowserRouter>
-        <Layout>
+      <GeneratorConfigProvider>
+        <BrowserRouter>
           <AppRoutes />
-        </Layout>
-      </BrowserRouter>
+        </BrowserRouter>
+      </GeneratorConfigProvider>
     </ScheduleProvider>
   );
 }

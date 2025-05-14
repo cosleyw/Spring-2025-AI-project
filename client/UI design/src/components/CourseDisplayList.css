@@ -1,0 +1,19 @@
+.course-display-list {
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-gap: 8px;
+    margin-bottom: 8px;
+}
+
+.course-display-list .previous-button {
+    grid-column: 1;
+}
+
+.course-display-list .save-button {
+    grid-column: 2;
+  background-color: #c5f5d0;
+}
+
+.course-display-list .next-button {
+    grid-column: 3;
+}
