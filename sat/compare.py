@@ -136,3 +136,7 @@ def compareFiles(plan):
         f.write(f"{outName1},{out1}\n")
         f.write(f"{outName2},{out2}\n")
         f.write(f"{outName3},{out3}\n")
+
+    top3List = [outName1,outName2,outName3]
+    
+    return top3List
